@@ -1,0 +1,16 @@
+# This is a sample buildFrom configuration for Java (Maven).
+# Check our guides at https://confluence.atlassian.com/x/zd-5Mw for more examples.
+# Only use spaces to indent your .yml configuration.
+# -----
+# You can specify a custom docker image from Docker Hub as your buildFrom environment.
+image: maven:3.6.3
+
+pipelines:
+  custom:
+    build_manually:
+     - step:
+        caches:
+          - maven
+        script: # Modify the commands below to buildFrom your repository.
+          - mvn install:install-file -Dfile=lib/gpxparser-20130603.jar -DgroupId=jon.gpx -DartifactId=jon.gpx.gpxparser -Dversion=1.0 -Dpackaging=jar
+          - mvn -B clean verify # -B batch mode makes Maven less verbose
