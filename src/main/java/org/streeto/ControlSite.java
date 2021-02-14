@@ -31,11 +31,12 @@ public class ControlSite {
     private final GHPoint position;
     private final String description;
 
-    public ControlSite( GHPoint p,  String desc) {
+    public ControlSite(GHPoint p, String desc) {
         position = p;
         description = desc;
     }
-    public ControlSite( GHPoint p) {
+
+    public ControlSite(GHPoint p) {
         position = p;
         description = "";
     }

@@ -28,12 +28,14 @@ package org.streeto.scorers;
 import com.graphhopper.GHResponse;
 import com.graphhopper.util.shapes.GHPoint;
 import one.util.streamex.StreamEx;
+import org.streeto.utils.CollectionHelpers;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static org.streeto.DistUtils.dist;
+import static org.streeto.utils.CollectionHelpers.streamFromPointList;
+import static org.streeto.utils.DistUtils.dist;
 
 public class ComingBackHereLaterScorer extends AbstractLegScorer {
     /**
@@ -56,10 +58,10 @@ public class ComingBackHereLaterScorer extends AbstractLegScorer {
                 var remainingControls = futureLegs.stream()
                         .map(it -> {
                             var points = it.getBest().getPoints();
-                            return points.get(points.getSize() - 1);
+                            return CollectionHelpers.last(points);
                         })
                         .collect(Collectors.toList());
-                var legPointStream = StreamEx.of( thisLeg.getBest().getPoints().iterator());
+                var legPointStream = streamFromPointList( thisLeg.getBest().getPoints());
                 if(legPointStream.anyMatch( it -> goesTooCloseToAFutureControl(remainingControls, it))) return 1.0;
                 else return 0.0;
                 }

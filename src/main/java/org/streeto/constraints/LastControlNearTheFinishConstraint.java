@@ -2,7 +2,7 @@ package org.streeto.constraints;
 
 import com.graphhopper.GHResponse;
 
-import static org.streeto.DistUtils.dist;
+import static org.streeto.utils.DistUtils.dist;
 
 public class LastControlNearTheFinishConstraint implements CourseConstraint{
     @Override

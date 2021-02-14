@@ -4,7 +4,10 @@ import com.graphhopper.GHResponse;
 import com.graphhopper.util.Instruction;
 import one.util.streamex.StreamEx;
 import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
+
+import static org.streeto.utils.CollectionHelpers.streamFromIterable;
 
 public class LegComplexityScorer extends AbstractLegScorer {
 
@@ -25,7 +28,7 @@ public class LegComplexityScorer extends AbstractLegScorer {
     private static double evaluate(GHResponse leg) {
         var instructions = leg.getBest().getInstructions();
 
-        var turns = StreamEx.of(instructions).filter(it -> turnInstructions.contains(it.getSign())).toList().size();
+        var turns = streamFromIterable(instructions).filter(it -> turnInstructions.contains(it.getSign())).count();
         var turnDensity = 1000.0 * turns / leg.getBest().getDistance();   // turns per K
 
         double result = 1.0;

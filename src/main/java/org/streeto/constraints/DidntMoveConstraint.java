@@ -1,8 +1,9 @@
 package org.streeto.constraints;
 
 import com.graphhopper.GHResponse;
+import org.streeto.utils.CollectionHelpers;
 
-import static org.streeto.DistUtils.dist;
+import static org.streeto.utils.DistUtils.dist;
 
 public class DidntMoveConstraint implements CourseConstraint{
     private final double minMoveDistance = 50.0;

@@ -46,7 +46,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 import static java.lang.Math.*;
-import static org.streeto.DistUtils.dist;
+import static org.streeto.utils.DistUtils.dist;
 
 
 /**
@@ -139,6 +139,9 @@ public class ControlSiteFinder {
         }
     }
 
+    public Optional<ControlSite> findNearestControlSiteTo(ControlSite site) {
+        return findNearestControlSiteTo(site.getPosition());
+    }
 
     public Optional<ControlSite> findNearestControlSiteTo(GHPoint p) {
         var loc = findClosestStreetLocation(p);

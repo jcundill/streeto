@@ -4,8 +4,9 @@ import com.graphhopper.GHResponse;
 import com.graphhopper.util.shapes.GHPoint;
 import com.graphhopper.util.shapes.GHPoint3D;
 import one.util.streamex.StreamEx;
-import org.jetbrains.annotations.NotNull;
+import org.streeto.utils.CollectionHelpers;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,13 +20,12 @@ public abstract class AbstractLegScorer implements LegScorer{
         return StreamEx.of(a.getBest().getPoints().iterator()).toList();
     }
 
-    protected List<GHPoint3D> getAsList(GHResponse a, int num) {
-        return StreamEx.of(a.getAll().get(num).getPoints().iterator()).toList();
+    protected List<GHPoint> getAsList(GHResponse a, int num) {
+        return CollectionHelpers.streamFromPointList(a.getAll().get(num).getPoints()).collect(Collectors.toList());
     }
 
 
-    @NotNull
-    protected List<GHPoint> intersection(List<GHPoint3D> pointsA, List<GHPoint3D> pointsB) {
+    protected  List<? extends GHPoint> intersection(List<? extends GHPoint> pointsA, List<? extends GHPoint> pointsB) {
         return pointsA.stream()
                 .filter(pointsB::contains)
                 .collect(Collectors.toList());

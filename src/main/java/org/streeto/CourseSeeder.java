@@ -34,8 +34,9 @@ import org.streeto.seeders.*;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
+import static org.streeto.utils.CollectionHelpers.*;
 
 public class CourseSeeder {
 
@@ -54,8 +55,7 @@ public class CourseSeeder {
     }
 
     private SeedingStrategy chooseSeeder() {
-        var roll = rnd().nextInt(6);
-        return seeders.get(roll);
+        return seeders.get(rnd().nextInt(seeders.size()));
   
     }
 
@@ -68,8 +68,8 @@ public class CourseSeeder {
         var env = new Envelope();
 
         // check that everything we have been given is mappable
-        var startPoint = csf.findNearestControlSiteTo(initialPoints.get(0).getPosition());
-        var finishPoint = csf.findNearestControlSiteTo(initialPoints.get(initialPoints.size() - 1).getPosition());
+        var startPoint = csf.findNearestControlSiteTo(first(initialPoints));
+        var finishPoint = csf.findNearestControlSiteTo(last(initialPoints));
         if(startPoint.isEmpty()) throw new RuntimeException("Cannot map the start");
         if(finishPoint.isEmpty()) throw new RuntimeException("Cannot map the finish");
 
@@ -78,9 +78,10 @@ public class CourseSeeder {
 
         List<ControlSite> chosenControls = List.of();
         if( initialPoints.size() > 2) {
-            chosenControls = initialPoints.subList(1, initialPoints.size() - 1).stream().map(it ->
-                    csf.findNearestControlSiteTo(it.getPosition()).get()
-            ).collect(Collectors.toList());
+            chosenControls = initialPoints.subList(1, initialPoints.size() - 1).stream()
+                    .map(csf::findNearestControlSiteTo)
+                    .map( x -> x.orElse(null))
+                    .collect(Collectors.toList());
         }
 
 
@@ -91,32 +92,22 @@ public class CourseSeeder {
         );
 
 
-        if (!canBeMapped(env)) {
+        if (!MapFitter.canBeMapped(env)) {
             throw new RuntimeException("initial course cannot be mapped");
         }
 
-        var initialControls = getControlSites(start, finish, chosenControls);
+        var initialControls = getControlSites(start, chosenControls, finish);
 
         var controls =  chooseSeeder().seed(initialControls, requestedNumControls, requestedCourseLength);
-        var ctrls = (rnd().nextDouble() < 0.5) ? controls : reverse(controls.stream()).collect(Collectors.toList());
-        return getControlSites(start, finish, ctrls);
+        return getControlSites(
+                start,
+                (rnd().nextDouble() < 0.5) ? controls : reverse(controls.stream()).collect(Collectors.toList()), finish
+        );
     }
 
     @NotNull
-    private List<ControlSite> getControlSites(ControlSite startPoint, ControlSite finishPoint, List<ControlSite> chosenControls) {
+    private List<ControlSite> getControlSites(ControlSite startPoint, List<ControlSite> chosenControls, ControlSite finishPoint) {
         return Stream.concat(Stream.concat(Stream.of(startPoint), chosenControls.stream()), Stream.of(finishPoint)).collect(Collectors.toList());
-    }
-
-    private static Stream<ControlSite> reverse( Stream<ControlSite> input) {
-            ControlSite[] temp = input.toArray(ControlSite[]::new);
-            return IntStream.range(0, temp.length)
-                    .mapToObj(i -> temp[temp.length - i - 1]);
-        }
-
-
-
-    private boolean canBeMapped(Envelope env) {
-        return MapFitter.getForEnvelope(env).isPresent();
     }
 
 }
