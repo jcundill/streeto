@@ -114,14 +114,11 @@ public class StreetO {
             e.printStackTrace();
         }
         try {
-            var printer = new MapPrinter();
             var envelopeToMap = streeto.getEnvelopeForProbableRoutes(scoredCourse.getControls());
+            var printer = new MapPrinter(envelopeToMap);
 
-            var box = MapFitter.getForEnvelope(envelopeToMap).orElseThrow();
-            var mapCentre = envelopeToMap.centre();
-
-            printer.generateMapAsPdf("abc", "Test_Map", scoredCourse.getControls(), mapCentre, box);
-            printer.generateMapAsKmz("abs", "Test_Map", mapCentre, box);
+            printer.generateMapAsPdf("abc.pdf", "Test It Out", scoredCourse.getControls());
+            printer.generateMapAsKmz("abc.kmz", "Test_Map");
 
         } catch (Exception e) {
             e.printStackTrace();

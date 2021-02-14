@@ -26,6 +26,7 @@
 package org.streeto.mapping;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.geometry.jts.JTSFactoryFinder;
@@ -43,13 +44,24 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 
 public class MapPrinter {
 
+    private enum MapType {
+        PDF("pdf"),
+        KMZ("kmz");
+
+        private final String key;
+
+        MapType(String key) {
+            this.key = key;
+        }
+    }
+
     //Create transformation from WS84 to WGS84 Web Mercator
     private final MathTransform wgs84ToWgs84Web;
-    private final MapDecorator decorator = new MapDecorator();
 
     private final static String dummyString = "data%5Baction%5D=savemap&data%5Btitle%5D=OpenOrienteeringMap&data%5Brace_instructions%5D" +
                                               "=Race+instructions&data%5Beventdate%5D=&data%5Bclub%5D=&data%5Bstyle%5D=streeto&data%5Bscale%5D" +
@@ -68,13 +80,20 @@ public class MapPrinter {
                                               "c_startfinish&data%5Bcontrols%5D%5B2%5D%5Bdescription%5D=&data%5Bcontrols%5D%5B2%5D%5Blat%5D=6981216.554224269&data%5B" +
                                               "controls%5D%5B2%5D%5Blon%5D=-135425.9052604716&data%5Bcontrols%5D%5B2%5D%5Bwgs84lat%5D=52.990368510683766&data%5Bcontrol" +
                                               "s%5D%5B2%5D%5Bwgs84lon%5D=-1.2165516056120393";
+    private final MapBox mapBox;
+    private final Coordinate mapCentre;
 
-    public MapPrinter() throws FactoryException {
+    public MapPrinter(Envelope envelopeToMap) throws FactoryException {
         //create reference system WGS84 Web Mercator
         CoordinateReferenceSystem wgs84Web = CRS.decode("EPSG:3857", true);
         //create reference system WGS84
         CoordinateReferenceSystem wgs84 = CRS.decode("EPSG:4326", true);
+        //transform
         wgs84ToWgs84Web = CRS.findMathTransform(wgs84, wgs84Web);
+        //the map scale and orientation we are going to print
+        mapBox = MapFitter.getForEnvelope(envelopeToMap).orElseThrow();
+        // coords of the centre of this map
+        mapCentre = envelopeToMap.centre();
     }
 
     private Geometry convertBack(double lon, double lat) throws TransformException {
@@ -84,29 +103,31 @@ public class MapPrinter {
         return JTS.transform(pointInWgs84Web, wgs84ToWgs84Web);
     }
 
-    public void generateMapAsPdf(String filename, String title, List<ControlSite> controls, Coordinate mapCentre, MapBox box) throws TransformException, IOException {
-        // https://tiler4.oobrien.com/pdf/?style=streeto|paper=0.29700000000000004,0.21000000000000002|scale=10000|centre=6981466,-133774|title=OpenOrienteeringMap|club=|id=5dcfc371bcc02|start=|crosses=|cps=|controls=
-        var pdfStream = generateArtifact("pdf", box, mapCentre, title);
-        var doc = decorator.decorate(pdfStream, controls, box, mapCentre);
-        doc.save(new File(filename + ".pdf"));
+    public void generateMapAsPdf(String filename, String title, List<ControlSite> controls) throws TransformException, IOException {
+        var pdfStream = generateArtifact(MapType.PDF, mapBox, mapCentre, title);
+        var decorator = new MapDecorator(pdfStream, controls, mapBox, mapCentre);
+        var doc = decorator.decorate();
+        doc.save(new File(filename));
         pdfStream.close();
     }
 
-    public void generateMapAsKmz(String filename, String title, Coordinate mapCentre, MapBox box) throws TransformException, IOException {
-        var kmzStream = generateArtifact("kmz", box, mapCentre, title);
-        var fis = new FileOutputStream(filename + ".kmz");
+    public void generateMapAsKmz(String filename, String title) throws TransformException, IOException {
+        var kmzStream = generateArtifact(MapType.KMZ, mapBox, mapCentre, title);
+        var fis = new FileOutputStream(filename);
         fis.write(kmzStream.readAllBytes());
         fis.flush();
         fis.close();
         kmzStream.close();
     }
 
-    private InputStream generateArtifact(String mapType, MapBox box, Coordinate mapCentre, String title) throws IOException, TransformException{
+    private InputStream generateArtifact(MapType mapType, MapBox box, Coordinate mapCentre, String title) throws IOException, TransformException{
         var orientationString =  (box.isLandscape()) ? "0.297,0.21" : "0.21,0.297";
 
         var centre = convertBack(mapCentre.x, mapCentre.y).getCoordinate();
         var centreLat = Math.round(centre.y);
         var centreLon = Math.round(centre.x);
+
+        var escapedTitle = title.replaceAll(" ", "+");
 
         var id = requestKey();
 
@@ -120,7 +141,7 @@ public class MapPrinter {
             "|start=" +
             "|crosses=" +
             "|cps=" +
-            "|controls=", mapType, orientationString, (int)box.getScale(), centreLat, centreLon, title, id));
+            "|controls=", mapType.key, orientationString, (int)box.getScale(), centreLat, centreLon, escapedTitle, id));
 
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         var bis = new BufferedInputStream(new ByteArrayInputStream(conn.getInputStream().readAllBytes()));

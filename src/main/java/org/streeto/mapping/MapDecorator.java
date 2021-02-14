@@ -58,20 +58,16 @@ import static org.streeto.utils.DistUtils.dist;
 public class MapDecorator {
 
     private final Function<Float, Float> mm2pt = num -> num / 25.4f * 72;
-    // Create a new font object selecting one of the PDF base fonts
-    private final PDFont font = PDType1Font.HELVETICA_BOLD;
-//
-//    private List<String> controlLabels;
+    private final PDDocument doc;
+    private final PDPageContentStream content;
+    private final PDPageContentStream content2;
+    private final List<float[]> offsetsInPts;
+    private final List<ControlSite> controls;
 
-    public PDDocument decorate(InputStream pdfStream, List<ControlSite> controls, MapBox box, Coordinate centre) throws IOException {
-        var doc = PDDocument.load(pdfStream);
-        drawCourse(doc, centre, controls, box);
-        drawControlSheet(doc, controls);
-        return doc;
-    }
+    public MapDecorator(InputStream pdfStream, List<ControlSite> controls, MapBox box, Coordinate centre) throws IOException{
+        this.controls = controls;
+        this.doc = PDDocument.load(pdfStream);
 
-
-    private void drawCourse(PDDocument doc, Coordinate centre, List<ControlSite> controls, MapBox box) throws IOException {
         PDPage page = doc.getDocumentCatalog().getPages().get(0);
         var width = page.getMediaBox().getWidth();
         var height = page.getMediaBox().getHeight();
@@ -80,7 +76,7 @@ public class MapDecorator {
 
         // the centre is the thing in the middle
         var mapCentre = new GHPoint(centre.y, centre.x); // this is what we told the tiler
-        var offsetsInPts = getControlOffsets(controls, mapCentre, box, centrePage);
+        this.offsetsInPts = getControlOffsets(controls, mapCentre, box, centrePage);
 
         // fade the lines a bit so that you can see the map through them
         var alpha = 0.55f;
@@ -89,8 +85,10 @@ public class MapDecorator {
         graphicsState.setStrokingAlphaConstant(alpha);
         graphicsState.setNonStrokingAlphaConstant(bold);
 
-        var content = new PDPageContentStream(doc, page, PDPageContentStream.AppendMode.APPEND, true, true);
+        this.content = new PDPageContentStream(doc, page, PDPageContentStream.AppendMode.APPEND, true, true);
 
+        // Create a new font object selecting one of the PDF base fonts
+        PDFont font = PDType1Font.HELVETICA_BOLD;
         content.setFont(font, 20.0f);
         content.setNonStrokingColor(Color.MAGENTA);
         content.setGraphicsStateParameters(graphicsState);
@@ -99,25 +97,40 @@ public class MapDecorator {
         content.setLineWidth(2.0f);
         content.setStrokingColor(Color.WHITE);
 
-        drawStart(content, offsetsInPts.subList(0, 2));
-        drawFinish(content, last(offsetsInPts));
-        drawCourse(content, controls, offsetsInPts);
+        var page2 = new PDPage(PDRectangle.A4);
+        doc.addPage(page2);
+
+        this.content2 = new PDPageContentStream(doc, page2, PDPageContentStream.AppendMode.APPEND, true, true);
+
+    }
+
+    public PDDocument decorate() throws IOException {
+        drawCourse();
+        drawControlSheet();
+        return doc;
+    }
+
+
+    private void drawCourse() throws IOException {
+
+        content.setLineWidth(2.0f);
+        content.setStrokingColor(Color.WHITE);
+
+        drawStart();
+        drawFinish();
+        drawControls();
 
         content.setLineWidth(1.5f);
         content.setStrokingColor(Color.MAGENTA);
 
-        drawStart(content, offsetsInPts.subList(0, 2));
-        drawFinish(content, last(offsetsInPts));
-        drawCourse(content, controls, offsetsInPts);
+        drawStart();
+        drawFinish();
+        drawControls();
 
         content.close();
     }
 
-    private void drawControlSheet(PDDocument doc, List<ControlSite> controls) throws IOException {
-        var page2 = new PDPage(PDRectangle.A4);
-        doc.addPage(page2);
-
-        var content2 = new PDPageContentStream(doc, page2, PDPageContentStream.AppendMode.APPEND, true, true);
+    private void drawControlSheet() throws IOException {
         var tableBuilder = Table.builder()
                 .addColumnsOfWidth(60.0f, 100.0f)
                 .addRow(Row.builder()
@@ -132,21 +145,22 @@ public class MapDecorator {
                         .build())
         );
         var table = tableBuilder.build();
+        var page2Box = doc.getPage(1).getMediaBox();
         var tableDrawer = TableDrawer.builder()
                 .contentStream(content2)
                 .startX(20f)
-                .startY(page2.getMediaBox().getUpperRightY() - 20f)
+                .startY(page2Box.getUpperRightY() - 20f)
                 .table(table)
                 .build();
         tableDrawer.draw();
         content2.close();
     }
 
-    private void drawCourse(PDPageContentStream content, List<ControlSite> sites, List<float[]> offsetsInPts) throws IOException {
-        var controls = offsetsInPts.subList(1, offsetsInPts.size() - 1);
+    private void drawControls() throws IOException {
+        var positions = offsetsInPts.subList(1, offsetsInPts.size() - 1);
         var index = new AtomicInteger(1);
-        for (float[] ctrl : controls) {
-            drawControl(content, sites.get(index.getAndIncrement()).getNumber(), ctrl);
+        for (float[] position : positions) {
+            drawControl(controls.get(index.getAndIncrement()).getNumber(), position);
         }
         windowed(offsetsInPts, 2).forEach(it -> {
             try {
@@ -157,22 +171,9 @@ public class MapDecorator {
         });
     }
     
-    private List<float[]> getControlOffsets(List<ControlSite> controls, GHPoint mapCentre, MapBox box, float[] centrePage) {
-        var offsetsInMetres = controls.stream().map(control -> {
-            var distLat = dist(control.getLocation().lat, mapCentre.lon, mapCentre.lat, mapCentre.lon) * ((control.getLocation().lat < mapCentre.lat) ? -1.0 : 1.0);
-            var distLon = dist(mapCentre.lat, control.getLocation().lon, mapCentre.lat, mapCentre.lon) * ((control.getLocation().lon < mapCentre.lon) ? -1.0 : 1.0);
-            return new float[]{(float) distLon, (float) distLat}; //dists in m from the centre
-        });
 
-        return offsetsInMetres.map(p -> {
-            var ratio = (float) box.getScale() / 1000.0f;
-            var xPt = mm2pt.apply(p[0] / ratio); //lon
-            var yPt = mm2pt.apply(p[1] / ratio); //lat
-            return new float[]{centrePage[0] + xPt + 0.2f, centrePage[1] + yPt - 1.3f};
-        }).collect(Collectors.toList());
-    }
-
-    private void drawStart(PDPageContentStream content, List<float[]> pos) throws IOException {
+    private void drawStart() throws IOException {
+        var pos =  offsetsInPts.subList(0, 2);
         var start = pos.get(0);
         var next = pos.get(1);
         var angle = (float) atan2((next[1] - start[1]), (next[0] - start[0]));
@@ -181,10 +182,10 @@ public class MapDecorator {
         }
 
         float halfPI = (float) PI / 2;
-        drawTriangle(content, start[0], start[1], angle + halfPI);
+        drawTriangle(start[0], start[1], angle + halfPI);
     }
 
-    private void drawTriangle(PDPageContentStream content, float x, float y, float angle) throws IOException {
+    private void drawTriangle(float x, float y, float angle) throws IOException {
         var degrees120 = (2 * (float) PI / 3);
         float width = (float) 13.0;
 
@@ -207,18 +208,19 @@ public class MapDecorator {
     }
 
 
-    private void drawFinish(PDPageContentStream content, float[] last) throws IOException {
-        drawCircle(content, last, 12.0f);
-        drawCircle(content, last, 9.5f);
+    private void drawFinish() throws IOException {
+        var last = last(offsetsInPts);
+        drawCircle(last, 12.0f);
+        drawCircle(last, 9.5f);
     }
 
-    private void drawControl(PDPageContentStream content, String number, float[] position) throws IOException {
-        drawCircle(content, position, 1.0f);
-        drawCircle(content, position, 12.0f);
-        drawNumber(content, number, position);
+    private void drawControl(String number, float[] position) throws IOException {
+        drawCircle(position, 1.0f);
+        drawCircle(position, 12.0f);
+        drawNumber(number, position);
     }
 
-    private void drawCircle(PDPageContentStream content, float[] position, float r) throws IOException {
+    private void drawCircle(float[] position, float r) throws IOException {
         content.moveTo(position[0], position[1]);
         var k = 0.552284749831f;
         content.moveTo(position[0] - r, position[1]);
@@ -229,7 +231,7 @@ public class MapDecorator {
         content.stroke();
     }
 
-    private void drawNumber(PDPageContentStream content, String number, float[] position) throws IOException {
+    private void drawNumber(String number, float[] position) throws IOException {
         content.beginText();
         content.newLineAtOffset(position[0] + 10.0F, position[1] + 10.0F);
         content.showText(number);
@@ -253,5 +255,21 @@ public class MapDecorator {
         content.lineTo(line1[0] - deltaX, line1[1] - deltaY);
         content.stroke();
     }
+
+    private List<float[]> getControlOffsets(List<ControlSite> controls, GHPoint mapCentre, MapBox box, float[] centrePage) {
+        var offsetsInMetres = controls.stream().map(control -> {
+            var distLat = dist(control.getLocation().lat, mapCentre.lon, mapCentre.lat, mapCentre.lon) * ((control.getLocation().lat < mapCentre.lat) ? -1.0 : 1.0);
+            var distLon = dist(mapCentre.lat, control.getLocation().lon, mapCentre.lat, mapCentre.lon) * ((control.getLocation().lon < mapCentre.lon) ? -1.0 : 1.0);
+            return new float[]{(float) distLon, (float) distLat}; //dists in m from the centre
+        });
+
+        return offsetsInMetres.map(p -> {
+            var ratio = (float) box.getScale() / 1000.0f;
+            var xPt = mm2pt.apply(p[0] / ratio); //lon
+            var yPt = mm2pt.apply(p[1] / ratio); //lat
+            return new float[]{centrePage[0] + xPt + 0.2f, centrePage[1] + yPt - 1.3f};
+        }).collect(Collectors.toList());
+    }
+
 
 }
