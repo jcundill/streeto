@@ -15,7 +15,7 @@ This allows you to immediately run the generated course yourself by printing out
 
 ## How it works
 
-Osmosys uses the Graphhopper routing engine <https://github.com/graphhopper/graphhopper>  to calculate runnable routes between arbitrary locations. 
+StreetO uses the Graphhopper routing engine <https://github.com/graphhopper/graphhopper>  to calculate runnable routes between arbitrary locations. 
 Where those potential routes are limited to those that you could legally and safely run along. So no motorways, private service roads etc.
 
 System is given a starting location, an approximate length to make the
@@ -44,7 +44,7 @@ town centres and housing estates than you do out in more rural locations with li
 ### Course Improving
 This is the core rationale for this project. Trying to automate finding a set of locations on a streetmap that would make for a reasonable urban orienteering challenge.
 
-Osmosys uses a Genetic Algorithm approach to improving the control locations and makes use of the Jenetics project to implement this functionality, see https://jenetics.io/ for details.
+StreetO uses a Genetic Algorithm approach to improving the control locations and makes use of the Jenetics project to implement this functionality, see https://jenetics.io/ for details.
 
 We construct a population of candidate courses, then try to improve the population.
 
@@ -71,7 +71,7 @@ In addition to the improvers, there are a number of hard constraints that the co
 
 ### Installing and Getting Started
 
-Osmosys is a java based piece of Software, primarily because the Graphhopper routing engine and the jenetics library that do a lot of the heavy lifting are written in Java.
+StreetO is a java based piece of Software, primarily because the Graphhopper routing engine and the jenetics library that do a lot of the heavy lifting are written in Java.
 
 Maven build system
 ```
