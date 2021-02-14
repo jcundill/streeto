@@ -35,7 +35,7 @@ import java.util.function.Function;
 
 public class Course {
 
-    private double requestedDistance;
+    private final double requestedDistance;
     private final int requestedNumControls;
     private final List<ControlSite> controls;
     private List<Double> legScores = List.of();
