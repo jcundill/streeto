@@ -6,8 +6,11 @@ import one.util.streamex.StreamEx;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
+import java.util.stream.Stream;
 
 import static java.lang.Math.min;
 
@@ -27,13 +30,13 @@ public class BeenThisWayBeforeScorer extends AbstractLegScorer {
     private double evaluate(List<GHResponse> previousLegs, GHResponse thisLeg) {
         // no legs other than the previous
         if (previousLegs.size() < 2) return 0.0;
-        
+
         var xs = previousLegs.stream().map(l -> compareLegs(l, thisLeg)).collect(Collectors.toList());
         if (xs.isEmpty()) return 0.0;
         else {
-            return StreamEx.of(xs)
-                    .maxBy(x -> x)
-                    .orElse(0.0);
+            return xs.stream()
+                    .max(Double::compareTo)
+                    .orElseThrow(NoSuchElementException::new);
         }
     }
 
