@@ -44,7 +44,6 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 
 public class MapPrinter {
@@ -148,11 +147,9 @@ public class MapPrinter {
         conn.disconnect();
 
         return bis;
-
     }
 
     private static String requestKey() {
-
         var dummyParameters = dummyString.getBytes(StandardCharsets.UTF_8);
 
         URL url;

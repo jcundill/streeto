@@ -59,5 +59,4 @@ public class GhWrapper {
         var graphHopperLocation = String.format("osm_data/grph_%s", name);
         return initGH(osmFile, graphHopperLocation);
     }
-
 }

@@ -37,7 +37,6 @@ import java.util.Optional;
  */
 public class MapFitter {
 
-
     public static final MapBox landscape10000 = new MapBox(
              0.04187945854565189 * 0.9,
             0.016405336634527146 * 0.9,
@@ -113,8 +112,7 @@ public class MapFitter {
             env.getWidth() < it.getMaxWidth() && env.getHeight() < it.getMaxHeight() ).findFirst();
    }
 
-
-    public static boolean canBeMapped(Envelope env) {
+   public static boolean canBeMapped(Envelope env) {
         return getForEnvelope(env).isPresent();
     }
 }

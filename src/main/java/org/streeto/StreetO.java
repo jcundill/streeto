@@ -32,7 +32,6 @@ import org.streeto.furniture.StreetFurnitureFinder;
 import org.streeto.genetic.CourseFinderRunner;
 import org.streeto.genetic.Sniffer;
 import org.streeto.gpx.GpxFacade;
-import org.streeto.mapping.MapFitter;
 import org.streeto.mapping.MapPrinter;
 import org.streeto.scorers.*;
 
@@ -83,13 +82,12 @@ public class StreetO {
         var score = scorer.score(course);
         course.setEnergy(score);
         return course;
-
     }
 
     void findFurniture(ControlSite start) {
         var scaleFactor = 5000.0;
-        var max = csf.getCoords(start.getLocation(), Math.PI * 0.25, scaleFactor);
-        var min = csf.getCoords(start.getLocation(), Math.PI * 1.25, scaleFactor);
+        var max = csf.getGHPointRelativeTo(start.getLocation(), Math.PI * 0.25, scaleFactor);
+        var min = csf.getGHPointRelativeTo(start.getLocation(), Math.PI * 1.25, scaleFactor);
         var bbox = new BBox(min.lon, max.lon, min.lat, max.lat);
         csf.setFurniture(finder.findForBoundingBox(bbox));
     }
@@ -122,7 +120,6 @@ public class StreetO {
 
         } catch (Exception e) {
             e.printStackTrace();
-         }
-
+        }
     }
 }

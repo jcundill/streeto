@@ -43,7 +43,6 @@ public class Course {
     private double energy = 1000.0;
     private PathWrapper route = null;
 
-
     public double getRequestedDistance() {
         return requestedDistance;
     }
@@ -146,5 +145,4 @@ public class Course {
 
             return new Course(distance, numControls, points);
         }
-
 }

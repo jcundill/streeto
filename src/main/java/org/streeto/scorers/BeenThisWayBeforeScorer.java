@@ -24,7 +24,6 @@ public class BeenThisWayBeforeScorer extends AbstractLegScorer {
         }).toList();
     }
 
-
     private double evaluate(List<GHResponse> previousLegs, GHResponse thisLeg) {
         // no legs other than the previous
         if (previousLegs.size() < 2) return 0.0;
@@ -45,9 +44,7 @@ public class BeenThisWayBeforeScorer extends AbstractLegScorer {
         else {
             var result = intersection(pointsA, pointsB);
             return result.size() * 1.0 / min(pointsB.size(), pointsA.size());
-
         }
-
     }
 
     private List<GHPoint3D> removeStartAndFinish(List<GHPoint3D> points) {
@@ -55,5 +52,4 @@ public class BeenThisWayBeforeScorer extends AbstractLegScorer {
         if (last < 1) return List.of();
         return points.subList(1, last);
     }
-
 }

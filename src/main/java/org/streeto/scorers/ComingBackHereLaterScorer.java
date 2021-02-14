@@ -49,26 +49,24 @@ public class ComingBackHereLaterScorer extends AbstractLegScorer {
             var futureLegs = routedLegs.subList(idx.incrementAndGet(), routedLegs.size());
             return evaluate(futureLegs, leg);
         }).toList();
-
     }
 
     private double evaluate(List<GHResponse> futureLegs, GHResponse thisLeg) {
-            if(futureLegs.isEmpty()) return  0.0; // no further legs
-            else {
-                var remainingControls = futureLegs.stream()
-                        .map(it -> {
-                            var points = it.getBest().getPoints();
-                            return CollectionHelpers.last(points);
-                        })
-                        .collect(Collectors.toList());
-                var legPointStream = streamFromPointList( thisLeg.getBest().getPoints());
-                if(legPointStream.anyMatch( it -> goesTooCloseToAFutureControl(remainingControls, it))) return 1.0;
-                else return 0.0;
-                }
-            }
+        if (futureLegs.isEmpty()) return 0.0; // no further legs
+        else {
+            var remainingControls = futureLegs.stream()
+                    .map(it -> {
+                        var points = it.getBest().getPoints();
+                        return CollectionHelpers.last(points);
+                    })
+                    .collect(Collectors.toList());
+            var legPointStream = streamFromPointList(thisLeg.getBest().getPoints());
+            if (legPointStream.anyMatch(it -> goesTooCloseToAFutureControl(remainingControls, it))) return 1.0;
+            else return 0.0;
+        }
+    }
 
-
-    private boolean goesTooCloseToAFutureControl(List<? extends GHPoint> ctrls , GHPoint p) {
-        return ctrls.stream().anyMatch(c -> dist(p, c) < 50.0 && dist(p, c) > 5.0 );
+    private boolean goesTooCloseToAFutureControl(List<? extends GHPoint> ctrls, GHPoint p) {
+        return ctrls.stream().anyMatch(c -> dist(p, c) < 50.0 && dist(p, c) > 5.0);
     }
 }

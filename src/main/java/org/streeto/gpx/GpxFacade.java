@@ -3,7 +3,6 @@ package org.streeto.gpx;
 import com.graphhopper.util.shapes.GHPoint;
 import io.jenetics.jpx.GPX;
 import io.jenetics.jpx.Route;
-import io.jenetics.jpx.Track;
 import io.jenetics.jpx.WayPoint;
 import io.jenetics.jpx.geom.Geoid;
 import org.streeto.ControlSite;
@@ -69,14 +68,6 @@ public class GpxFacade {
         var builder = Route.builder();
         controls.forEach(builder::addPoint);
         return builder.build();
-    }
-
-    private static List<GHPoint> toGHPoints(Track track) {
-        return track.getSegments().get(0).points()
-                .map(p -> new GHPoint(
-                        p.getLatitude().doubleValue(),
-                        p.getLongitude().doubleValue())
-                ).collect(Collectors.toList());
     }
 
     private static WayPoint toWayPoint(GHPoint p) {

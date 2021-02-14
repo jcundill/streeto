@@ -35,10 +35,8 @@ import java.util.List;
 
 public class StreetFurnitureFinder {
 
-
     public List<ControlSite> findForBoundingBox(BBox box) {
         var locations = new ArrayList<ControlSite>();
-
         var connection = new OsmConnection("https://overpass-api.de/api/", "streeto");
         var overpass = new OverpassMapDataDao(connection);
         var handler = new StreetFurnitureMapDataHandler(locations);

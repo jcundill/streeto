@@ -65,7 +65,6 @@ class StreetFurnitureMapDataHandler implements MapDataWithGeometryHandler {
         var lon = loc.getLongitude();
         var description = getWayDescription(way);
          return new ControlSite(lat, lon, description);
-
     }
 
     private String getWayDescription(Way way) {
@@ -94,6 +93,5 @@ class StreetFurnitureMapDataHandler implements MapDataWithGeometryHandler {
 
     @Override
     public void handle(@NotNull Relation relation, @NotNull BoundingBox boundingBox, @NotNull Map<Long, LatLon> map, @NotNull Map<Long, List<LatLon>> map1) {}
-
 }
 

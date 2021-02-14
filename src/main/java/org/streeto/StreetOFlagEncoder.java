@@ -214,9 +214,7 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
     }
 
     public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, EncodingManager.Access access, long relationFlags) {
-        if (access.canSkip()) {
-            return edgeFlags;
-        } else {
+        if (!access.canSkip()) {
             if (!access.isFerry()) {
                 String sacScale = way.getTag("sac_scale");
                 if (sacScale != null) {
@@ -229,23 +227,21 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
                     this.speedEncoder.setDecimal(false, edgeFlags, 5.0D);
                 }
 
-                this.accessEnc.setBool(false, edgeFlags, true);
-                this.accessEnc.setBool(true, edgeFlags, true);
             } else {
                 double ferrySpeed = this.getFerrySpeed(way);
                 this.setSpeed(false, edgeFlags, ferrySpeed);
-                this.accessEnc.setBool(false, edgeFlags, true);
-                this.accessEnc.setBool(true, edgeFlags, true);
             }
+            this.accessEnc.setBool(false, edgeFlags, true);
+            this.accessEnc.setBool(true, edgeFlags, true);
 
             int priorityFromRelation = 0;
             if (relationFlags != 0L) {
-                priorityFromRelation = (int)this.relationCodeEncoder.getValue(relationFlags);
+                priorityFromRelation = (int) this.relationCodeEncoder.getValue(relationFlags);
             }
 
             this.priorityWayEncoder.setDecimal(false, edgeFlags, PriorityCode.getFactor(this.handlePriority(way, priorityFromRelation)));
-            return edgeFlags;
         }
+        return edgeFlags;
     }
 
     protected int handlePriority(ReaderWay way, int priorityFromRelation) {

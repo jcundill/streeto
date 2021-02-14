@@ -13,7 +13,6 @@ import static org.streeto.utils.CollectionHelpers.streamFromPointList;
 public class PrintableOnMapConstraint implements CourseConstraint{
     private final Envelope env = new Envelope();
 
-
     @Override
     public boolean valid(@NotNull GHResponse routedCourse) {
         return routeFitsBox(routedCourse.getAll());
@@ -24,6 +23,4 @@ public class PrintableOnMapConstraint implements CourseConstraint{
         routes.forEach( pw -> streamFromPointList( pw.getPoints()).forEach (it -> env.expandToInclude(it.lon, it.lat) ) );
         return MapFitter.getForEnvelope(env).isPresent();
     }
-
-
 }

@@ -1,9 +1,7 @@
 package org.streeto.constraints;
 
 import com.graphhopper.GHResponse;
-import one.util.streamex.StreamEx;
 import org.jetbrains.annotations.NotNull;
-import org.streeto.utils.CollectionHelpers;
 
 import static org.streeto.utils.CollectionHelpers.*;
 import static org.streeto.utils.DistUtils.dist;

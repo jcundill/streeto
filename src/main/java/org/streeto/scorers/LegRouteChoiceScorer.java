@@ -28,7 +28,6 @@ package org.streeto.scorers;
 import com.graphhopper.GHResponse;
 import com.graphhopper.PathWrapper;
 import com.graphhopper.util.shapes.GHPoint;
-import com.graphhopper.util.shapes.GHPoint3D;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -65,6 +64,5 @@ public class LegRouteChoiceScorer extends AbstractLegScorer {
         if (commonRatio > 0.5 && ratio > 0.5) return 0.9;
         if (commonRatio > 0.5 && ratio < 0.2) return 0.75;
         return ratio;
-
     }
 }

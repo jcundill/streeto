@@ -59,7 +59,6 @@ public class DogLegScorer extends AbstractLegScorer {
         }
     }
 
-
     private Double dogLegScore(List<PointList> legs) {
         var a2b = legs.get(0);
         var b2c = legs.get(1);
@@ -76,6 +75,5 @@ public class DogLegScorer extends AbstractLegScorer {
             else return 1.0;
         }
     }
-
 }
 

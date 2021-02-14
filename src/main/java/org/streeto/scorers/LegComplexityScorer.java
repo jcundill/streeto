@@ -24,7 +24,6 @@ public class LegComplexityScorer extends AbstractLegScorer {
             Instruction.LEAVE_ROUNDABOUT
     );
 
-
     private static double evaluate(GHResponse leg) {
         var instructions = leg.getBest().getInstructions();
 
@@ -50,6 +49,5 @@ public class LegComplexityScorer extends AbstractLegScorer {
     public List<Double> score(List<GHResponse> routedLegs) {
         return StreamEx.of(routedLegs.stream().map(LegComplexityScorer::evaluate)).toList();
     }
-
 }
 

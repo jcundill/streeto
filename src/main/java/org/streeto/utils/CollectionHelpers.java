@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class CollectionHelpers {
 
@@ -27,6 +28,10 @@ public class CollectionHelpers {
 
     public static Stream<List<PointList>> beforeAndAfterLegs(List<PointList> routes) {
         return StreamEx.ofSubLists(routes, 2, 1);
+    }
+
+    public static <T> Stream<T> iterableStreamOf(Iterable<T> iterable){
+        return StreamSupport.stream(iterable.spliterator(), false);
     }
 
     public static GHPoint last(PointList points) {

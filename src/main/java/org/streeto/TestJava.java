@@ -28,8 +28,8 @@ public class TestJava {
         //val course = courses.first()
         var scoredCourse =
                 osmosys.score(new Course(initialCourse.distance(), initialCourse.getRequestedNumControls(), course.getControls()));
-        System.out.println("best score: ${1.0 - scoredCourse.energy}");
-        System.out.println("distance: ${scoredCourse.route.distance}");
+        System.out.printf("best score: %f%n", 1.0 - scoredCourse.getEnergy());
+        System.out.printf("distance: %f%n", scoredCourse.getRoute().getDistance());
 
     }
 }

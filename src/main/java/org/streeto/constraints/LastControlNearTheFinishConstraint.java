@@ -11,5 +11,4 @@ public class LastControlNearTheFinishConstraint implements CourseConstraint{
         var num = controls.size() - 1;
         return dist(controls.get(num), controls.get(num - 1))  <= 500.0;
     }
-
 }

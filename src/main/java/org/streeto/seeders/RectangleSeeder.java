@@ -7,7 +7,6 @@ import java.util.List;
 
 public class RectangleSeeder extends AbstractSeeder {
 
-
     public RectangleSeeder(ControlSiteFinder csf) {
         super(csf);
     }
@@ -23,12 +22,11 @@ public class RectangleSeeder extends AbstractSeeder {
         var first = initialPoints.get(0);
         var last = initialPoints.get(initialPoints.size() - 1);
         var bearing = csf.randomBearing();
-        var second = csf.getCoords(first.getLocation(), Math.PI + bearing, scaleFactor * longRatio);
-        var third = csf.getCoords(second, Math.PI + bearing + angle, scaleFactor * shortRatio);
-        var fourth =  csf.getCoords(third, bearing, scaleFactor * longRatio);
+        var second = csf.getGHPointRelativeTo(first.getLocation(), Math.PI + bearing, scaleFactor * longRatio);
+        var third = csf.getGHPointRelativeTo(second, Math.PI + bearing + angle, scaleFactor * shortRatio);
+        var fourth =  csf.getGHPointRelativeTo(third, bearing, scaleFactor * longRatio);
 
         var points = List.of(first.getLocation(), second, third, fourth, last.getLocation());
         return generateInitialCourse(points, requestedNumControls);
     }
-
 }

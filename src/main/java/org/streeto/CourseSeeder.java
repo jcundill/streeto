@@ -56,7 +56,6 @@ public class CourseSeeder {
 
     private SeedingStrategy chooseSeeder() {
         return seeders.get(rnd().nextInt(seeders.size()));
-  
     }
 
     private Random rnd() {
@@ -64,7 +63,6 @@ public class CourseSeeder {
     }
 
     public List<ControlSite>  chooseInitialPoints(List<ControlSite> initialPoints, int requestedNumControls, double requestedCourseLength){
-
         var env = new Envelope();
 
         // check that everything we have been given is mappable
@@ -84,13 +82,11 @@ public class CourseSeeder {
                     .collect(Collectors.toList());
         }
 
-
         env.expandToInclude(start.getLocation().getLon(), start.getLocation().getLat());
         env.expandToInclude(finish.getLocation().getLon(), finish.getLocation().getLat());
         chosenControls.forEach ( it->
             env.expandToInclude(it.getLocation().getLon(), it.getLocation().getLat())
         );
-
 
         if (!MapFitter.canBeMapped(env)) {
             throw new RuntimeException("initial course cannot be mapped");
@@ -109,5 +105,4 @@ public class CourseSeeder {
     private List<ControlSite> getControlSites(ControlSite startPoint, List<ControlSite> chosenControls, ControlSite finishPoint) {
         return Stream.concat(Stream.concat(Stream.of(startPoint), chosenControls.stream()), Stream.of(finishPoint)).collect(Collectors.toList());
     }
-
 }

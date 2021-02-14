@@ -49,11 +49,9 @@ public class CourseScorer {
         this.findRoutes = findroutes;
     }
 
-
     public List<Double> scoreLegs(List<ControlSite> controls) {
         var scores = score(controls).get(1);
         return getDoubleList(scores);
-
     }
 
     @NotNull
@@ -82,29 +80,6 @@ public class CourseScorer {
         return List.of(featureScores, legScores);
     }
 
-//    fun score(controls: List<ControlSite>) : Double {
-//        // score all the legs individually
-//        // needed currently for alternative routes
-//        val legs = controls.windowed(2)
-//        val legRoutes = legs.map { ab -> findRoutes(ab.first().position, ab.last().position) }
-//        val featureScores: List<LegScoreList> = legScorers.map { raw ->
-//            raw.score(legRoutes).map {s -> assert(!s.isNaN()); s * raw.weighting}
-//        }
-//
-//        /*
-//                featureScores =
-//                        1       2       3       4       5       6
-//                FS1     0.1     0.2     0.1     0.1     0.5     0.1
-//                FS2     0.2     0.1     0.1     0.4     0.3     0.0
-//                FS3     0.3     0.1     0.2     0.0     0.0     0.4
-//
-//                step.numberedControlScores = 0.2, 0.167, 0.167, 0.167, 0.267, 0.167
-//                featureScores =
-//         */
-//        val legScores: List<FeatureScoreList> = transpose(featureScores)
-//        return
-//    }
-
     public double score(Course step) {
         var scores = score(step.getControls());
         var featureScores = scores.get(0);
@@ -127,6 +102,7 @@ public class CourseScorer {
         StreamEx.zip(names, featureScores, results::put).toList();
         return results;
     }
+
     /**
      * Returns a list of lists, each built from elements of all lists with the same indexes.
      * Output has length of shortest input list.
@@ -145,10 +121,6 @@ public class CourseScorer {
                retVal.get(j).add(i, item);
             }
         }
-
         return retVal;
     }
-
-
-
 }

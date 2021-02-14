@@ -16,6 +16,4 @@ public class CourseLengthConstraint implements CourseConstraint{
         double maxAllowedDistance = desiredDistance + desiredDistance * allowedLengthDelta;
         return routedCourse.getBest().getDistance() < maxAllowedDistance;
     }
-
-
 }

@@ -51,5 +51,4 @@ public class LegLengthScorer extends AbstractLegScorer {
         if(best < minLegLength || best > maxLegLength)  return 1.0;
         else return 0.0;
     }
-
 }

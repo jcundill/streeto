@@ -101,7 +101,6 @@ public class MapDecorator {
         doc.addPage(page2);
 
         this.content2 = new PDPageContentStream(doc, page2, PDPageContentStream.AppendMode.APPEND, true, true);
-
     }
 
     public PDDocument decorate() throws IOException {
@@ -112,7 +111,6 @@ public class MapDecorator {
 
 
     private void drawCourse() throws IOException {
-
         content.setLineWidth(2.0f);
         content.setStrokingColor(Color.WHITE);
 
@@ -170,7 +168,6 @@ public class MapDecorator {
             }
         });
     }
-    
 
     private void drawStart() throws IOException {
         var pos =  offsetsInPts.subList(0, 2);
@@ -206,7 +203,6 @@ public class MapDecorator {
         content.lineTo(x0, y0);
         content.stroke();
     }
-
 
     private void drawFinish() throws IOException {
         var last = last(offsetsInPts);
@@ -270,6 +266,4 @@ public class MapDecorator {
             return new float[]{centrePage[0] + xPt + 0.2f, centrePage[1] + yPt - 1.3f};
         }).collect(Collectors.toList());
     }
-
-
 }

@@ -26,7 +26,6 @@
 package org.streeto;
 
 import com.graphhopper.util.shapes.GHPoint;
-
 import java.util.Objects;
 
 public class ControlSite {
@@ -44,11 +43,7 @@ public class ControlSite {
     }
 
     public ControlSite(double lat, double lon, String description) {
-         this(new GHPoint(lat, lon), description);
-    }
-
-    public ControlSite(double lat, double lon) {
-        this(new GHPoint(lat, lon));
+        this(new GHPoint(lat, lon), description);
     }
 
     public ControlSite(double lat, double lon, String number, String description) {

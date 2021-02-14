@@ -7,7 +7,6 @@ import org.streeto.*;
 import java.util.*;
 
 public class CourseMutator extends Mutator<AnyGene<ISeq<ControlSite>>, Double>{
-
     private final ControlSiteFinder csf;
 
     public CourseMutator(ControlSiteFinder csf, Double probability) {
@@ -45,6 +44,5 @@ public class CourseMutator extends Mutator<AnyGene<ISeq<ControlSite>>, Double>{
                 .append(controls.get(controls.size() - 1));
 
     }
-
 }
 

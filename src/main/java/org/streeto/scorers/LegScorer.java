@@ -32,6 +32,7 @@ import java.util.List;
 public interface LegScorer {
     double weighting = 1.0;
 
+    @SuppressWarnings("SameReturnValue")
     default double getWeighting() {
         return weighting;
     }

@@ -1,7 +1,5 @@
 package org.streeto.mapping;
 
-import com.graphhopper.util.shapes.BBox;
-
 public class MapBox {
     private final double maxWidth;
     private final double maxHeight;

@@ -12,7 +12,7 @@ class ControlSiteSwapper extends UniformCrossover<AnyGene<ISeq<ControlSite>>, Do
 
     private final double crossoverProbability;
 
-    ControlSiteSwapper(ControlSiteFinder csf, double crossoverProbability) {
+    ControlSiteSwapper(@SuppressWarnings("SameParameterValue") double crossoverProbability) {
          super(crossoverProbability);
         this.crossoverProbability = crossoverProbability;
       }
