@@ -28,11 +28,13 @@ Control site locations are selected from:
  
 Preference is given to the first two types - if available near to the selected control location. 
 
-Then an initial course is seeded from these inputs, and the algorithm iteratively tries
-to improve the placement of the controls on the course to make the legs between them
+Then an initial population of candidate courses are seeded from these inputs, and the algorithm iteratively tries
+to improve the placement of the controls on these courses to make the legs between them
 more interesting as an orienteering course.
 
-This is done a number of times, by default we give it 2 minutes of processing time, then the following artifacts are created:
+This is done a number of times, by default we give it 2 minutes of processing time.
+
+At the end of the cycle the best course, assessed via a number of factors, is selected and then the following artifacts are created for that course:
 +  gpx file of the course and optimal path around it
 +  Open Orienteering Map showing the course
 +  KMZ and KML files of the course for uploading to MapRun
@@ -86,7 +88,7 @@ Graphhopper works against a local database built from OSM protobuf files. You wi
 
 For details of pbf file downloads see <https://download.geofabrik.de/europe/great-britain.html>
 
-The downloaded pbf file needs to go into a folder called extracts in order to initialise the Graphhopper database - see initGH in `GhWrapper.kt` for details of how this is done.
+The downloaded pbf file needs to go into a folder called extracts in order to initialise the Graphhopper database - see the `GhWrapper` class for details of how this is done.
 
 
 
