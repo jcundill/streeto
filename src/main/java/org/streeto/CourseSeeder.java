@@ -85,10 +85,10 @@ public class CourseSeeder {
         }
 
 
-        env.expandToInclude(start.getPosition().getLon(), start.getPosition().getLat());
-        env.expandToInclude(finish.getPosition().getLon(), finish.getPosition().getLat());
+        env.expandToInclude(start.getLocation().getLon(), start.getLocation().getLat());
+        env.expandToInclude(finish.getLocation().getLon(), finish.getLocation().getLat());
         chosenControls.forEach ( it->
-            env.expandToInclude(it.getPosition().getLon(), it.getPosition().getLat())
+            env.expandToInclude(it.getLocation().getLon(), it.getLocation().getLat())
         );
 
 

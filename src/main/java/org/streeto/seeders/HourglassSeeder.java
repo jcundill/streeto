@@ -24,11 +24,11 @@ public class HourglassSeeder extends AbstractSeeder {
         var first = initialPoints.get(0);
         var last = initialPoints.get(initialPoints.size() - 1);
         var bearing = csf.randomBearing();
-        var second = csf.getCoords(first.getPosition(), Math.PI + bearing, scaleFactor * longRatio);
+        var second = csf.getCoords(first.getLocation(), Math.PI + bearing, scaleFactor * longRatio);
         var third = csf.getCoords(second, Math.PI + bearing + angle, scaleFactor * shortRatio);
         var fourth =  csf.getCoords(third, bearing, scaleFactor * longRatio);
 
-        var points = List.of(first.getPosition(), second, fourth, third, last.getPosition());
+        var points = List.of(first.getLocation(), second, fourth, third, last.getLocation());
         return generateInitialCourse(points, requestedNumControls);
     }
 

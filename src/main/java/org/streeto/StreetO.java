@@ -33,18 +33,20 @@ import one.util.streamex.StreamEx;
 import org.streeto.furniture.StreetFurnitureFinder;
 import org.streeto.genetic.CourseFinderRunner;
 import org.streeto.genetic.Sniffer;
+import org.streeto.gpx.GpxFacade;
 import org.streeto.scorers.*;
 
+import java.io.IOException;
 import java.util.List;
 
 
-public class Osmosys {
+public class StreetO {
 
     final ControlSiteFinder csf;
     private final CourseScorer scorer;
     private final StreetFurnitureFinder finder = new StreetFurnitureFinder();
 
-    public Osmosys(String db) {
+    public StreetO(String db) {
         GraphHopper gh = new GhWrapper().initGH(db);
         List<LegScorer> featureScorers = List.of(
                 new LegLengthScorer(),
@@ -88,8 +90,8 @@ public class Osmosys {
 
     void findFurniture(ControlSite start) {
         var scaleFactor = 5000.0;
-        var max = csf.getCoords(start.getPosition(), Math.PI * 0.25, scaleFactor);
-        var min = csf.getCoords(start.getPosition(), Math.PI * 1.25, scaleFactor);
+        var max = csf.getCoords(start.getLocation(), Math.PI * 0.25, scaleFactor);
+        var min = csf.getCoords(start.getLocation(), Math.PI * 1.25, scaleFactor);
         var bbox = new BBox(min.lon, max.lon, min.lat, max.lat);
         csf.setFurniture(finder.findForBoundingBox(bbox));
     }
@@ -97,17 +99,22 @@ public class Osmosys {
     public static void main(String [] args) {
 
         System.out.println("Hello World!");
-        var osmosys = new Osmosys("derbyshire-latest");
+        var streeto = new StreetO("derbyshire-latest");
         var initialCourse = Course.buildFromProperties("./streeto.properties");
-        osmosys.findFurniture(initialCourse.getControls().get(0));
-        var lastMondayRunner = new CourseFinderRunner(osmosys.csf, new Sniffer());
+        streeto.findFurniture(initialCourse.getControls().get(0));
+        var lastMondayRunner = new CourseFinderRunner(streeto.csf, new Sniffer());
         var controls = lastMondayRunner.run(initialCourse);
-        //var course = courses.first()
-        //var course = courses.first()
         var scoredCourse =
-                osmosys.score(new Course(initialCourse.distance(), initialCourse.getRequestedNumControls(), controls.getControls()));
+                streeto.score(new Course(initialCourse.distance(), initialCourse.getRequestedNumControls(), controls.getControls()));
+
         System.out.printf("best score: %f%n", 1.0 - scoredCourse.getEnergy());
         System.out.printf("distance: %f\n", scoredCourse.getRoute().getDistance());
+
+        try {
+            GpxFacade.writeCourse("abc.gpx", scoredCourse);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 }

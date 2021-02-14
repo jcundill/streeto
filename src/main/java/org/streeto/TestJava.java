@@ -20,7 +20,7 @@ public class TestJava {
     }
 
     public static void main(String[] args) {
-        var osmosys = new Osmosys("derbyshire-latest");
+        var osmosys = new StreetO("derbyshire-latest");
          var initialCourse = Course.buildFromProperties("./streeto.properties");
 //        val initialCourse = Course.buildFromProperties("./streeto.properties")
         var lastMondayRunner = new CourseFinderRunner(osmosys.getCsf(), new Sniffer());

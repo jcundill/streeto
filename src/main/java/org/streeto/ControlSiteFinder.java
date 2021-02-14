@@ -86,9 +86,9 @@ public class ControlSiteFinder {
     }
 
     public ControlSite findAlternativeControlSiteFor(ControlSite point, double distance) {
-        var node = findNearestControlSiteTo(getCoords(point.getPosition(), randomBearing(), rnd.nextDouble() * distance));
+        var node = findNearestControlSiteTo(getCoords(point.getLocation(), randomBearing(), rnd.nextDouble() * distance));
         while (node.isEmpty() || node.get() == point) {
-            node = findNearestControlSiteTo(getCoords(point.getPosition(), randomBearing(), rnd.nextDouble() * distance));
+            node = findNearestControlSiteTo(getCoords(point.getLocation(), randomBearing(), rnd.nextDouble() * distance));
         }
         return node.get();
     }
@@ -99,7 +99,7 @@ public class ControlSiteFinder {
     }
 
     public GHResponse routeRequest(List<ControlSite> controls, int numAlternatives) {
-        var req = new GHRequest(controls.stream().map(ControlSite::getPosition).collect(Collectors.toList()));
+        var req = new GHRequest(controls.stream().map(ControlSite::getLocation).collect(Collectors.toList()));
         return routeRequest(req, numAlternatives);
     }
 
@@ -140,7 +140,7 @@ public class ControlSiteFinder {
     }
 
     public Optional<ControlSite> findNearestControlSiteTo(ControlSite site) {
-        return findNearestControlSiteTo(site.getPosition());
+        return findNearestControlSiteTo(site.getLocation());
     }
 
     public Optional<ControlSite> findNearestControlSiteTo(GHPoint p) {
@@ -154,14 +154,14 @@ public class ControlSiteFinder {
                 var site = loc.get();
                 var isTower = gh.getLocationIndex().findClosest(site.lat, site.lon, filter).getSnappedPosition() == QueryResult.Position.TOWER;
                 var desc = isTower ? "junction" : "bend";
-                return Optional.of(new ControlSite(site.lat, site.lon, desc));
+                return Optional.of(new ControlSite(site, desc));
             }
         }
     }
 
     private Optional<ControlSite> findLocalStreetFurniture(GHPoint p) {
         var distance = 25.0;
-        return furniture.stream().filter(it -> dist(it.getPosition(), p) < distance).findFirst();
+        return furniture.stream().filter(it -> dist(it.getLocation(), p) < distance).findFirst();
     }
 
     private Optional<? extends GHPoint> findClosestStreetLocation(GHPoint p) {

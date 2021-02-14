@@ -27,36 +27,49 @@ package org.streeto;
 
 import com.graphhopper.util.shapes.GHPoint;
 
-public class ControlSite {
-    private final GHPoint position;
-    private final String description;
+import java.util.Objects;
 
-    public ControlSite(GHPoint p, String desc) {
-        position = p;
-        description = desc;
+public class ControlSite {
+    private final GHPoint location;
+    private final String description;
+    private String number;
+
+    public ControlSite(GHPoint p, String description) {
+        this.location = p;
+        this.description = description;
     }
 
     public ControlSite(GHPoint p) {
-        position = p;
-        description = "";
+        this(p, "");
     }
 
-    public GHPoint getPosition() {
-        return position;
+    public ControlSite(double lat, double lon, String description) {
+         this(new GHPoint(lat, lon), description);
+    }
+
+    public ControlSite(double lat, double lon) {
+        this(new GHPoint(lat, lon));
+    }
+
+    public ControlSite(double lat, double lon, String number, String description) {
+        this(lat, lon, description);
+        this.number = number;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public ControlSite(double lat, double lon, String desc) {
-        position = new GHPoint(lat, lon);
-        description = desc;
+    public GHPoint getLocation() {
+        return location;
     }
 
-    public ControlSite(double lat, double lon) {
-        position = new GHPoint(lat, lon);
-        description = "";
+    public void setNumber(String number) {
+        this.number = number;
+    }
+
+    public String getNumber() {
+        return number;
     }
 
     @Override
@@ -66,22 +79,25 @@ public class ControlSite {
 
         ControlSite that = (ControlSite) o;
 
-        if (!position.equals(that.position)) return false;
-        return description.equals(that.description);
+        if (!location.equals(that.location)) return false;
+        if (!Objects.equals(description, that.description)) return false;
+        return Objects.equals(number, that.number);
     }
 
     @Override
     public int hashCode() {
-        int result = position.hashCode();
-        result = 31 * result + description.hashCode();
+        int result = location.hashCode();
+        result = 31 * result + (description != null ? description.hashCode() : 0);
+        result = 31 * result + (number != null ? number.hashCode() : 0);
         return result;
     }
 
     @Override
     public String toString() {
         return "ControlSite{" +
-               "position=" + position +
+               "location=" + location +
                ", description='" + description + '\'' +
+               ", number='" + number + '\'' +
                '}';
     }
 }

@@ -63,7 +63,7 @@ public class CourseScorer {
 
     public List<List<List<Double>>> score(List<ControlSite> controls) {
         var legs = StreamEx.ofSubLists(controls, 2 , 1);
-        var legRoutes = legs.map( ab -> findRoutes.apply(ab.get(0).getPosition(), ab.get(1).getPosition()) ).toList();
+        var legRoutes = legs.map( ab -> findRoutes.apply(ab.get(0).getLocation(), ab.get(1).getLocation()) ).toList();
         var featureScores = legScorers.stream().map( raw ->
             raw.score(legRoutes).stream().map( s -> s * raw.getWeighting()).collect(Collectors.toList())
         ).collect(Collectors.toList());

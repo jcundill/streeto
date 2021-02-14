@@ -7,12 +7,19 @@ import io.jenetics.engine.EvolutionResult;
 import io.jenetics.engine.EvolutionStatistics;
 import io.jenetics.engine.Limits;
 import io.jenetics.util.ISeq;
+import io.jenetics.util.IntRange;
 import org.streeto.ControlSite;
 import org.streeto.ControlSiteFinder;
 import org.streeto.Course;
+import org.streeto.utils.CollectionHelpers;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.IntStream;
+
+import static org.streeto.utils.CollectionHelpers.*;
 
 public class CourseFinderRunner {
 
@@ -48,8 +55,13 @@ public class CourseFinderRunner {
         System.out.println(statistics);
 
         if (population.isValid()) {
-            var best = population.genotype().gene().allele();
-            return new Course(initialCourse.getRequestedDistance(), initialCourse.getRequestedNumControls(), best.asList());
+            var best = population.genotype().gene().allele().asList();
+            // number the controls
+            first(best).setNumber("S1");
+            last(best).setNumber("F1");
+            IntStream.range(1, best.size() - 1).forEach(i -> best.get(i).setNumber(String.format("%02d", i)));
+
+            return new Course(initialCourse.getRequestedDistance(), initialCourse.getRequestedNumControls(), best);
         } else {
             return initialCourse;
         }

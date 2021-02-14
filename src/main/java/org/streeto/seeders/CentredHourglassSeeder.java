@@ -23,13 +23,13 @@ public class CentredHourglassSeeder extends AbstractSeeder {
         var first = initialPoints.get(0);
         var last = initialPoints.get(initialPoints.size() - 1);
         var bearing = csf.randomBearing();
-        var initial = csf.getCoords(first.getPosition(), bearing, scaleFactor * longRatio / 2.0);
+        var initial = csf.getCoords(first.getLocation(), bearing, scaleFactor * longRatio / 2.0);
         var second = csf.getCoords(initial, bearing + angle, scaleFactor * shortRatio / 2.0);
         var third = csf.getCoords(second, PI + bearing + angle, scaleFactor * shortRatio );
         var fourth =  csf.getCoords(third, PI + bearing, scaleFactor * longRatio);
         var fifth = csf.getCoords(fourth, bearing + angle, scaleFactor * longRatio);
 
-        var route = List.of(first.getPosition(), second, third, fourth, fifth, last.getPosition());
+        var route = List.of(first.getLocation(), second, third, fourth, fifth, last.getLocation());
         return generateInitialCourse(route, requestedNumControls);
     }
 }

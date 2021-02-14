@@ -107,6 +107,15 @@ public class Course {
         else return requestedDistance;
     }
 
+    @Override
+    public String toString() {
+        return "Course{" +
+               "requestedDistance=" + requestedDistance +
+               ", requestedNumControls=" + requestedNumControls +
+               ", controls=" + controls +
+               '}';
+    }
+
     public static Course buildFromProperties(String filename) {
             var props = new Properties();
         try {
