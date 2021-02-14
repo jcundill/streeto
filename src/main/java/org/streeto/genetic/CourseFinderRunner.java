@@ -59,7 +59,7 @@ public class CourseFinderRunner {
             // number the controls
             first(best).setNumber("S1");
             last(best).setNumber("F1");
-            IntStream.range(1, best.size() - 1).forEach(i -> best.get(i).setNumber(String.format("%02d", i)));
+            IntStream.range(1, best.size() - 1).forEach(i -> best.get(i).setNumber(String.format("%2d", i)));
 
             return new Course(initialCourse.getRequestedDistance(), initialCourse.getRequestedNumControls(), best);
         } else {

@@ -10,4 +10,9 @@ public class DistUtils {
     public static double dist(GHPoint a, GHPoint b) {
         return dist2d.calcDist(a.lat, a.lon, b.lat, b.lon);
     }
+
+    public static double dist(double a, double b, double c, double d) {
+        return dist2d.calcDist(a, b, c, d);
+    }
+
 }

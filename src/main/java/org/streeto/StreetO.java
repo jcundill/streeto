@@ -26,18 +26,21 @@
 package org.streeto;
 
 import com.graphhopper.GraphHopper;
-import com.graphhopper.PathWrapper;
 import com.graphhopper.util.shapes.BBox;
 import com.vividsolutions.jts.geom.Envelope;
-import one.util.streamex.StreamEx;
 import org.streeto.furniture.StreetFurnitureFinder;
 import org.streeto.genetic.CourseFinderRunner;
 import org.streeto.genetic.Sniffer;
 import org.streeto.gpx.GpxFacade;
+import org.streeto.mapping.MapFitter;
+import org.streeto.mapping.MapPrinter;
 import org.streeto.scorers.*;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.streeto.utils.CollectionHelpers.windowed;
 
 
 public class StreetO {
@@ -64,15 +67,10 @@ public class StreetO {
         return csf;
     }
 
-    PathWrapper findBestRoute(List<ControlSite> controls) {
-        return csf.routeRequest(controls).getBest();
-    }
-
-
     Envelope getEnvelopeForProbableRoutes(List<ControlSite> controls) {
-        var routes = StreamEx.ofSubLists(controls, 2, 1).map(it ->
+        var routes = windowed(controls, 2).map(it ->
                 csf.routeRequest(it, 3).getBest()
-        ).toList();
+        ).collect(Collectors.toList());
 
         var env = new Envelope();
         routes.forEach(it -> it.getPoints().forEach(p -> env.expandToInclude(p.lon, p.lat)));
@@ -115,6 +113,19 @@ public class StreetO {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        try {
+            var printer = new MapPrinter();
+            var envelopeToMap = streeto.getEnvelopeForProbableRoutes(scoredCourse.getControls());
+
+            var box = MapFitter.getForEnvelope(envelopeToMap).orElseThrow();
+            var mapCentre = envelopeToMap.centre();
+
+            printer.generateMapAsPdf("abc", "Test_Map", scoredCourse.getControls(), mapCentre, box);
+            printer.generateMapAsKmz("abs", "Test_Map", mapCentre, box);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+         }
 
     }
 }

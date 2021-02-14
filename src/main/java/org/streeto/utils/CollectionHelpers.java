@@ -35,11 +35,14 @@ public class CollectionHelpers {
     public static GHPoint first(PointList points) {
         return first(streamFromPointList(points).collect(Collectors.toList()));
     }
+    public static <T> Stream<List<T>> windowed(List<T> pl, int size) {
+        return  StreamEx.ofSubLists(StreamEx.of(pl.iterator()).toList(), size, 1);
+    }
 
     public static <T> T last(List<T> list) {
-        var num = list.size() - 1;
-        return list.get(num);
+        return list.get(list.size() -1);
     }
+
     public static <T> T first(List<T> list) {
         return list.get(0);
     }
@@ -57,4 +60,5 @@ public class CollectionHelpers {
             return (Stream<T>) IntStream.range(0, temp.length)
                     .mapToObj(i -> temp[temp.length - i - 1]);
         }
+
 }
