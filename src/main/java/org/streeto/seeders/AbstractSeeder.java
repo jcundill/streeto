@@ -10,10 +10,10 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 abstract class AbstractSeeder implements SeedingStrategy {
-    private final ControlSiteFinder csf;
     protected static final double twistFactor = 0.67; //probable crow files disance vs actual distance
+    private final ControlSiteFinder csf;
 
-    AbstractSeeder(ControlSiteFinder csf){
+    AbstractSeeder(ControlSiteFinder csf) {
         this.csf = csf;
     }
 
@@ -21,10 +21,10 @@ abstract class AbstractSeeder implements SeedingStrategy {
         return csf;
     }
 
-    private  List<ControlSite> fillFromInitialPoints(List<ControlSite> points, int requestedNumControls) {
+    private List<ControlSite> fillFromInitialPoints(List<ControlSite> points, int requestedNumControls) {
         var pointList = csf.routeRequest(points).getBest().getPoints();
-        var xs =  IntStream.range(1 ,requestedNumControls)
-                .mapToObj ( it -> {
+        var xs = IntStream.range(1, requestedNumControls)
+                .mapToObj(it -> {
                     var position = pointList.get(it * (pointList.size() / requestedNumControls - 1));
                     return csf.findNearestControlSiteTo(position);
                 });
@@ -32,8 +32,8 @@ abstract class AbstractSeeder implements SeedingStrategy {
         return unfiltered.stream().filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
     }
 
-    protected  List<ControlSite> generateInitialCourse(List<GHPoint> route, int requestedNumControls) {
-        var points = route.stream().map( it -> csf.findControlSiteNear(it, 50.0)).collect(Collectors.toList());
+    protected List<ControlSite> generateInitialCourse(List<GHPoint> route, int requestedNumControls) {
+        var points = route.stream().map(it -> csf.findControlSiteNear(it, 50.0)).collect(Collectors.toList());
         return fillFromInitialPoints(points, requestedNumControls);
     }
 }

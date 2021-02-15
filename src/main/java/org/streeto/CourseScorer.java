@@ -60,10 +60,10 @@ public class CourseScorer {
     }
 
     public List<List<List<Double>>> score(List<ControlSite> controls) {
-        var legs = StreamEx.ofSubLists(controls, 2 , 1);
-        var legRoutes = legs.map( ab -> findRoutes.apply(ab.get(0).getLocation(), ab.get(1).getLocation()) ).toList();
-        var featureScores = legScorers.stream().map( raw ->
-            raw.score(legRoutes).stream().map( s -> s * raw.getWeighting()).collect(Collectors.toList())
+        var legs = StreamEx.ofSubLists(controls, 2, 1);
+        var legRoutes = legs.map(ab -> findRoutes.apply(ab.get(0).getLocation(), ab.get(1).getLocation())).toList();
+        var featureScores = legScorers.stream().map(raw ->
+                raw.score(legRoutes).stream().map(s -> s * raw.getWeighting()).collect(Collectors.toList())
         ).collect(Collectors.toList());
 
         /*
@@ -95,7 +95,7 @@ public class CourseScorer {
 
     private Map<String, List<Double>> getDetailedScores(List<List<Double>> featureScores) {
         var names = legScorers.stream()
-                .map( it -> it.getClass().getSimpleName()).collect(Collectors.toList());
+                .map(it -> it.getClass().getSimpleName()).collect(Collectors.toList());
         var results = new HashMap<String, List<Double>>();
 
         // side effects only folks - feeds the map
@@ -107,7 +107,7 @@ public class CourseScorer {
      * Returns a list of lists, each built from elements of all lists with the same indexes.
      * Output has length of shortest input list.
      */
-    public <T> List<List<T>> transpose(List<List<T>> lists)  {
+    public <T> List<List<T>> transpose(List<List<T>> lists) {
         var colLen = lists.size();
         var rowLen = lists.get(0).size();
 
@@ -117,8 +117,8 @@ public class CourseScorer {
         }
         for (int i = 0; i < colLen; i++) {
             for (int j = 0; j < rowLen; j++) {
-               var item = lists.get(i).get(j);
-               retVal.get(j).add(i, item);
+                var item = lists.get(i).get(j);
+                retVal.get(j).add(i, item);
             }
         }
         return retVal;

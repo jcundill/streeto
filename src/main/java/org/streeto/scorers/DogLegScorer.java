@@ -46,7 +46,7 @@ public class DogLegScorer extends AbstractLegScorer {
     @NotNull
     @Override
     public List<Double> score(List<GHResponse> routedLegs) {
-        return dogLegs(routedLegs.stream().map(it -> it.getBest().getPoints() ).collect(Collectors.toList()));
+        return dogLegs(routedLegs.stream().map(it -> it.getBest().getPoints()).collect(Collectors.toList()));
     }
 
     List<Double> dogLegs(List<PointList> routes) {
@@ -63,15 +63,15 @@ public class DogLegScorer extends AbstractLegScorer {
         var a2b = legs.get(0);
         var b2c = legs.get(1);
         if (a2b.size() < 2 || b2c.size() < 2) return 1.0; //controls are in the same place
-        var inAandB = dropLast(a2b,1).stream().filter (it -> drop(b2c,1).contains(it) ).collect(Collectors.toList());
+        var inAandB = dropLast(a2b, 1).stream().filter(it -> drop(b2c, 1).contains(it)).collect(Collectors.toList());
         var numInAandB = inAandB.size();
-        if( numInAandB == 0) return 0.0;
+        if (numInAandB == 0) return 0.0;
         else {
-            var distInAandB = dist(first(inAandB) , last(inAandB));
+            var distInAandB = dist(first(inAandB), last(inAandB));
 
-            if(distInAandB < 50.0) return 0.0;
-            else if(distInAandB < 100.0) return 0.25;
-            else if(distInAandB < 200.0) return 0.5;
+            if (distInAandB < 50.0) return 0.0;
+            else if (distInAandB < 100.0) return 0.25;
+            else if (distInAandB < 200.0) return 0.5;
             else return 1.0;
         }
     }

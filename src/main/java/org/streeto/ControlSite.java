@@ -26,6 +26,7 @@
 package org.streeto;
 
 import com.graphhopper.util.shapes.GHPoint;
+
 import java.util.Objects;
 
 public class ControlSite {
@@ -59,12 +60,20 @@ public class ControlSite {
         return location;
     }
 
+    public String getNumber() {
+        return number;
+    }
+
     public void setNumber(String number) {
         this.number = number;
     }
 
-    public String getNumber() {
-        return number;
+    @Override
+    public int hashCode() {
+        int result = location.hashCode();
+        result = 31 * result + (description != null ? description.hashCode() : 0);
+        result = 31 * result + (number != null ? number.hashCode() : 0);
+        return result;
     }
 
     @Override
@@ -77,14 +86,6 @@ public class ControlSite {
         if (!location.equals(that.location)) return false;
         if (!Objects.equals(description, that.description)) return false;
         return Objects.equals(number, that.number);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = location.hashCode();
-        result = 31 * result + (description != null ? description.hashCode() : 0);
-        result = 31 * result + (number != null ? number.hashCode() : 0);
-        return result;
     }
 
     @Override

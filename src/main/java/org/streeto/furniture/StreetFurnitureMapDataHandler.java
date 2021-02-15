@@ -53,34 +53,35 @@ class StreetFurnitureMapDataHandler implements MapDataWithGeometryHandler {
     private String getDescription(Node node) {
         var tags = node.getTags();
 
-            if(tags.containsKey("tourism")) return tags.get("tourism");
-            else if(tags.containsKey("highway")) return tags.get("highway");
-            else if(tags.containsKey("amenity")) return tags.get("amenity");
-            else if(tags.containsKey("natural")) return tags.get("natural");
-            else return tags.getOrDefault("barrier", "");
+        if (tags.containsKey("tourism")) return tags.get("tourism");
+        else if (tags.containsKey("highway")) return tags.get("highway");
+        else if (tags.containsKey("amenity")) return tags.get("amenity");
+        else if (tags.containsKey("natural")) return tags.get("natural");
+        else return tags.getOrDefault("barrier", "");
     }
 
     private ControlSite parseLinearFeature(Way way, LatLon loc) {
         var lat = loc.getLatitude();
         var lon = loc.getLongitude();
         var description = getWayDescription(way);
-         return new ControlSite(lat, lon, description);
+        return new ControlSite(lat, lon, description);
     }
 
     private String getWayDescription(Way way) {
         var tags = way.getTags();
-        if(tags.containsKey("highway") && tags.get("highway").equals("steps") ) return "steps";
-        else if(tags.containsKey("bridge") && tags.get("bridge").equals("yes") ) return "bridge";
-        else if(tags.containsKey("barrier") && tags.get("barrier").equals("hedge") ) return "hedge";
+        if (tags.containsKey("highway") && tags.get("highway").equals("steps")) return "steps";
+        else if (tags.containsKey("bridge") && tags.get("bridge").equals("yes")) return "bridge";
+        else if (tags.containsKey("barrier") && tags.get("barrier").equals("hedge")) return "hedge";
         else return "";
     }
 
     @Override
-    public void handle(@NotNull BoundingBox bounds) {}
+    public void handle(@NotNull BoundingBox bounds) {
+    }
 
     @Override
-    public void  handle(Node node) {
-        if( !node.isDeleted()) {
+    public void handle(Node node) {
+        if (!node.isDeleted()) {
             locations.add(parsePointFeatue(node));
         }
     }
@@ -92,6 +93,7 @@ class StreetFurnitureMapDataHandler implements MapDataWithGeometryHandler {
     }
 
     @Override
-    public void handle(@NotNull Relation relation, @NotNull BoundingBox boundingBox, @NotNull Map<Long, LatLon> map, @NotNull Map<Long, List<LatLon>> map1) {}
+    public void handle(@NotNull Relation relation, @NotNull BoundingBox boundingBox, @NotNull Map<Long, LatLon> map, @NotNull Map<Long, List<LatLon>> map1) {
+    }
 }
 

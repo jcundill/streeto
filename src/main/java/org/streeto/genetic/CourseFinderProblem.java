@@ -12,7 +12,11 @@ import io.jenetics.util.ISeq;
 import org.streeto.*;
 import org.streeto.constraints.*;
 import org.streeto.scorers.*;
-import java.util.*;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 class CourseFinderProblem implements Problem<ISeq<ControlSite>, AnyGene<ISeq<ControlSite>>, Double> {
@@ -28,12 +32,12 @@ class CourseFinderProblem implements Problem<ISeq<ControlSite>, AnyGene<ISeq<Con
         this.csf = csf;
         this.initialCourse = initialCourse;
         this.constraints = List.of(
-            new IsRouteableConstraint(),
-            new CourseLengthConstraint(initialCourse.distance()),
-            new PrintableOnMapConstraint(),
-            new LastControlNearTheFinishConstraint(),
-            new DidntMoveConstraint(),
-            new OnlyGoToTheFinishAtTheEndConstraint()
+                new IsRouteableConstraint(),
+                new CourseLengthConstraint(initialCourse.distance()),
+                new PrintableOnMapConstraint(),
+                new LastControlNearTheFinishConstraint(),
+                new DidntMoveConstraint(),
+                new OnlyGoToTheFinishAtTheEndConstraint()
         );
         List<LegScorer> featureScorersJava = List.of(
                 new LegLengthScorer(),
@@ -48,16 +52,16 @@ class CourseFinderProblem implements Problem<ISeq<ControlSite>, AnyGene<ISeq<Con
     }
 
     @Override
+    public Function<ISeq<ControlSite>, Double> fitness() {
+        return this::courseFitness;
+    }
+
+    @Override
     public Codec<ISeq<ControlSite>, AnyGene<ISeq<ControlSite>>> codec() {
         return Codec.of(
                 Genotype.of(AnyChromosome.of(this::nextRandomCourse)),
                 gt -> gt.gene().allele()
         );
-    }
-
-    @Override
-    public Function<ISeq<ControlSite>, Double> fitness()  {
-        return this::courseFitness;
     }
 
     @Override
@@ -68,17 +72,17 @@ class CourseFinderProblem implements Problem<ISeq<ControlSite>, AnyGene<ISeq<Con
     private boolean courseValidator(Phenotype<AnyGene<ISeq<ControlSite>>, Double> pt) {
         var controls = pt.genotype().gene().allele();
         var hashCode = controls.hashCode();
-        if( !validatedSet.containsKey(hashCode)) {
+        if (!validatedSet.containsKey(hashCode)) {
             var route = csf.routeRequest(controls.asList());
-            var ok = constraints.stream().allMatch(it -> it.valid(route) );
+            var ok = constraints.stream().allMatch(it -> it.valid(route));
             validatedSet.put(hashCode, ok);
         }
         return validatedSet.get(hashCode);
-     }
+    }
 
     private ISeq<ControlSite> nextRandomCourse() {
         return ISeq.of(seeder.chooseInitialPoints(initialCourse.getControls(), initialCourse.getRequestedNumControls(), initialCourse.getRequestedDistance()));
-     }
+    }
 
     private Double courseFitness(ISeq<ControlSite> controls) {
         var legScores = courseScorerJava.scoreLegs(controls.asList());

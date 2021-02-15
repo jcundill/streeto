@@ -1,7 +1,7 @@
 package org.streeto.utils;
 
-import com.graphhopper.util.shapes.GHPoint;
 import com.graphhopper.util.DistancePlaneProjection;
+import com.graphhopper.util.shapes.GHPoint;
 
 public class DistUtils {
 

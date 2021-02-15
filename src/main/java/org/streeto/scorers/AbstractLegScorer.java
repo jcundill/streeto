@@ -9,7 +9,7 @@ import org.streeto.utils.CollectionHelpers;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public abstract class AbstractLegScorer implements LegScorer{
+public abstract class AbstractLegScorer implements LegScorer {
 
     public double getWeighting() {
         return weighting;
@@ -23,7 +23,7 @@ public abstract class AbstractLegScorer implements LegScorer{
         return CollectionHelpers.streamFromPointList(a.getAll().get(num).getPoints()).collect(Collectors.toList());
     }
 
-    protected  List<? extends GHPoint> intersection(List<? extends GHPoint> pointsA, List<? extends GHPoint> pointsB) {
+    protected List<? extends GHPoint> intersection(List<? extends GHPoint> pointsA, List<? extends GHPoint> pointsB) {
         return pointsA.stream()
                 .filter(pointsB::contains)
                 .collect(Collectors.toList());

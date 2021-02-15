@@ -3,7 +3,7 @@ package org.streeto.constraints;
 import com.graphhopper.GHResponse;
 import org.jetbrains.annotations.NotNull;
 
-import static org.streeto.utils.CollectionHelpers.*;
+import static org.streeto.utils.CollectionHelpers.streamFromPointList;
 import static org.streeto.utils.DistUtils.dist;
 
 

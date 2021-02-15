@@ -42,7 +42,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 import static java.lang.Math.*;
-import static org.streeto.utils.CollectionHelpers.*;
+import static org.streeto.utils.CollectionHelpers.iterableStreamOf;
 import static org.streeto.utils.DistUtils.dist;
 
 
@@ -52,12 +52,12 @@ import static org.streeto.utils.DistUtils.dist;
 public class ControlSiteFinder {
 
     private final GraphHopper gh;
-    List<ControlSite> furniture;
     private final EdgeFilter filter;
     private final HashMap<List<GHPoint>, GHResponse> routedLegCache = new HashMap<>();
+    private final Random rnd = RandomRegistry.random();
+    List<ControlSite> furniture;
     private int hit = 0;
     private int miss = 0;
-    private final Random rnd = RandomRegistry.random();
 
 
     public ControlSiteFinder(GraphHopper gh) {

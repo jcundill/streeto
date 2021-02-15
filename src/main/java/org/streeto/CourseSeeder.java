@@ -62,30 +62,30 @@ public class CourseSeeder {
         return RandomRegistry.random();
     }
 
-    public List<ControlSite>  chooseInitialPoints(List<ControlSite> initialPoints, int requestedNumControls, double requestedCourseLength){
+    public List<ControlSite> chooseInitialPoints(List<ControlSite> initialPoints, int requestedNumControls, double requestedCourseLength) {
         var env = new Envelope();
 
         // check that everything we have been given is mappable
         var startPoint = csf.findNearestControlSiteTo(first(initialPoints));
         var finishPoint = csf.findNearestControlSiteTo(last(initialPoints));
-        if(startPoint.isEmpty()) throw new RuntimeException("Cannot map the start");
-        if(finishPoint.isEmpty()) throw new RuntimeException("Cannot map the finish");
+        if (startPoint.isEmpty()) throw new RuntimeException("Cannot map the start");
+        if (finishPoint.isEmpty()) throw new RuntimeException("Cannot map the finish");
 
         var start = startPoint.get();
         var finish = finishPoint.get();
 
         List<ControlSite> chosenControls = List.of();
-        if( initialPoints.size() > 2) {
+        if (initialPoints.size() > 2) {
             chosenControls = initialPoints.subList(1, initialPoints.size() - 1).stream()
                     .map(csf::findNearestControlSiteTo)
-                    .map( x -> x.orElse(null))
+                    .map(x -> x.orElse(null))
                     .collect(Collectors.toList());
         }
 
         env.expandToInclude(start.getLocation().getLon(), start.getLocation().getLat());
         env.expandToInclude(finish.getLocation().getLon(), finish.getLocation().getLat());
-        chosenControls.forEach ( it->
-            env.expandToInclude(it.getLocation().getLon(), it.getLocation().getLat())
+        chosenControls.forEach(it ->
+                env.expandToInclude(it.getLocation().getLon(), it.getLocation().getLat())
         );
 
         if (!MapFitter.canBeMapped(env)) {
@@ -94,7 +94,7 @@ public class CourseSeeder {
 
         var initialControls = getControlSites(start, chosenControls, finish);
 
-        var controls =  chooseSeeder().seed(initialControls, requestedNumControls, requestedCourseLength);
+        var controls = chooseSeeder().seed(initialControls, requestedNumControls, requestedCourseLength);
         return getControlSites(
                 start,
                 (rnd().nextDouble() < 0.5) ? controls : reverse(controls.stream()).collect(Collectors.toList()), finish

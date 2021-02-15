@@ -38,10 +38,10 @@ import java.util.Optional;
 public class MapFitter {
 
     public static final MapBox landscape10000 = new MapBox(
-             0.04187945854565189 * 0.9,
+            0.04187945854565189 * 0.9,
             0.016405336634527146 * 0.9,
             10000,
-           true);
+            true);
 
     public static final MapBox portrait10000 = new MapBox(
             0.02955457284753238 * 0.9,
@@ -68,7 +68,7 @@ public class MapFitter {
 
     public static final MapBox portrait7500 = new MapBox(
             portrait10000.getMaxWidth() * 0.75,
-             portrait10000.getMaxHeight() * 0.75,
+            portrait10000.getMaxHeight() * 0.75,
             7500,
             false);
     public static final MapBox landscape12500 = new MapBox(
@@ -107,12 +107,12 @@ public class MapFitter {
      * return the MapBox that would best enclose the points in the passed in envelope
      * or null if we don't have one
      */
-   public static Optional<MapBox> getForEnvelope(Envelope env) {
-        return possibleBoxes.stream().filter( it ->
-            env.getWidth() < it.getMaxWidth() && env.getHeight() < it.getMaxHeight() ).findFirst();
-   }
+    public static Optional<MapBox> getForEnvelope(Envelope env) {
+        return possibleBoxes.stream().filter(it ->
+                env.getWidth() < it.getMaxWidth() && env.getHeight() < it.getMaxHeight()).findFirst();
+    }
 
-   public static boolean canBeMapped(Envelope env) {
+    public static boolean canBeMapped(Envelope env) {
         return getForEnvelope(env).isPresent();
     }
 }

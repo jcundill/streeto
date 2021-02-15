@@ -5,7 +5,7 @@ import org.streeto.ControlSiteFinder;
 
 import java.util.List;
 
-public class TriangleSeeder extends AbstractSeeder{
+public class TriangleSeeder extends AbstractSeeder {
 
     public TriangleSeeder(ControlSiteFinder csf) {
         super(csf);

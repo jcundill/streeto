@@ -48,20 +48,6 @@ import java.util.List;
 
 public class MapPrinter {
 
-    private enum MapType {
-        PDF("pdf"),
-        KMZ("kmz");
-
-        private final String key;
-
-        MapType(String key) {
-            this.key = key;
-        }
-    }
-
-    //Create transformation from WS84 to WGS84 Web Mercator
-    private final MathTransform wgs84ToWgs84Web;
-
     private final static String dummyString = "data%5Baction%5D=savemap&data%5Btitle%5D=OpenOrienteeringMap&data%5Brace_instructions%5D" +
                                               "=Race+instructions&data%5Beventdate%5D=&data%5Bclub%5D=&data%5Bstyle%5D=streeto&data%5Bscale%5D" +
                                               "=s10000&data%5Bpapersize%5D=p2970-2100&data%5Bpaperorientation%5D=portrait&data%5Bcentre_lat%5" +
@@ -79,9 +65,10 @@ public class MapPrinter {
                                               "c_startfinish&data%5Bcontrols%5D%5B2%5D%5Bdescription%5D=&data%5Bcontrols%5D%5B2%5D%5Blat%5D=6981216.554224269&data%5B" +
                                               "controls%5D%5B2%5D%5Blon%5D=-135425.9052604716&data%5Bcontrols%5D%5B2%5D%5Bwgs84lat%5D=52.990368510683766&data%5Bcontrol" +
                                               "s%5D%5B2%5D%5Bwgs84lon%5D=-1.2165516056120393";
+    //Create transformation from WS84 to WGS84 Web Mercator
+    private final MathTransform wgs84ToWgs84Web;
     private final MapBox mapBox;
     private final Coordinate mapCentre;
-
     public MapPrinter(Envelope envelopeToMap) throws FactoryException {
         //create reference system WGS84 Web Mercator
         CoordinateReferenceSystem wgs84Web = CRS.decode("EPSG:3857", true);
@@ -93,6 +80,48 @@ public class MapPrinter {
         mapBox = MapFitter.getForEnvelope(envelopeToMap).orElseThrow();
         // coords of the centre of this map
         mapCentre = envelopeToMap.centre();
+    }
+
+    private static String requestKey() {
+        var dummyParameters = dummyString.getBytes(StandardCharsets.UTF_8);
+
+        URL url;
+        StringBuilder response = new StringBuilder();
+        try {
+            url = new URL("https://oomap.co.uk/save.php");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            conn.setRequestProperty("Content-Length", String.valueOf(dummyParameters.length));
+            conn.setRequestProperty("Content-Language", "en-US");
+
+            conn.setUseCaches(false);
+            conn.setDoInput(true);
+            conn.setDoOutput(true);
+
+            conn.getOutputStream().write(dummyParameters);
+            conn.getOutputStream().flush();
+            conn.getOutputStream().close();
+
+            //var rd = BufferedReader(InputStreamReader(inputStream))
+            var reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+
+            reader.lines().forEach(response::append);
+            reader.close();
+            conn.disconnect();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return extractKeyFromResponse(response);
+    }
+
+    @NotNull
+    private static String extractKeyFromResponse(StringBuilder response) {
+        var message = Arrays.stream(response.toString().split(",")).filter(it -> it.startsWith("\"message\"")).findFirst().orElseThrow();
+        var code = message.split(":")[1].strip();
+        code = code.substring(1, code.length() - 2);
+        return code;
     }
 
     private Geometry convertBack(double lon, double lat) throws TransformException {
@@ -119,8 +148,8 @@ public class MapPrinter {
         kmzStream.close();
     }
 
-    private InputStream generateArtifact(MapType mapType, MapBox box, Coordinate mapCentre, String title) throws IOException, TransformException{
-        var orientationString =  (box.isLandscape()) ? "0.297,0.21" : "0.21,0.297";
+    private InputStream generateArtifact(MapType mapType, MapBox box, Coordinate mapCentre, String title) throws IOException, TransformException {
+        var orientationString = (box.isLandscape()) ? "0.297,0.21" : "0.21,0.297";
 
         var centre = convertBack(mapCentre.x, mapCentre.y).getCoordinate();
         var centreLat = Math.round(centre.y);
@@ -131,16 +160,16 @@ public class MapPrinter {
         var id = requestKey();
 
         var url = new URL(String.format("https://tiler4.oobrien.com/%s/?style=streeto|" +
-            "paper=%s" +
-            "|scale=%d" +
-            "|centre=%d,%d" +
-            "|title=%s" +
-            "|club=StreetO" +
-            "|id=%s" +
-            "|start=" +
-            "|crosses=" +
-            "|cps=" +
-            "|controls=", mapType.key, orientationString, (int)box.getScale(), centreLat, centreLon, escapedTitle, id));
+                                        "paper=%s" +
+                                        "|scale=%d" +
+                                        "|centre=%d,%d" +
+                                        "|title=%s" +
+                                        "|club=StreetO" +
+                                        "|id=%s" +
+                                        "|start=" +
+                                        "|crosses=" +
+                                        "|cps=" +
+                                        "|controls=", mapType.key, orientationString, (int) box.getScale(), centreLat, centreLon, escapedTitle, id));
 
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         var bis = new BufferedInputStream(new ByteArrayInputStream(conn.getInputStream().readAllBytes()));
@@ -149,45 +178,14 @@ public class MapPrinter {
         return bis;
     }
 
-    private static String requestKey() {
-        var dummyParameters = dummyString.getBytes(StandardCharsets.UTF_8);
+    private enum MapType {
+        PDF("pdf"),
+        KMZ("kmz");
 
-        URL url;
-        StringBuilder response = new StringBuilder();
-        try {
-            url = new URL("https://oomap.co.uk/save.php");
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            conn.setRequestProperty("Content-Length", String.valueOf(dummyParameters.length));
-            conn.setRequestProperty("Content-Language", "en-US");
+        private final String key;
 
-            conn.setUseCaches(false);
-            conn.setDoInput(true);
-            conn.setDoOutput(true);
-
-            conn.getOutputStream().write(dummyParameters);
-            conn.getOutputStream().flush();
-            conn.getOutputStream().close();
-
-             //var rd = BufferedReader(InputStreamReader(inputStream))
-            var reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-
-            reader.lines().forEach(response::append);
-            reader.close();
-            conn.disconnect();
-
-        } catch (IOException e) {
-            e.printStackTrace();
+        MapType(String key) {
+            this.key = key;
         }
-        return extractKeyFromResponse(response);
-     }
-
-    @NotNull
-    private static String extractKeyFromResponse(StringBuilder response) {
-        var message = Arrays.stream(response.toString().split(",")).filter(it -> it.startsWith("\"message\"")).findFirst().orElseThrow();
-        var code = message.split(":")[1].strip();
-        code = code.substring(1, code.length() - 2);
-        return code;
     }
 }

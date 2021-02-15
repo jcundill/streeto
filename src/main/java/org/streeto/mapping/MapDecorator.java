@@ -64,7 +64,7 @@ public class MapDecorator {
     private final List<float[]> offsetsInPts;
     private final List<ControlSite> controls;
 
-    public MapDecorator(InputStream pdfStream, List<ControlSite> controls, MapBox box, Coordinate centre) throws IOException{
+    public MapDecorator(InputStream pdfStream, List<ControlSite> controls, MapBox box, Coordinate centre) throws IOException {
         this.controls = controls;
         this.doc = PDDocument.load(pdfStream);
 
@@ -170,7 +170,7 @@ public class MapDecorator {
     }
 
     private void drawStart() throws IOException {
-        var pos =  offsetsInPts.subList(0, 2);
+        var pos = offsetsInPts.subList(0, 2);
         var start = pos.get(0);
         var next = pos.get(1);
         var angle = (float) atan2((next[1] - start[1]), (next[0] - start[0]));

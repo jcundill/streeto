@@ -3,18 +3,21 @@ package org.streeto.genetic;
 import io.jenetics.AnyGene;
 import io.jenetics.Mutator;
 import io.jenetics.util.ISeq;
-import org.streeto.*;
-import java.util.*;
+import org.streeto.ControlSite;
+import org.streeto.ControlSiteFinder;
 
-public class CourseMutator extends Mutator<AnyGene<ISeq<ControlSite>>, Double>{
+import java.util.Random;
+
+public class CourseMutator extends Mutator<AnyGene<ISeq<ControlSite>>, Double> {
     private final ControlSiteFinder csf;
 
     public CourseMutator(ControlSiteFinder csf, Double probability) {
         super(probability);
         this.csf = csf;
     }
+
     @Override
-    public AnyGene<ISeq<ControlSite>>  mutate(AnyGene<ISeq<ControlSite>> gene, Random random){
+    public AnyGene<ISeq<ControlSite>> mutate(AnyGene<ISeq<ControlSite>> gene, Random random) {
         if (gene != null) {
             var course = gene.allele();
             var newCourse = mutateCourse(course, random);
@@ -25,7 +28,7 @@ public class CourseMutator extends Mutator<AnyGene<ISeq<ControlSite>>, Double>{
     }
 
     private ISeq<ControlSite> randomMutate(ISeq<ControlSite> controls, Random random) {
-        return controls.map( ctrl -> {
+        return controls.map(ctrl -> {
             if (random.nextDouble() < probability()) return csf.findAlternativeControlSiteFor(ctrl, 500.0);
             else return ctrl;
         });
@@ -33,7 +36,7 @@ public class CourseMutator extends Mutator<AnyGene<ISeq<ControlSite>>, Double>{
 
     private <T> ISeq<T> removeStartAndFinish(ISeq<T> points) {
         var last = points.size() - 1;
-        if( last < 1) return ISeq.of();
+        if (last < 1) return ISeq.of();
         return points.subSeq(1, last);
     }
 

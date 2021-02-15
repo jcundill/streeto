@@ -17,29 +17,23 @@ import java.util.*;
 
 public class StreetOFlagEncoder extends AbstractFlagEncoder {
 
-    @Override
-    public String toString() {
-        return "streeto";
-    }
-
     static final int SLOW_SPEED = 2;
     static final int MEAN_SPEED = 5;
     static final int FERRY_SPEED = 15;
+    protected final HashSet<String> sidewalkValues;
+    protected final HashSet<String> sidewalksNoValues;
     final Set<String> safeHighwayTags;
     final Set<String> allowedHighwayTags;
     final Set<String> avoidHighwayTags;
     final Map<String, Integer> hikingNetworkToCode;
-    protected final HashSet<String> sidewalkValues;
-    protected final HashSet<String> sidewalksNoValues;
     private DecimalEncodedValue priorityWayEncoder;
     private EncodedValueOld relationCodeEncoder;
-
     public StreetOFlagEncoder() {
         this(4, 1.0D);
     }
 
     public StreetOFlagEncoder(PMap properties) {
-        this((int)properties.getLong("speedBits", 4L), properties.getDouble("speedFactor", 1.0D));
+        this((int) properties.getLong("speedBits", 4L), properties.getDouble("speedFactor", 1.0D));
         this.properties = properties;
         this.setBlockFords(properties.getBool("block_fords", true));
     }
@@ -117,6 +111,11 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
         this.init();
     }
 
+    @Override
+    public String toString() {
+        return "streeto";
+    }
+
     public int getVersion() {
         return 5;
     }
@@ -132,20 +131,23 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
         return shift + this.relationCodeEncoder.getBits();
     }
 
-    public int defineTurnBits(int index, int shift) {
-        return shift;
-    }
+    public long handleRelationTags(long oldRelationFlags, ReaderRelation relation) {
+        int code = 0;
+        if (!relation.hasTag("route", "hiking") && !relation.hasTag("route", "foot")) {
+            if (relation.hasTag("route", "ferry")) {
+                code = PriorityCode.AVOID_IF_POSSIBLE.getValue();
+            }
+        } else {
+            Integer val = this.hikingNetworkToCode.get(relation.getTag("network"));
+            if (val != null) {
+                code = val;
+            } else {
+                code = this.hikingNetworkToCode.get("lwn");
+            }
+        }
 
-    public boolean isTurnRestricted(long flags) {
-        return false;
-    }
-
-    public double getTurnCost(long flag) {
-        return 0.0D;
-    }
-
-    public long getTurnFlags(boolean restricted, double costs) {
-        return 0L;
+        int oldCode = (int) this.relationCodeEncoder.getValue(oldRelationFlags);
+        return oldCode < code ? this.relationCodeEncoder.setValue(0L, code) : oldRelationFlags;
     }
 
     public EncodingManager.Access getAccess(ReaderWay way) {
@@ -194,25 +196,6 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
         }
     }
 
-    public long handleRelationTags(long oldRelationFlags, ReaderRelation relation) {
-        int code = 0;
-        if (!relation.hasTag("route", "hiking") && !relation.hasTag("route", "foot")) {
-            if (relation.hasTag("route", "ferry")) {
-                code = PriorityCode.AVOID_IF_POSSIBLE.getValue();
-            }
-        } else {
-            Integer val = this.hikingNetworkToCode.get(relation.getTag("network"));
-            if (val != null) {
-                code = val;
-            } else {
-                code = this.hikingNetworkToCode.get("lwn");
-            }
-        }
-
-        int oldCode = (int)this.relationCodeEncoder.getValue(oldRelationFlags);
-        return oldCode < code ? this.relationCodeEncoder.setValue(0L, code) : oldRelationFlags;
-    }
-
     public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, EncodingManager.Access access, long relationFlags) {
         if (!access.canSkip()) {
             if (!access.isFerry()) {
@@ -244,6 +227,26 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
         return edgeFlags;
     }
 
+    public int defineTurnBits(int index, int shift) {
+        return shift;
+    }
+
+    public boolean isTurnRestricted(long flags) {
+        return false;
+    }
+
+    public double getTurnCost(long flag) {
+        return 0.0D;
+    }
+
+    public long getTurnFlags(boolean restricted, double costs) {
+        return 0L;
+    }
+
+    public boolean supports(Class<?> feature) {
+        return super.supports(feature) || PriorityWeighting.class.isAssignableFrom(feature);
+    }
+
     protected int handlePriority(ReaderWay way, int priorityFromRelation) {
         TreeMap<Double, Integer> weightToPrioMap = new TreeMap();
         if (priorityFromRelation == 0) {
@@ -261,7 +264,7 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
         if (way.hasTag("foot", "designated")) {
             weightToPrioMap.put(100.0D, PriorityCode.PREFER.getValue());
         }
-        if(way.hasTag("foot", "destination") || way.hasTag("foot", "customers") || way.hasTag("foot", "delivery")) {
+        if (way.hasTag("foot", "destination") || way.hasTag("foot", "customers") || way.hasTag("foot", "delivery")) {
             weightToPrioMap.put(100.0D, PriorityCode.AVOID_AT_ALL_COSTS.getValue());
         }
 
@@ -278,10 +281,6 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
         } else if ((maxSpeed > 50.0D || this.avoidHighwayTags.contains(highway)) && !way.hasTag("sidewalk", this.sidewalkValues)) {
             weightToPrioMap.put(45.0D, PriorityCode.AVOID_AT_ALL_COSTS.getValue());
         }
-    }
-
-    public boolean supports(Class<?> feature) {
-        return super.supports(feature) || PriorityWeighting.class.isAssignableFrom(feature);
     }
 
 }

@@ -36,6 +36,7 @@ public interface LegScorer {
     default double getWeighting() {
         return weighting;
     }
+
     /**
      * returns the points awarded to each numbered control
      * so the returned list is 1 less than the number of passed in legs

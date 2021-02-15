@@ -62,37 +62,7 @@ public class StreetO {
         scorer = new CourseScorer(featureScorers, csf::findRoutes);
     }
 
-    public ControlSiteFinder getCsf() {
-        return csf;
-    }
-
-    Envelope getEnvelopeForProbableRoutes(List<ControlSite> controls) {
-        var routes = windowed(controls, 2).map(it ->
-                csf.routeRequest(it, 3).getBest()
-        ).collect(Collectors.toList());
-
-        var env = new Envelope();
-        routes.forEach(it -> it.getPoints().forEach(p -> env.expandToInclude(p.lon, p.lat)));
-        return env;
-    }
-
-    Course score(Course course) {
-        var route = csf.routeRequest(course.getControls());
-        course.setRoute(route.getBest());
-        var score = scorer.score(course);
-        course.setEnergy(score);
-        return course;
-    }
-
-    void findFurniture(ControlSite start) {
-        var scaleFactor = 5000.0;
-        var max = csf.getGHPointRelativeTo(start.getLocation(), Math.PI * 0.25, scaleFactor);
-        var min = csf.getGHPointRelativeTo(start.getLocation(), Math.PI * 1.25, scaleFactor);
-        var bbox = new BBox(min.lon, max.lon, min.lat, max.lat);
-        csf.setFurniture(finder.findForBoundingBox(bbox));
-    }
-
-    public static void main(String [] args) {
+    public static void main(String[] args) {
 
         System.out.println("Hello World!");
         var streeto = new StreetO("derbyshire-latest");
@@ -121,5 +91,35 @@ public class StreetO {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public ControlSiteFinder getCsf() {
+        return csf;
+    }
+
+    Envelope getEnvelopeForProbableRoutes(List<ControlSite> controls) {
+        var routes = windowed(controls, 2).map(it ->
+                csf.routeRequest(it, 3).getBest()
+        ).collect(Collectors.toList());
+
+        var env = new Envelope();
+        routes.forEach(it -> it.getPoints().forEach(p -> env.expandToInclude(p.lon, p.lat)));
+        return env;
+    }
+
+    Course score(Course course) {
+        var route = csf.routeRequest(course.getControls());
+        course.setRoute(route.getBest());
+        var score = scorer.score(course);
+        course.setEnergy(score);
+        return course;
+    }
+
+    void findFurniture(ControlSite start) {
+        var scaleFactor = 5000.0;
+        var max = csf.getGHPointRelativeTo(start.getLocation(), Math.PI * 0.25, scaleFactor);
+        var min = csf.getGHPointRelativeTo(start.getLocation(), Math.PI * 1.25, scaleFactor);
+        var bbox = new BBox(min.lon, max.lon, min.lat, max.lat);
+        csf.setFurniture(finder.findForBoundingBox(bbox));
     }
 }
