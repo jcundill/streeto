@@ -29,6 +29,7 @@ import com.graphhopper.GHResponse;
 import com.graphhopper.PathWrapper;
 import com.graphhopper.util.shapes.GHPoint;
 import org.jetbrains.annotations.NotNull;
+import org.streeto.utils.CollectionHelpers;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -57,7 +58,7 @@ public class LegRouteChoiceScorer extends AbstractLegScorer {
         var ratio = (sorted.get(num) - sorted.get(0)) / sorted.get(0);
         List<GHPoint> first = getAsList(leg, 0);
         List<GHPoint> second = getAsList(leg, num);
-        var common = intersection(first, second).size();
+        var common = CollectionHelpers.intersection(first, second).size();
         var total = Math.min(first.size(), second.size());
         var commonRatio = common * 1.0 / total;
 

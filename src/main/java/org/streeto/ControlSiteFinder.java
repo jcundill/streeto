@@ -42,7 +42,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 import static java.lang.Math.*;
-import static org.streeto.utils.CollectionHelpers.iterableStreamOf;
+import static org.streeto.utils.CollectionHelpers.iterableAsStream;
 import static org.streeto.utils.DistUtils.dist;
 
 
@@ -151,7 +151,7 @@ public class ControlSiteFinder {
         if (!qr.isValid()) return Optional.empty();
         else if (qr.getSnappedPosition() == QueryResult.Position.EDGE) {
             var pl = qr.getClosestEdge().fetchWayGeometry(3);
-            return iterableStreamOf(pl).filter(pt -> {
+            return iterableAsStream(pl).filter(pt -> {
                         var loc = gh.getLocationIndex().findClosest(pt.lat, pt.lon, filter).getSnappedPosition();
                         return loc == QueryResult.Position.TOWER || loc == QueryResult.Position.PILLAR;
                     }

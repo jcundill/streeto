@@ -27,14 +27,12 @@ package org.streeto.scorers;
 
 import com.graphhopper.GHResponse;
 import com.graphhopper.util.shapes.GHPoint;
-import one.util.streamex.StreamEx;
-import org.streeto.utils.CollectionHelpers;
+import com.graphhopper.util.shapes.GHPoint3D;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static org.streeto.utils.CollectionHelpers.streamFromPointList;
+import static org.streeto.utils.CollectionHelpers.*;
 import static org.streeto.utils.DistUtils.dist;
 
 public class ComingBackHereLaterScorer extends AbstractLegScorer {
@@ -44,26 +42,26 @@ public class ComingBackHereLaterScorer extends AbstractLegScorer {
      */
     @Override
     public List<Double> score(List<GHResponse> routedLegs) {
-        AtomicInteger idx = new AtomicInteger();
-        return StreamEx.of(routedLegs).map(leg -> {
-            var futureLegs = routedLegs.subList(idx.incrementAndGet(), routedLegs.size());
+        return mapIndexed(routedLegs, (idx, leg) -> {
+            var futureLegs = routedLegs.subList(idx, routedLegs.size());
             return evaluate(futureLegs, leg);
-        }).toList();
+        }).collect(Collectors.toList());
     }
 
     private double evaluate(List<GHResponse> futureLegs, GHResponse thisLeg) {
         if (futureLegs.isEmpty()) return 0.0; // no further legs
         else {
             var remainingControls = futureLegs.stream()
-                    .map(it -> {
-                        var points = it.getBest().getPoints();
-                        return CollectionHelpers.last(points);
-                    })
+                    .map(this::getLastPoint)
                     .collect(Collectors.toList());
-            var legPointStream = streamFromPointList(thisLeg.getBest().getPoints());
-            if (legPointStream.anyMatch(it -> goesTooCloseToAFutureControl(remainingControls, it))) return 1.0;
+            if (iterableAsStream(thisLeg.getBest().getPoints())
+                    .anyMatch(it -> goesTooCloseToAFutureControl(remainingControls, it))) return 1.0;
             else return 0.0;
         }
+    }
+
+    private GHPoint3D getLastPoint(GHResponse it) {
+        return last(it.getBest().getPoints());
     }
 
     private boolean goesTooCloseToAFutureControl(List<? extends GHPoint> ctrls, GHPoint p) {

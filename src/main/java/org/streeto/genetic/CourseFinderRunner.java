@@ -12,10 +12,8 @@ import org.streeto.ControlSiteFinder;
 import org.streeto.Course;
 
 import java.time.Duration;
-import java.util.stream.IntStream;
 
-import static org.streeto.utils.CollectionHelpers.first;
-import static org.streeto.utils.CollectionHelpers.last;
+import static org.streeto.utils.CollectionHelpers.*;
 
 public class CourseFinderRunner {
     private final ControlSiteFinder csf;
@@ -47,12 +45,17 @@ public class CourseFinderRunner {
         if (population.isValid()) {
             var best = population.genotype().gene().allele().asList();
             // number the controls
-            first(best).setNumber("S1");
-            last(best).setNumber("F1");
-            IntStream.range(1, best.size() - 1).forEach(i -> best.get(i).setNumber(String.format("%2d", i)));
+            formatNumber(first(best), "S1");
+            forEachIndexed(dropFirstAndLast(best, 1), (i, ctrl) -> formatNumber(ctrl, String.format("%d", i+1)));
+            formatNumber(last(best), "F1");
+
             return new Course(initialCourse.getRequestedDistance(), initialCourse.getRequestedNumControls(), best);
         } else {
             return initialCourse;
         }
+    }
+
+    private void formatNumber(ControlSite controlSite, String format) {
+        controlSite.setNumber(format);
     }
 }

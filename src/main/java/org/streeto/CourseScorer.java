@@ -27,7 +27,6 @@ package org.streeto;
 
 import com.graphhopper.GHResponse;
 import com.graphhopper.util.shapes.GHPoint;
-import one.util.streamex.StreamEx;
 import org.jetbrains.annotations.NotNull;
 import org.streeto.scorers.LegScorer;
 
@@ -37,6 +36,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
+
+import static org.streeto.utils.CollectionHelpers.forEachZipped;
+import static org.streeto.utils.CollectionHelpers.windowed;
 
 
 public class CourseScorer {
@@ -60,10 +62,11 @@ public class CourseScorer {
     }
 
     public List<List<List<Double>>> score(List<ControlSite> controls) {
-        var legs = StreamEx.ofSubLists(controls, 2, 1);
-        var legRoutes = legs.map(ab -> findRoutes.apply(ab.get(0).getLocation(), ab.get(1).getLocation())).toList();
-        var featureScores = legScorers.stream().map(raw ->
-                raw.score(legRoutes).stream().map(s -> s * raw.getWeighting()).collect(Collectors.toList())
+        var legRoutes = windowed(controls, 2)
+                .map(ab -> findRoutes.apply(ab.get(0).getLocation(), ab.get(1).getLocation()))
+                .collect(Collectors.toList());
+        var featureScores = legScorers.stream()
+                .map(raw -> raw.score(legRoutes).stream().map(s -> s * raw.getWeighting()).collect(Collectors.toList())
         ).collect(Collectors.toList());
 
         /*
@@ -99,7 +102,7 @@ public class CourseScorer {
         var results = new HashMap<String, List<Double>>();
 
         // side effects only folks - feeds the map
-        StreamEx.zip(names, featureScores, results::put).toList();
+        forEachZipped(names, featureScores, results::put);
         return results;
     }
 

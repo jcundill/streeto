@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.streeto.utils.CollectionHelpers.streamFromPointList;
+import static org.streeto.utils.CollectionHelpers.*;
 
 public class GpxFacade {
 
@@ -42,7 +42,7 @@ public class GpxFacade {
     }
 
     public static void writeCourse(String filename, Course course) throws IOException {
-        var points = streamFromPointList(course.getRoute()
+        var points = iterableAsStream(course.getRoute()
                 .getPoints())
                 .map(GpxFacade::toWayPoint)
                 .collect(Collectors.toList());

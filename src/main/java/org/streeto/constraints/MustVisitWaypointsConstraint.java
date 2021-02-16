@@ -5,7 +5,7 @@ import com.graphhopper.util.PointList;
 import com.graphhopper.util.shapes.GHPoint;
 import org.jetbrains.annotations.NotNull;
 
-import static org.streeto.utils.CollectionHelpers.streamFromPointList;
+import static org.streeto.utils.CollectionHelpers.iterableAsStream;
 import static org.streeto.utils.DistUtils.dist;
 
 public class MustVisitWaypointsConstraint implements CourseConstraint {
@@ -15,11 +15,11 @@ public class MustVisitWaypointsConstraint implements CourseConstraint {
         if (waypoints.isEmpty())
             return true;
         else {
-            return streamFromPointList(waypoints).allMatch(wpt -> getsCloseTo(wpt, routedCourse));
+            return iterableAsStream(waypoints).allMatch(wpt -> getsCloseTo(wpt, routedCourse));
         }
     }
 
     private boolean getsCloseTo(GHPoint wpt, GHResponse routedCourse) {
-        return streamFromPointList(routedCourse.getBest().getPoints()).anyMatch(pt -> dist(pt, wpt) < 100.0);
+        return iterableAsStream(routedCourse.getBest().getPoints()).anyMatch(pt -> dist(pt, wpt) < 100.0);
     }
 }
