@@ -36,13 +36,11 @@ public class GhWrapper {
 
     private final FlagEncoder oFlagEncoder = new StreetOFlagEncoder();
 
-    private GraphHopper initGH(String pbf, String osmDirectory) {
-        var name = pbf.split("\\.")[0];
-        var location = String.format("%s/grph_%s", osmDirectory, name);
+    public GraphHopper initGH(String pbf, String osmDirectory) {
         var gh = new GraphHopperOSM()
                 .setOSMFile(pbf)
                 .forServer()
-                .setGraphHopperLocation(location)
+                .setGraphHopperLocation(osmDirectory)
                 .setEnableCalcPoints(true)
                 .setCHEnabled(false)
                 .setElevation(true)

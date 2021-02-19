@@ -42,6 +42,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
+import static org.streeto.utils.CollectionHelpers.*;
+import static org.streeto.utils.CollectionHelpers.last;
+
 
 public class StreetO {
 
@@ -49,12 +52,11 @@ public class StreetO {
     private final CourseScorer scorer;
     private final StreetFurnitureFinder finder = new StreetFurnitureFinder();
     private final MapSplitter splitter;
-    private final List<LegScorer> featureScorers;
 
-    public StreetO(String db) {
-        GraphHopper gh = new GhWrapper().initGH(db);
+    public StreetO(String pbf, String osmDir) {
+        GraphHopper gh = new GhWrapper().initGH(pbf, osmDir);
 
-        this.featureScorers = List.of(
+        List<LegScorer> featureScorers = List.of(
                 new LegLengthScorer(),
                 new LegRouteChoiceScorer(),
                 new LegComplexityScorer(),
@@ -103,18 +105,24 @@ public class StreetO {
         GpxFacade.writeCourse(new File(outputFolder, title + ".gpx"), scoredCourse);
     }
 
-    public ControlSiteFinder getCsf() {
-        return csf;
-    }
-
     public Course generateCourse(double distance, int numControls, List<ControlSite> initialControls) {
         findFurniture(initialControls.get(0));
         var lastMondayRunner = new CourseFinderRunner(scorer::scoreLegs, csf, new Sniffer());
-        var controls = lastMondayRunner.run(new Course(distance, numControls, initialControls));
-        return score(new Course(distance, numControls, controls.getControls()));
+        var maybeBest = lastMondayRunner.run(distance, numControls, initialControls);
+        if(maybeBest.isPresent()) {
+            // now we know the chosen controls, number them
+            var best = maybeBest.get();
+            formatNumber(first(best), "S1");
+            forEachIndexed(dropFirstAndLast(best, 1), (i, ctrl) -> formatNumber(ctrl, String.format("%d", i + 1)));
+            formatNumber(last(best), "F1");
+            return new Course(distance, numControls, best);
+        } else {
+            return null;
+        }
+
     }
 
-    Course score(Course course) {
+    public Course score(Course course) {
         var route = csf.routeRequest(course.getControls());
         course.setRoute(route.getBest());
         var score = scorer.score(course);
@@ -130,23 +138,33 @@ public class StreetO {
         csf.setFurniture(finder.findForBoundingBox(bbox));
     }
 
+
+    private void formatNumber(ControlSite controlSite, String format) {
+        controlSite.setNumber(format);
+    }
+
     public static void main(String[] args) {
         System.out.println("Hello World!");
 
-        var streeto = new StreetO("derbyshire-latest");
+        var streeto = new StreetO("extracts/great-britain-latest.osm.pbf", "osm_data");
         var initialCourse = Course.buildFromProperties("./streeto.properties");
-        Course scoredCourse = streeto.generateCourse(initialCourse.getRequestedDistance(), initialCourse.getRequestedNumControls(), initialCourse.getControls());
+        var course = streeto.generateCourse(initialCourse.getRequestedDistance(), initialCourse.getRequestedNumControls(), initialCourse.getControls());
+        if( course != null) {
+            var scoredCourse = streeto.score(course);
 
-        System.out.printf("best score: %f%n", 1.0 - scoredCourse.getEnergy());
-        System.out.printf("distance: %f\n", scoredCourse.getRoute().getDistance());
+            System.out.printf("best score: %f%n", 1.0 - scoredCourse.getEnergy());
+            System.out.printf("distance: %f\n", scoredCourse.getRoute().getDistance());
 
-        try {
-            var outputFolder = new File("./");
-            streeto.writeGpx(scoredCourse, "abc", outputFolder);
-            streeto.writeMap(scoredCourse, "abc", outputFolder);
-            streeto.writeMapRunFiles(scoredCourse, "abc", outputFolder);
-        } catch (IOException e) {
-            e.printStackTrace();
+            try {
+                var outputFolder = new File("./");
+                streeto.writeGpx(scoredCourse, "abc", outputFolder);
+                streeto.writeMap(scoredCourse, "abc", outputFolder);
+                streeto.writeMapRunFiles(scoredCourse, "abc", outputFolder);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("unable to generate a course");
         }
     }
 

@@ -21,22 +21,29 @@ class CourseFinderProblem implements Problem<ISeq<ControlSite>, AnyGene<ISeq<Con
 
     private final Function<List<ControlSite>, List<Double>> legScorer;
     private final ControlSiteFinder csf;
-    private final Course initialCourse;
-//    private final CourseScorer courseScorer;
+    private final double requestedDistance;
+    private final int requestedNumControls;
+    private final List<ControlSite> initialControls;
     private final CourseSeeder seeder;
     private final List<CourseConstraint> constraints;
     private final Map<Integer, Boolean> validatedSet = new HashMap<>();
 
-    CourseFinderProblem(Function<List<ControlSite>,List<Double>> legScorer, ControlSiteFinder csf, Course initialCourse) {
+    CourseFinderProblem(Function<List<ControlSite>,List<Double>> legScorer,
+                        ControlSiteFinder csf,
+                        double requestedDistance,
+                        int requestedNumControls,
+                        List<ControlSite> initialControls) {
         this.legScorer = legScorer;
         this.csf = csf;
-        this.initialCourse = initialCourse;
- //       this.courseScorer = new CourseScorer(featureScorers, csf::findRoutes);
+        this.requestedDistance = requestedDistance;
+        this.requestedNumControls = requestedNumControls;
+        this.initialControls = initialControls;
+
         this.seeder = new CourseSeeder(this.csf);
 
         this.constraints = List.of(
                 new IsRouteableConstraint(),
-                new CourseLengthConstraint(initialCourse.distance()),
+                new CourseLengthConstraint(requestedDistance),
                 new PrintableOnMapConstraint(),
                 new LastControlNearTheFinishConstraint(),
                 new DidntMoveConstraint(),
@@ -74,7 +81,7 @@ class CourseFinderProblem implements Problem<ISeq<ControlSite>, AnyGene<ISeq<Con
     }
 
     private ISeq<ControlSite> nextRandomCourse() {
-        return ISeq.of(seeder.chooseInitialPoints(initialCourse.getControls(), initialCourse.getRequestedNumControls(), initialCourse.getRequestedDistance()));
+        return ISeq.of(seeder.chooseInitialPoints(initialControls, requestedNumControls, requestedDistance));
     }
 
     private Double courseFitness(ISeq<ControlSite> controls) {

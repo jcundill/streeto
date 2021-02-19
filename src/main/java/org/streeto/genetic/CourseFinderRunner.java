@@ -12,6 +12,7 @@ import org.streeto.ControlSiteFinder;
 import org.streeto.Course;
 import java.time.Duration;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 import static org.streeto.utils.CollectionHelpers.*;
@@ -33,9 +34,9 @@ public class CourseFinderRunner {
         );
     }
 
-    public Course run(Course initialCourse) {
+    public Optional<List<ControlSite>> run(double requestedDistance, int requestedNumControls, List<ControlSite> initialControls) {
         final Engine<AnyGene<ISeq<ControlSite>>, Double> engine = Engine
-                .builder(new CourseFinderProblem(legScorer, csf, initialCourse))
+                .builder(new CourseFinderProblem(legScorer, csf, requestedDistance, requestedNumControls,initialControls))
                 .alterers(myAlterer)
                 .build();
         var population = engine.stream()
@@ -46,15 +47,9 @@ public class CourseFinderRunner {
                 .peek(callback)
                 .collect(EvolutionResult.toBestPhenotype());
         if (population.isValid()) {
-            var best = population.genotype().gene().allele().asList();
-            // number the controls
-            formatNumber(first(best), "S1");
-            forEachIndexed(dropFirstAndLast(best, 1), (i, ctrl) -> formatNumber(ctrl, String.format("%d", i+1)));
-            formatNumber(last(best), "F1");
-
-            return new Course(initialCourse.getRequestedDistance(), initialCourse.getRequestedNumControls(), best);
+            return Optional.of(population.genotype().gene().allele().asList());
         } else {
-            return initialCourse;
+            return Optional.empty();
         }
     }
 
