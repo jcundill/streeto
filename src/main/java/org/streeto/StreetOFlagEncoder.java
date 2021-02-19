@@ -17,9 +17,6 @@ import java.util.*;
 
 public class StreetOFlagEncoder extends AbstractFlagEncoder {
 
-    static final int SLOW_SPEED = 2;
-    static final int MEAN_SPEED = 5;
-    static final int FERRY_SPEED = 15;
     protected final HashSet<String> sidewalkValues;
     protected final HashSet<String> sidewalksNoValues;
     final Set<String> safeHighwayTags;
@@ -44,12 +41,12 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
 
     public StreetOFlagEncoder(int speedBits, double speedFactor) {
         super(speedBits, speedFactor, 0);
-        this.safeHighwayTags = new HashSet();
-        this.allowedHighwayTags = new HashSet();
-        this.avoidHighwayTags = new HashSet();
-        this.hikingNetworkToCode = new HashMap();
-        this.sidewalkValues = new HashSet(5);
-        this.sidewalksNoValues = new HashSet(5);
+        this.safeHighwayTags = new HashSet<>();
+        this.allowedHighwayTags = new HashSet<>();
+        this.avoidHighwayTags = new HashSet<>();
+        this.hikingNetworkToCode = new HashMap<>();
+        this.sidewalkValues = new HashSet<>(5);
+        this.sidewalksNoValues = new HashSet<>(5);
 
         restrictions.addAll(List.of("foot", "access"));
         restrictedValues.add("private");
@@ -107,7 +104,7 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
         this.hikingNetworkToCode.put("rwn", PriorityCode.UNCHANGED.getValue());
         this.hikingNetworkToCode.put("lwn", PriorityCode.UNCHANGED.getValue());
         this.maxPossibleSpeed = 15;
-        this.speedDefault = 5.0D;
+        this.speedDefault = 10.0D;
         this.init();
     }
 
@@ -248,7 +245,7 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
     }
 
     protected int handlePriority(ReaderWay way, int priorityFromRelation) {
-        TreeMap<Double, Integer> weightToPrioMap = new TreeMap();
+        TreeMap<Double, Integer> weightToPrioMap = new TreeMap<>();
         if (priorityFromRelation == 0) {
             weightToPrioMap.put(0.0D, PriorityCode.UNCHANGED.getValue());
         } else {
@@ -262,7 +259,7 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
     void collect(ReaderWay way, TreeMap<Double, Integer> weightToPrioMap) {
         String highway = way.getTag("highway");
         if (way.hasTag("foot", "designated")) {
-            weightToPrioMap.put(100.0D, PriorityCode.PREFER.getValue());
+            weightToPrioMap.put(100.0D, PriorityCode.UNCHANGED.getValue());
         }
         if (way.hasTag("foot", "destination") || way.hasTag("foot", "customers") || way.hasTag("foot", "delivery")) {
             weightToPrioMap.put(100.0D, PriorityCode.AVOID_AT_ALL_COSTS.getValue());
@@ -273,7 +270,7 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
             weightToPrioMap.put(40.0D, PriorityCode.PREFER.getValue());
             if (way.hasTag("tunnel", this.intendedValues)) {
                 if (way.hasTag("sidewalk", this.sidewalksNoValues)) {
-                    weightToPrioMap.put(40.0D, PriorityCode.AVOID_IF_POSSIBLE.getValue());
+                    weightToPrioMap.put(40.0D, PriorityCode.AVOID_AT_ALL_COSTS.getValue());
                 } else {
                     weightToPrioMap.put(40.0D, PriorityCode.UNCHANGED.getValue());
                 }

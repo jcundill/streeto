@@ -53,7 +53,7 @@ public class DogLegScorer extends AbstractLegScorer {
         if (routes.size() < 2) return List.of(0.0);
         else {
             var ret = new ArrayList<>(List.of(0.0));
-            var dogLegScores = beforeAndAfterLegs(routes).map(this::dogLegScore).collect(Collectors.toList());
+            var dogLegScores = windowed(routes,2).map(this::dogLegScore).collect(Collectors.toList());
             ret.addAll(dogLegScores);
             return ret;
         }

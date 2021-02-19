@@ -28,6 +28,7 @@ package org.streeto.scorers;
 import com.graphhopper.GHResponse;
 import com.graphhopper.util.shapes.GHPoint;
 import com.graphhopper.util.shapes.GHPoint3D;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,21 +36,24 @@ import java.util.stream.Collectors;
 import static org.streeto.utils.CollectionHelpers.*;
 import static org.streeto.utils.DistUtils.dist;
 
-public class ComingBackHereLaterScorer extends AbstractLegScorer {
+public class TooCloseToAFutureControlScorer extends AbstractLegScorer {
     /**
      * works out if we run through a future control on this leg
      * and scores it badly if we do
      */
     @Override
     public List<Double> score(List<GHResponse> routedLegs) {
-        return mapIndexed(routedLegs, (idx, leg) -> {
-            var futureLegs = routedLegs.subList(idx, routedLegs.size());
-            return evaluate(futureLegs, leg);
-        }).collect(Collectors.toList());
+        return mapIndexed(routedLegs, (idx, leg) -> evaluate(futureLegs(routedLegs, idx), leg))
+                .collect(Collectors.toList());
+    }
+
+    @NotNull
+    private List<GHResponse> futureLegs(List<GHResponse> routedLegs, Integer idx) {
+        return routedLegs.subList(idx, routedLegs.size());
     }
 
     private double evaluate(List<GHResponse> futureLegs, GHResponse thisLeg) {
-        if (futureLegs.isEmpty()) return 0.0; // no further legs
+        if (futureLegs.size() < 2) return 0.0; // no further legs
         else {
             var remainingControls = futureLegs.stream()
                     .map(this::getLastPoint)

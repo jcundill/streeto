@@ -8,6 +8,7 @@ import io.jenetics.jpx.geom.Geoid;
 import org.streeto.ControlSite;
 import org.streeto.Course;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
@@ -41,7 +42,7 @@ public class GpxFacade {
                 wayPoint.getDescription().orElse(""));
     }
 
-    public static void writeCourse(String filename, Course course) throws IOException {
+    public static void writeCourse(File filename, Course course) throws IOException {
         var points = iterableAsStream(course.getRoute()
                 .getPoints())
                 .map(GpxFacade::toWayPoint)

@@ -67,19 +67,18 @@ public class MapPrinter {
                                               "s%5D%5B2%5D%5Bwgs84lon%5D=-1.2165516056120393";
     //Create transformation from WS84 to WGS84 Web Mercator
     private final MathTransform wgs84ToWgs84Web;
-    private final MapBox mapBox;
-    private final Coordinate mapCentre;
-    public MapPrinter(Envelope envelopeToMap) throws FactoryException {
-        //create reference system WGS84 Web Mercator
-        CoordinateReferenceSystem wgs84Web = CRS.decode("EPSG:3857", true);
-        //create reference system WGS84
-        CoordinateReferenceSystem wgs84 = CRS.decode("EPSG:4326", true);
-        //transform
-        wgs84ToWgs84Web = CRS.findMathTransform(wgs84, wgs84Web);
-        //the map scale and orientation we are going to print
-        mapBox = MapFitter.getForEnvelope(envelopeToMap).orElseThrow();
-        // coords of the centre of this map
-        mapCentre = envelopeToMap.centre();
+    public MapPrinter() {
+        try {
+            //create reference system WGS84 Web Mercator
+            CoordinateReferenceSystem wgs84Web = CRS.decode("EPSG:3857", true);
+            //create reference system WGS84
+            CoordinateReferenceSystem wgs84 = CRS.decode("EPSG:4326", true);
+            // create transform
+            wgs84ToWgs84Web = CRS.findMathTransform(wgs84, wgs84Web);
+        } catch (FactoryException e) {
+            // just give up
+            throw new RuntimeException("unable to create geo transforms needed");
+        }
     }
 
     private static String requestKey() {
@@ -124,31 +123,63 @@ public class MapPrinter {
         return code;
     }
 
-    private Geometry convertBack(double lon, double lat) throws TransformException {
+    private Geometry convertBack(double lon, double lat) {
         var jtsGf = JTSFactoryFinder.getGeometryFactory();
         var pointInWgs84Web = jtsGf.createPoint(new Coordinate(lon, lat));
         //transform point from WGS84 Web Mercator to WGS84
-        return JTS.transform(pointInWgs84Web, wgs84ToWgs84Web);
+        try {
+            return JTS.transform(pointInWgs84Web, wgs84ToWgs84Web);
+        } catch (TransformException e) {
+            // just give up
+            throw new RuntimeException("geo traansform not correctly initialised");
+        }
     }
 
-    public void generateMapAsPdf(String filename, String title, List<ControlSite> controls) throws TransformException, IOException {
+    public void generateMapAsPdf(SplitResult split, String title, List<ControlSite> controls, File file) throws IOException {
+        var mapBox1 = MapFitter.getForEnvelope(split.getEnv1()).orElseThrow();
+        var mapCentre1 = split.getEnv1().centre();
+        var pdfStream1 = generateArtifact(MapType.PDF, mapBox1, mapCentre1, title + "_Part_1");
+
+        var mapBox2 = MapFitter.getForEnvelope(split.getEnv2()).orElseThrow();
+        var mapCentre2 = split.getEnv2().centre();
+        var pdfStream2 = generateArtifact(MapType.PDF, mapBox2, mapCentre2, title + "_Part_2");
+
+        var decorator = new MapDecorator();
+        decorator.addMapPage(pdfStream1, split.getSplit1(), mapBox1, mapCentre1);
+        pdfStream1.close();
+        decorator.addMapPage(pdfStream2, split.getSplit2(), mapBox2, mapCentre2);
+        pdfStream2.close();
+        decorator.addControlSheet(controls);
+
+        decorator.saveAs(file);
+      }
+
+    public void generateMapAsPdf(Envelope envelopeToMap, String title, List<ControlSite> controls, File file) throws IOException {
+        var mapBox = MapFitter.getForEnvelope(envelopeToMap).orElseThrow();
+        var mapCentre = envelopeToMap.centre();
         var pdfStream = generateArtifact(MapType.PDF, mapBox, mapCentre, title);
-        var decorator = new MapDecorator(pdfStream, controls, mapBox, mapCentre);
-        var doc = decorator.decorate();
-        doc.save(new File(filename));
+        var decorator = new MapDecorator();
+        decorator.addMapPage(pdfStream, controls, mapBox, mapCentre);
         pdfStream.close();
+        decorator.addControlSheet(controls);
+
+        decorator.saveAs(file);
     }
 
-    public void generateMapAsKmz(String filename, String title) throws TransformException, IOException {
+    public void generateMapAsKmz(Envelope envelopeToMap, String title, File file) throws IOException {
+        //the map scale and orientation we are going to print
+        var mapBox = MapFitter.getForEnvelope(envelopeToMap).orElseThrow();
+        // coords of the centre of this map
+        var mapCentre = envelopeToMap.centre();
         var kmzStream = generateArtifact(MapType.KMZ, mapBox, mapCentre, title);
-        var fis = new FileOutputStream(filename);
+        var fis = new FileOutputStream(file);
         fis.write(kmzStream.readAllBytes());
         fis.flush();
         fis.close();
         kmzStream.close();
     }
 
-    private InputStream generateArtifact(MapType mapType, MapBox box, Coordinate mapCentre, String title) throws IOException, TransformException {
+    private InputStream generateArtifact(MapType mapType, MapBox box, Coordinate mapCentre, String title) throws IOException {
         var orientationString = (box.isLandscape()) ? "0.297,0.21" : "0.21,0.297";
 
         var centre = convertBack(mapCentre.x, mapCentre.y).getCoordinate();

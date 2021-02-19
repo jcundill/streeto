@@ -30,15 +30,13 @@ import com.graphhopper.util.shapes.GHPoint;
 import org.jetbrains.annotations.NotNull;
 import org.streeto.scorers.LegScorer;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
-import static org.streeto.utils.CollectionHelpers.forEachZipped;
-import static org.streeto.utils.CollectionHelpers.windowed;
+import static org.streeto.utils.CollectionHelpers.*;
 
 
 public class CourseScorer {
@@ -52,8 +50,8 @@ public class CourseScorer {
     }
 
     public List<Double> scoreLegs(List<ControlSite> controls) {
-        var scores = score(controls).get(1);
-        return getDoubleList(scores);
+        var scores = score(controls);
+        return scores != null ? getDoubleList(scores.get(1)) : controls.stream().map(x -> 1.0).collect(Collectors.toList());
     }
 
     @NotNull
@@ -61,10 +59,11 @@ public class CourseScorer {
         return scores.stream().map(this::average).collect(Collectors.toList());
     }
 
-    public List<List<List<Double>>> score(List<ControlSite> controls) {
+    private List<List<List<Double>>> score(List<ControlSite> controls) {
         var legRoutes = windowed(controls, 2)
                 .map(ab -> findRoutes.apply(ab.get(0).getLocation(), ab.get(1).getLocation()))
                 .collect(Collectors.toList());
+        if( legRoutes.stream().anyMatch(GHResponse::hasErrors)) return null;
         var featureScores = legScorers.stream()
                 .map(raw -> raw.score(legRoutes).stream().map(s -> s * raw.getWeighting()).collect(Collectors.toList())
         ).collect(Collectors.toList());
@@ -85,11 +84,14 @@ public class CourseScorer {
 
     public double score(Course step) {
         var scores = score(step.getControls());
-        var featureScores = scores.get(0);
-        var legScores = scores.get(1);
-        step.setLegScores(getDoubleList(legScores));
-        step.setFeatureScores(getDetailedScores(featureScores));
-        return average(step.getLegScores());
+        if( scores != null) {
+            var featureScores = scores.get(0);
+            var legScores = scores.get(1);
+            step.setLegScores(getDoubleList(legScores));
+            step.setFeatureScores(getDetailedScores(featureScores));
+            return average(step.getLegScores());
+        } else
+            return 1.0;
     }
 
     private double average(List<Double> scores) {
@@ -98,32 +100,12 @@ public class CourseScorer {
 
     private Map<String, List<Double>> getDetailedScores(List<List<Double>> featureScores) {
         var names = legScorers.stream()
-                .map(it -> it.getClass().getSimpleName()).collect(Collectors.toList());
+                .map(it -> it.getClass().getSimpleName())
+                .collect(Collectors.toList());
         var results = new HashMap<String, List<Double>>();
 
         // side effects only folks - feeds the map
         forEachZipped(names, featureScores, results::put);
         return results;
-    }
-
-    /**
-     * Returns a list of lists, each built from elements of all lists with the same indexes.
-     * Output has length of shortest input list.
-     */
-    public <T> List<List<T>> transpose(List<List<T>> lists) {
-        var colLen = lists.size();
-        var rowLen = lists.get(0).size();
-
-        var retVal = new ArrayList<List<T>>(rowLen);
-        for (int i = 0; i < rowLen; i++) {
-            retVal.add(new ArrayList<>(colLen));
-        }
-        for (int i = 0; i < colLen; i++) {
-            for (int j = 0; j < rowLen; j++) {
-                var item = lists.get(i).get(j);
-                retVal.get(j).add(i, item);
-            }
-        }
-        return retVal;
     }
 }

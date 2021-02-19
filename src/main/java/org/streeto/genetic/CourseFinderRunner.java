@@ -10,17 +10,20 @@ import io.jenetics.util.ISeq;
 import org.streeto.ControlSite;
 import org.streeto.ControlSiteFinder;
 import org.streeto.Course;
-
 import java.time.Duration;
+import java.util.List;
+import java.util.function.Function;
 
 import static org.streeto.utils.CollectionHelpers.*;
 
 public class CourseFinderRunner {
+    private final Function<List<ControlSite>, List<Double>> legScorer;
     private final ControlSiteFinder csf;
     private final Sniffer callback;
     private final Alterer<AnyGene<ISeq<ControlSite>>, Double> myAlterer;
 
-    public CourseFinderRunner(ControlSiteFinder csf, Sniffer callback) {
+    public CourseFinderRunner(Function<List<ControlSite>, List<Double>> legScorer, ControlSiteFinder csf, Sniffer callback) {
+        this.legScorer = legScorer;
         this.csf = csf;
         this.callback = callback;
 
@@ -32,7 +35,7 @@ public class CourseFinderRunner {
 
     public Course run(Course initialCourse) {
         final Engine<AnyGene<ISeq<ControlSite>>, Double> engine = Engine
-                .builder(new CourseFinderProblem(csf, initialCourse))
+                .builder(new CourseFinderProblem(legScorer, csf, initialCourse))
                 .alterers(myAlterer)
                 .build();
         var population = engine.stream()

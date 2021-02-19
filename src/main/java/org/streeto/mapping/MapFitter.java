@@ -115,4 +115,9 @@ public class MapFitter {
     public static boolean canBeMapped(Envelope env) {
         return getForEnvelope(env).isPresent();
     }
+
+    public static boolean canFitOnMap(Envelope env, MapBox box) {
+        return env.getWidth() < box.getMaxWidth() && env.getHeight() < box.getMaxHeight();
+    }
+
 }

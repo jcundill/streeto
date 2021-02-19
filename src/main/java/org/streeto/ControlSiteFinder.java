@@ -33,6 +33,7 @@ import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.index.QueryResult;
 import com.graphhopper.util.Parameters;
 import com.graphhopper.util.shapes.GHPoint;
+import com.vividsolutions.jts.geom.Envelope;
 import io.jenetics.util.RandomRegistry;
 
 import java.util.HashMap;
@@ -43,6 +44,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.Math.*;
 import static org.streeto.utils.CollectionHelpers.iterableAsStream;
+import static org.streeto.utils.CollectionHelpers.windowed;
 import static org.streeto.utils.DistUtils.dist;
 
 
@@ -64,6 +66,18 @@ public class ControlSiteFinder {
         this.gh = gh;
         filter = DefaultEdgeFilter.allEdges(gh.getEncodingManager().getEncoder("streeto"));
     }
+
+    public Envelope getEnvelopeForProbableRoutes(List<ControlSite> controls) {
+        var routes = windowed(controls, 2).map(it ->
+                //TODO - routeFitsBox thinks that this is OK even if we don't
+                routeRequest(it, 3).getBest()
+        ).collect(Collectors.toList());
+
+        var env = new Envelope();
+        routes.forEach(it -> it.getPoints().forEach(p -> env.expandToInclude(p.lon, p.lat)));
+        return env;
+    }
+
 
     public ControlSite findControlSiteNear(GHPoint point, double distance) {
         var node = findNearestControlSiteTo(getGHPointRelativeTo(point, randomBearing(), distance));
@@ -130,7 +144,7 @@ public class ControlSiteFinder {
         else {
             // have we got nearby furniture - if so always use that
             var f = findLocalStreetFurniture(loc.get());
-            if (f.isPresent()) return f;
+            if (f.isPresent()) return f.map( it -> new ControlSite(it.getLocation(), it.getDescription()));
             else {
                 var site = loc.get();
                 var isTower = gh.getLocationIndex().findClosest(site.lat, site.lon, filter).getSnappedPosition() == QueryResult.Position.TOWER;

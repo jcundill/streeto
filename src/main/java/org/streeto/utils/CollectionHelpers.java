@@ -2,6 +2,7 @@ package org.streeto.utils;
 
 import one.util.streamex.StreamEx;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -14,12 +15,12 @@ import static java.lang.Math.min;
 
 public class CollectionHelpers {
 
-    public static <T> Stream<List<T>> windowed(Iterable<T> pl, int size) {
-        return StreamEx.ofSubLists(StreamEx.of(pl.iterator()).toList(), size, 1);
+    private CollectionHelpers() {
+        // java smell - do not instantiate
     }
 
-    public static <T> Stream<List<T>> beforeAndAfterLegs(List<T> routes) {
-        return StreamEx.ofSubLists(routes, 2, 1);
+    public static <T> Stream<List<T>> windowed(Iterable<T> pl, int size) {
+        return StreamEx.ofSubLists(iterableAsStream(pl).collect(Collectors.toList()), size, 1);
     }
 
     public static <T> Stream<T> iterableAsStream(Iterable<T> iterable) {
@@ -52,6 +53,10 @@ public class CollectionHelpers {
         return ret.subList(i, ret.size());
     }
 
+    public static <T> List<T> take(List<T> list, int n) {
+        return list.subList(0, n);
+    }
+
     public static <T> List<T> dropLast(Iterable<T> list, int i) {
         var ret = iterableAsStream(list).collect(Collectors.toList());
         return ret.subList(0, ret.size() - i);
@@ -59,9 +64,8 @@ public class CollectionHelpers {
 
     public static <T> List<T> dropFirstAndLast(List<T> list, int i) {
         if (list.size() < 2) return List.of();
-        else return list.subList(i, list.size() - 1);
+        else return list.subList(i, list.size() - i);
     }
-
 
     @SuppressWarnings("unchecked")
     public static <T> Stream<T> reverse(Stream<T> input) {
@@ -69,7 +73,6 @@ public class CollectionHelpers {
         return (Stream<T>) IntStream.range(0, temp.length)
                 .mapToObj(i -> temp[temp.length - i - 1]);
     }
-
 
     public static <T> void forEachIndexed(List<T> list, BiConsumer<Integer, T> consumer) {
         IntStream.range(0, list.size()).forEach(idx -> consumer.accept(idx, list.get(idx)));
@@ -93,5 +96,24 @@ public class CollectionHelpers {
         return IntStream.range(0, min(ts.size(), us.size())).mapToObj(idx -> function.apply(ts.get(idx), us.get(idx)));
     }
 
+    /**
+     * Returns a list of lists, each built from elements of all lists with the same indexes.
+     * Output has length of shortest input list.
+     */
+    public static <T> List<List<T>> transpose(List<List<T>> lists) {
+        var colLen = lists.size();
+        var rowLen = lists.get(0).size();
 
+        var retVal = new ArrayList<List<T>>(rowLen);
+        for (int i = 0; i < rowLen; i++) {
+            retVal.add(new ArrayList<>(colLen));
+        }
+        for (int i = 0; i < colLen; i++) {
+            for (int j = 0; j < rowLen; j++) {
+                var item = lists.get(i).get(j);
+                retVal.get(j).add(i, item);
+            }
+        }
+        return retVal;
+    }
 }

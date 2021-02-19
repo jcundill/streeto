@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
+import static org.streeto.utils.CollectionHelpers.first;
 
 abstract class AbstractSeeder implements SeedingStrategy {
     protected static final double twistFactor = 0.67; //probable crow files disance vs actual distance
@@ -28,8 +31,8 @@ abstract class AbstractSeeder implements SeedingStrategy {
                     var position = pointList.get(it * (pointList.size() / requestedNumControls - 1));
                     return csf.findNearestControlSiteTo(position);
                 });
-        var unfiltered = xs.collect(Collectors.toList());
-        return unfiltered.stream().filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
+        var unfiltered = Stream.concat(List.of(Optional.of(first(points))).stream(), xs);
+        return unfiltered.filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
     }
 
     protected List<ControlSite> generateInitialCourse(List<GHPoint> route, int requestedNumControls) {

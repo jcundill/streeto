@@ -11,8 +11,6 @@ import io.jenetics.engine.RetryConstraint;
 import io.jenetics.util.ISeq;
 import org.streeto.*;
 import org.streeto.constraints.*;
-import org.streeto.scorers.*;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,16 +19,21 @@ import java.util.function.Function;
 
 class CourseFinderProblem implements Problem<ISeq<ControlSite>, AnyGene<ISeq<ControlSite>>, Double> {
 
+    private final Function<List<ControlSite>, List<Double>> legScorer;
     private final ControlSiteFinder csf;
     private final Course initialCourse;
-    private final CourseScorer courseScorerJava;
+//    private final CourseScorer courseScorer;
     private final CourseSeeder seeder;
     private final List<CourseConstraint> constraints;
     private final Map<Integer, Boolean> validatedSet = new HashMap<>();
 
-    CourseFinderProblem(ControlSiteFinder csf, Course initialCourse) {
+    CourseFinderProblem(Function<List<ControlSite>,List<Double>> legScorer, ControlSiteFinder csf, Course initialCourse) {
+        this.legScorer = legScorer;
         this.csf = csf;
         this.initialCourse = initialCourse;
+ //       this.courseScorer = new CourseScorer(featureScorers, csf::findRoutes);
+        this.seeder = new CourseSeeder(this.csf);
+
         this.constraints = List.of(
                 new IsRouteableConstraint(),
                 new CourseLengthConstraint(initialCourse.distance()),
@@ -39,16 +42,6 @@ class CourseFinderProblem implements Problem<ISeq<ControlSite>, AnyGene<ISeq<Con
                 new DidntMoveConstraint(),
                 new OnlyGoToTheFinishAtTheEndConstraint()
         );
-        List<LegScorer> featureScorersJava = List.of(
-                new LegLengthScorer(),
-                new LegComplexityScorer(),
-                new LegRouteChoiceScorer(),
-                new BeenThisWayBeforeScorer(),
-                new ComingBackHereLaterScorer(),
-                new DogLegScorer()
-        );
-        this.courseScorerJava = new CourseScorer(featureScorersJava, csf::findRoutes);
-        this.seeder = new CourseSeeder(this.csf);
     }
 
     @Override
@@ -85,7 +78,7 @@ class CourseFinderProblem implements Problem<ISeq<ControlSite>, AnyGene<ISeq<Con
     }
 
     private Double courseFitness(ISeq<ControlSite> controls) {
-        var legScores = courseScorerJava.scoreLegs(controls.asList());
+        var legScores = legScorer.apply(controls.asList());
         var average = legScores.stream().mapToDouble(x -> x).average().orElseThrow();
         return 1.0 - average;
     }

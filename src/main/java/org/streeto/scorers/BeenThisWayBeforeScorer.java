@@ -11,11 +11,15 @@ import static java.lang.Math.min;
 import static org.streeto.utils.CollectionHelpers.*;
 
 public class BeenThisWayBeforeScorer extends AbstractLegScorer {
-    @NotNull
     @Override
     public List<Double> score(List<GHResponse> routedLegs) {
-        return mapIndexed(routedLegs, (idx, leg) -> evaluate(routedLegs.subList(0, idx), leg))
+        return mapIndexed(routedLegs, (idx, leg) -> evaluate(previousLegs(routedLegs, idx), leg))
                 .collect(Collectors.toList());
+    }
+
+    @NotNull
+    private List<GHResponse> previousLegs(List<GHResponse> routedLegs, Integer idx) {
+        return routedLegs.subList(0, idx);
     }
 
     private double evaluate(List<GHResponse> previousLegs, GHResponse thisLeg) {
@@ -25,12 +29,11 @@ public class BeenThisWayBeforeScorer extends AbstractLegScorer {
         var xs = previousLegs.stream()
                 .map(l -> compareLegs(l, thisLeg))
                 .collect(Collectors.toList());
-        if (xs.isEmpty()) return 0.0;
-        else {
-            return xs.stream()
-                    .max(Double::compareTo)
-                    .orElseThrow(NoSuchElementException::new);
-        }
+
+        return xs.stream()
+                .max(Double::compareTo)
+                .orElseThrow(NoSuchElementException::new);
+
     }
 
     private double compareLegs(GHResponse a, GHResponse b) {
