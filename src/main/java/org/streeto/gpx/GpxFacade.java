@@ -1,5 +1,6 @@
 package org.streeto.gpx;
 
+import com.graphhopper.PathWrapper;
 import com.graphhopper.util.shapes.GHPoint;
 import io.jenetics.jpx.GPX;
 import io.jenetics.jpx.Route;
@@ -42,21 +43,21 @@ public class GpxFacade {
                 wayPoint.getDescription().orElse(""));
     }
 
-    public static void writeCourse(File filename, Course course) throws IOException {
-        var points = iterableAsStream(course.getRoute()
+    public static void writeCourse(File filename, PathWrapper pathWrapper, List<ControlSite> controls) throws IOException {
+        var points = iterableAsStream(pathWrapper
                 .getPoints())
                 .map(GpxFacade::toWayPoint)
                 .collect(Collectors.toList());
-        var controls = course.getControls().stream()
+        var ctrls = controls.stream()
                 .map(GpxFacade::toWayPoint).collect(Collectors.toList());
-        var route = toRoute(controls);
+        var route = toRoute(ctrls);
         var gpxBuilder = GPX.builder()
                 .addTrack(track -> track
                         .name("Best Track")
                         .addSegment(s -> s.points(points)))
                 .addRoute(route)
                 .creator("StreetO");
-        controls.forEach(gpxBuilder::addWayPoint);
+        ctrls.forEach(gpxBuilder::addWayPoint);
         var gpx = gpxBuilder.build();
 
 

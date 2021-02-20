@@ -25,15 +25,7 @@
 
 package org.streeto;
 
-import com.graphhopper.PathWrapper;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.function.Function;
 
 
 public class Course {
@@ -41,46 +33,11 @@ public class Course {
     private final double requestedDistance;
     private final int requestedNumControls;
     private final List<ControlSite> controls;
-    private List<Double> legScores = List.of();
-    private Map<String, List<Double>> featureScores = Map.of();
-    private double energy = 1000.0;
-    private PathWrapper route = null;
 
     public Course(double requestedDistance, int requestedNumControls, List<ControlSite> controls) {
         this.requestedDistance = requestedDistance;
         this.requestedNumControls = requestedNumControls;
         this.controls = controls;
-    }
-
-    public static Course buildFromProperties(String filename) {
-        var props = new Properties();
-        try {
-            props.load(new FileInputStream(filename));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        var waypoints = props.getProperty("controls", "");
-        var distance = Double.parseDouble(props.getProperty("distance", "6000.0"));
-        var numControls = Integer.parseInt(props.getProperty("numControls", "10"));
-
-        var initials = new ArrayList<ControlSite>();
-        if (!waypoints.equals("")) {
-            for (String it : waypoints.split("\\|")) {
-                var latlon = it.split(",");
-                var site = new ControlSite(Double.parseDouble(latlon[0]), Double.parseDouble(latlon[1]), "_initial_");
-                initials.add(site);
-            }
-
-        }
-        return new Course(distance, numControls, initials);
-    }
-
-    private static Course courseFromPoints(
-            List<ControlSite> points, Function<List<ControlSite>, Double> measurer) {
-        var numControls = points.size() - 2;
-        var distance = measurer.apply(points);
-
-        return new Course(distance, numControls, points);
     }
 
     public double getRequestedDistance() {
@@ -93,49 +50,6 @@ public class Course {
 
     public List<ControlSite> getControls() {
         return controls;
-    }
-
-    public List<Double> getLegScores() {
-        return legScores;
-    }
-
-    public void setLegScores(List<Double> legScores) {
-        this.legScores = legScores;
-    }
-
-    public Map<String, List<Double>> getFeatureScores() {
-        return featureScores;
-    }
-
-    public void setFeatureScores(Map<String, List<Double>> featureScores) {
-        this.featureScores = featureScores;
-    }
-
-    public double getEnergy() {
-        return energy;
-    }
-
-    public void setEnergy(double energy) {
-        this.energy = energy;
-    }
-
-    public PathWrapper getRoute() {
-        return route;
-    }
-
-    public void setRoute(PathWrapper route) {
-        this.route = route;
-    }
-
-    public Course copy(List<ControlSite> controls) {
-        return new Course(this.getRequestedDistance(), this.requestedNumControls, controls);
-    }
-
-    public double distance() {
-
-        if (requestedDistance == 0.0)
-            return route.getDistance() * 0.8; // no desired distance given, make it about as long as it is now
-        else return requestedDistance;
     }
 
     @Override

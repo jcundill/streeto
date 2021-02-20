@@ -42,7 +42,7 @@ class StreetFurnitureMapDataHandler implements MapDataWithGeometryHandler {
         this.locations = locations;
     }
 
-    private ControlSite parsePointFeatue(Node node) {
+    private ControlSite parsePointFeature(Node node) {
         var lat = node.getPosition().getLatitude();
         var lon = node.getPosition().getLongitude();
         var description = getDescription(node);
@@ -82,7 +82,7 @@ class StreetFurnitureMapDataHandler implements MapDataWithGeometryHandler {
     @Override
     public void handle(Node node) {
         if (!node.isDeleted()) {
-            locations.add(parsePointFeatue(node));
+            locations.add(parsePointFeature(node));
         }
     }
 
@@ -94,6 +94,7 @@ class StreetFurnitureMapDataHandler implements MapDataWithGeometryHandler {
 
     @Override
     public void handle(@NotNull Relation relation, @NotNull BoundingBox boundingBox, @NotNull Map<Long, LatLon> map, @NotNull Map<Long, List<LatLon>> map1) {
+        // we only asked about nodes and ways
     }
 }
 

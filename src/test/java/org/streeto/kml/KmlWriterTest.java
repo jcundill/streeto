@@ -2,6 +2,8 @@ package org.streeto.kml;
 
 
 import org.junit.jupiter.api.Test;
+import org.streeto.ScoreDetails;
+import org.streeto.StreetO;
 
 import java.util.stream.Collectors;
 
@@ -30,5 +32,15 @@ class KmlWriterTest {
         var kml = new KmlWriter();
         var xs = kml.parseStream(fis).collect(Collectors.toList());
         var ys = kml.generate(xs, "myid");
+    }
+
+    @Test
+    public void format()throws Exception {
+        var fis = getClass().getClassLoader().getResourceAsStream("abc.kml");
+        var streeto = new StreetO("extracts/great-britain-latest.osm.pbf", "osm_data");
+        var course = streeto.getImporter().buildFromKml(fis);
+        ScoreDetails scoreDetails = streeto.score(course.getControls());
+        System.out.println(scoreDetails.toString());
+
     }
 }

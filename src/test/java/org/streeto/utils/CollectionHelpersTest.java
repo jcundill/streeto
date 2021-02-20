@@ -59,10 +59,29 @@ public class CollectionHelpersTest {
         var a = List.of(1,2,3,4,5,6,7);
         assertEquals(List.of(1,2,3,4), dropLast(a, 3));
     }
+
     @Test
     public void testDropFirstAndLast() {
         var a = List.of(1,2,3,4,5,6,7);
         assertEquals(List.of(4), dropFirstAndLast(a, 3));
+    }
+
+    @Test
+    public void testDropFirstAndLastTooFew() {
+        var a = List.of(1);
+        assertEquals(List.of(), dropFirstAndLast(a, 1));
+    }
+
+    @Test
+    public void testTake() {
+        var a = List.of(1,2,3,4,5,6,7);
+        assertEquals(List.of(1,2,3), take(a, 3));
+    }
+
+    @Test
+    public void testTakeLst() {
+        var a = List.of(1,2,3,4,5,6,7);
+        assertEquals(List.of(5,6,7), takeLast(a, 3));
     }
 
     @Test

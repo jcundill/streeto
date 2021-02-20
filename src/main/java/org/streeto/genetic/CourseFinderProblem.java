@@ -17,6 +17,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
+import static org.streeto.utils.CollectionHelpers.dropFirstAndLast;
+
 class CourseFinderProblem implements Problem<ISeq<ControlSite>, AnyGene<ISeq<ControlSite>>, Double> {
 
     private final Function<List<ControlSite>, List<Double>> legScorer;
@@ -44,6 +46,7 @@ class CourseFinderProblem implements Problem<ISeq<ControlSite>, AnyGene<ISeq<Con
         this.constraints = List.of(
                 new IsRouteableConstraint(),
                 new CourseLengthConstraint(requestedDistance),
+                new MustVisitWaypointsConstraint(dropFirstAndLast(initialControls, 1)),
                 new PrintableOnMapConstraint(),
                 new LastControlNearTheFinishConstraint(),
                 new DidntMoveConstraint(),

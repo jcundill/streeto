@@ -11,10 +11,10 @@ public class OnlyGoToTheFinishAtTheEndConstraint implements CourseConstraint {
     @Override
     public boolean valid(@NotNull GHResponse routedCourse) {
         var track = routedCourse.getBest().getPoints();
-        var finish = track.get(track.getSize() - 1);
+        var finish = last(track);
         return iterableAsStream(track)
-                .dropWhile(it1 -> dist(it1, finish) <= 150.0)
-                .dropWhile(it1 -> dist(it1, finish) > 150.0)
+                .dropWhile(it -> dist(it, finish) <= 150.0)
+                .dropWhile(it -> dist(it, finish) > 150.0)
                 .allMatch(it -> dist(it, finish) < 150.0);
     }
 }

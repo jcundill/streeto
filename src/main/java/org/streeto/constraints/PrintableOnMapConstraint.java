@@ -11,15 +11,13 @@ import java.util.List;
 import static org.streeto.utils.CollectionHelpers.iterableAsStream;
 
 public class PrintableOnMapConstraint implements CourseConstraint {
-    private final Envelope env = new Envelope();
-
     @Override
     public boolean valid(@NotNull GHResponse routedCourse) {
         return routeFitsBox(routedCourse.getAll());
     }
 
     private boolean routeFitsBox(List<PathWrapper> routes) {
-        env.setToNull();
+        var env = new Envelope();
         routes.forEach(pw -> iterableAsStream(pw.getPoints())
                 .forEach(it -> env.expandToInclude(it.lon, it.lat)));
         return MapFitter.getForEnvelope(env).isPresent();

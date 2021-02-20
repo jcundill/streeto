@@ -1,8 +1,11 @@
 package org.streeto.constraints;
 
 import com.graphhopper.GHResponse;
-import org.streeto.utils.CollectionHelpers;
+import com.graphhopper.util.shapes.GHPoint3D;
 
+import java.util.List;
+
+import static org.streeto.utils.CollectionHelpers.*;
 import static org.streeto.utils.DistUtils.dist;
 
 public class DidntMoveConstraint implements CourseConstraint {
@@ -11,6 +14,10 @@ public class DidntMoveConstraint implements CourseConstraint {
     @Override
     public boolean valid(GHResponse routedCourse) {
         var controls = routedCourse.getBest().getWaypoints();
-        return CollectionHelpers.windowed(controls, 2).allMatch(it -> dist(it.get(0), it.get(1)) > minMoveDistance);
+        return windowed(controls, 2).allMatch(this::evaluate);
+    }
+
+    private boolean evaluate(List<GHPoint3D> leg) {
+        return dist(first(leg), last(leg)) > minMoveDistance;
     }
 }

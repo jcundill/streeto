@@ -27,6 +27,7 @@ package org.streeto.furniture;
 
 import com.graphhopper.util.shapes.BBox;
 import de.westnordost.osmapi.OsmConnection;
+import de.westnordost.osmapi.common.errors.OsmApiException;
 import de.westnordost.osmapi.overpass.OverpassMapDataDao;
 import org.streeto.ControlSite;
 
@@ -75,7 +76,11 @@ public class StreetFurnitureFinder {
                  "  way[\"barrier\"=\"hedge\"](" + bbox + ");\n" +
                  "                <;); out body geom;\n").trim();
 
-        overpass.queryElementsWithGeometry(q, handler);
+        try {
+            overpass.queryElementsWithGeometry(q, handler);
+        } catch (OsmApiException e) {
+            // ignore it, furniture not available at the moment
+        }
         return locations;
     }
 }

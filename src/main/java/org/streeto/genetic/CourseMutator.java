@@ -3,6 +3,7 @@ package org.streeto.genetic;
 import io.jenetics.AnyGene;
 import io.jenetics.Mutator;
 import io.jenetics.util.ISeq;
+import org.jetbrains.annotations.NotNull;
 import org.streeto.ControlSite;
 import org.streeto.ControlSiteFinder;
 
@@ -17,14 +18,10 @@ public class CourseMutator extends Mutator<AnyGene<ISeq<ControlSite>>, Double> {
     }
 
     @Override
-    public AnyGene<ISeq<ControlSite>> mutate(AnyGene<ISeq<ControlSite>> gene, Random random) {
-        if (gene != null) {
-            var course = gene.allele();
-            var newCourse = mutateCourse(course, random);
-            return gene.newInstance(newCourse);
-        } else {
-            return super.mutate(gene, random);
-        }
+    public AnyGene<ISeq<ControlSite>> mutate(@NotNull AnyGene<ISeq<ControlSite>> gene, Random random) {
+        var controls = gene.allele();
+        var newControls = mutateCourse(controls, random);
+        return gene.newInstance(newControls);
     }
 
     private ISeq<ControlSite> randomMutate(ISeq<ControlSite> controls, Random random) {

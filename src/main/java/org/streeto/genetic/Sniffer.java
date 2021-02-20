@@ -2,6 +2,8 @@ package org.streeto.genetic;
 
 import io.jenetics.AnyGene;
 import io.jenetics.engine.EvolutionResult;
+import io.jenetics.engine.EvolutionStatistics;
+import io.jenetics.stat.DoubleMomentStatistics;
 import io.jenetics.util.ISeq;
 import org.streeto.ControlSite;
 
@@ -15,4 +17,7 @@ public class Sniffer implements Consumer<EvolutionResult<AnyGene<ISeq<ControlSit
         System.out.println(stats);
     }
 
+    public void acceptStatistics(EvolutionStatistics<Double, DoubleMomentStatistics> statistics) {
+        System.out.println(statistics.toString());
+    }
 }

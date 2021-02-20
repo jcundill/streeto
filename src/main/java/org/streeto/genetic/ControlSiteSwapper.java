@@ -10,19 +10,16 @@ import org.streeto.ControlSite;
 
 class ControlSiteSwapper extends UniformCrossover<AnyGene<ISeq<ControlSite>>, Double> {
 
-    private final double crossoverProbability;
-
     ControlSiteSwapper(@SuppressWarnings("SameParameterValue") double crossoverProbability) {
         super(crossoverProbability);
-        this.crossoverProbability = crossoverProbability;
-    }
+     }
 
     @Override
     public int crossover(MSeq<AnyGene<ISeq<ControlSite>>> that, MSeq<AnyGene<ISeq<ControlSite>>> other) {
-        var thatCourse = that.get(0).allele();
-        var otherCourse = other.get(0).allele();
+        var thatControls = that.get(0).allele();
+        var otherControls = other.get(0).allele();
 
-        var swapped = randomCrossover(thatCourse, otherCourse);
+        var swapped = randomCrossover(thatControls, otherControls);
         that.set(0, that.get(0).newInstance(swapped.get(0)));
         other.set(0, that.get(0).newInstance(swapped.get(1)));
         return 2;
@@ -33,7 +30,7 @@ class ControlSiteSwapper extends UniformCrossover<AnyGene<ISeq<ControlSite>>, Do
         var newFirsts = first.toArray(new ControlSite[]{});
         var newSeconds = second.toArray(new ControlSite[]{});
         for (int index = 1; index < newFirsts.length - 1; index++) {
-            if (rnd.nextDouble() < crossoverProbability) {
+            if (rnd.nextDouble() < probability()) {
                 var a = newFirsts[index];
                 var b = newFirsts[index + 1];
                 newFirsts[index] = newSeconds[index];

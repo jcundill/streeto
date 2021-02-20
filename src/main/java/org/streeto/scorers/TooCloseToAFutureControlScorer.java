@@ -32,6 +32,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.streeto.utils.CollectionHelpers.*;
 import static org.streeto.utils.DistUtils.dist;
@@ -43,13 +44,16 @@ public class TooCloseToAFutureControlScorer extends AbstractLegScorer {
      */
     @Override
     public List<Double> score(List<GHResponse> routedLegs) {
-        return mapIndexed(routedLegs, (idx, leg) -> evaluate(futureLegs(routedLegs, idx), leg))
-                .collect(Collectors.toList());
+        //evaluate the start without including the finish
+        var startScore = evaluate( dropLast(futureLegs(routedLegs, 0), 1), first(routedLegs));
+        var restScore = drop(mapIndexed(routedLegs, (idx, leg) -> evaluate(futureLegs(routedLegs, idx), leg))
+                .collect(Collectors.toList()), 1);
+        return Stream.concat(List.of(startScore).stream(), restScore.stream()).collect(Collectors.toList());
     }
 
     @NotNull
-    private List<GHResponse> futureLegs(List<GHResponse> routedLegs, Integer idx) {
-        return routedLegs.subList(idx, routedLegs.size());
+    private List<GHResponse> futureLegs(List<GHResponse> routedLegs, int idx) {
+        return routedLegs.subList(idx + 1, routedLegs.size());
     }
 
     private double evaluate(List<GHResponse> futureLegs, GHResponse thisLeg) {
@@ -69,6 +73,6 @@ public class TooCloseToAFutureControlScorer extends AbstractLegScorer {
     }
 
     private boolean goesTooCloseToAFutureControl(List<? extends GHPoint> ctrls, GHPoint p) {
-        return ctrls.stream().anyMatch(c -> dist(p, c) < 50.0 && dist(p, c) > 5.0);
+        return ctrls.stream().anyMatch(c -> dist(p, c) < 50.0); // can't get too close to yourself
     }
 }

@@ -26,6 +26,7 @@
 package org.streeto;
 
 import com.graphhopper.GraphHopper;
+import com.graphhopper.PathWrapper;
 import com.graphhopper.util.shapes.BBox;
 import org.streeto.furniture.StreetFurnitureFinder;
 import org.streeto.genetic.CourseFinderRunner;
@@ -40,10 +41,11 @@ import org.streeto.scorers.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.streeto.utils.CollectionHelpers.*;
-import static org.streeto.utils.CollectionHelpers.last;
 
 
 public class StreetO {
@@ -52,9 +54,11 @@ public class StreetO {
     private final CourseScorer scorer;
     private final StreetFurnitureFinder finder = new StreetFurnitureFinder();
     private final MapSplitter splitter;
+    private final List<Sniffer> sniffers = new ArrayList<>();
+    private final CourseImporter courseImporter;
 
     public StreetO(String pbf, String osmDir) {
-        GraphHopper gh = new GhWrapper().initGH(pbf, osmDir);
+         GraphHopper gh = new GhWrapper().initGH(pbf, osmDir);
 
         List<LegScorer> featureScorers = List.of(
                 new LegLengthScorer(),
@@ -67,29 +71,31 @@ public class StreetO {
         csf = new ControlSiteFinder(gh);
         scorer = new CourseScorer(featureScorers, csf::findRoutes);
         splitter = new MapSplitter(csf);
+        courseImporter = new CourseImporter(csf);
     }
 
-    public void writeMap(Course course, String mapTitle, File path) throws IOException {
+
+    public void writeMap(List<ControlSite> controls, String mapTitle, File path) throws IOException {
 
         File file = new File(path.getAbsoluteFile(), mapTitle + ".pdf");
         var printer = new MapPrinter();
-        var envelopeToMap = csf.getEnvelopeForProbableRoutes(course.getControls());
+        var envelopeToMap = csf.getEnvelopeForProbableRoutes(controls);
         var mapBox = MapFitter.getForEnvelope(envelopeToMap).orElseThrow();
 
-        var splitResult = splitter.makeDoubleSidedIfPossible(course.getControls(), mapBox);
+        var splitResult = splitter.makeDoubleSidedIfPossible(controls, mapBox);
         if( splitResult == null) {
             System.out.println("Not splitting");
-             printer.generateMapAsPdf( envelopeToMap, mapTitle, course.getControls(), file);
+             printer.generateMapAsPdf( envelopeToMap, mapTitle, controls, file);
             //printer.generateMapAsKmz("abc.kmz", "Test_Map");
         } else {
             System.out.println("Splitting");
-            printer.generateMapAsPdf(splitResult, mapTitle, course.getControls(), file);
+            printer.generateMapAsPdf(splitResult, mapTitle, controls, file);
         }
     }
 
-    public void writeMapRunFiles(Course course, String title, File path) throws IOException {
+    public void writeMapRunFiles(List<ControlSite> controls, String title, File path) throws IOException {
         var kmlWriter = new KmlWriter();
-        var kml = kmlWriter.generate(course.getControls(), title);
+        var kml = kmlWriter.generate(controls, title);
         var f = new File( path, title + ".kml");
         var fw = new FileWriter(f);
         fw.write(kml);
@@ -97,37 +103,28 @@ public class StreetO {
         fw.close();
 
         var printer = new MapPrinter();
-        var envelopeToMap = csf.getEnvelopeForProbableRoutes(course.getControls());
+        var envelopeToMap = csf.getEnvelopeForProbableRoutes(controls);
         printer.generateMapAsKmz(envelopeToMap, title, new File(path,title + ".kmz"));
     }
 
-    public void writeGpx(Course scoredCourse, String title, File outputFolder) throws IOException {
-        GpxFacade.writeCourse(new File(outputFolder, title + ".gpx"), scoredCourse);
+    public void writeGpx(List<ControlSite> controlSites, PathWrapper route, String title, File outputFolder) throws IOException {
+        GpxFacade.writeCourse(new File(outputFolder, title + ".gpx"), route, controlSites);
     }
 
-    public Course generateCourse(double distance, int numControls, List<ControlSite> initialControls) {
+    public Optional<List<ControlSite>> generateCourse(double distance, int numControls, List<ControlSite> initialControls) {
         findFurniture(initialControls.get(0));
-        var lastMondayRunner = new CourseFinderRunner(scorer::scoreLegs, csf, new Sniffer());
+        var lastMondayRunner = new CourseFinderRunner(scorer::scoreLegs, csf, sniffers);
         var maybeBest = lastMondayRunner.run(distance, numControls, initialControls);
-        if(maybeBest.isPresent()) {
-            // now we know the chosen controls, number them
-            var best = maybeBest.get();
+        return maybeBest.map( best -> {
             formatNumber(first(best), "S1");
             forEachIndexed(dropFirstAndLast(best, 1), (i, ctrl) -> formatNumber(ctrl, String.format("%d", i + 1)));
             formatNumber(last(best), "F1");
-            return new Course(distance, numControls, best);
-        } else {
-            return null;
-        }
+            return best;
+        });
+     }
 
-    }
-
-    public Course score(Course course) {
-        var route = csf.routeRequest(course.getControls());
-        course.setRoute(route.getBest());
-        var score = scorer.score(course);
-        course.setEnergy(score);
-        return course;
+    public ScoreDetails score(List<ControlSite> controls) {
+        return scorer.score(controls);
     }
 
      private void findFurniture(ControlSite start) {
@@ -143,29 +140,59 @@ public class StreetO {
         controlSite.setNumber(format);
     }
 
+    public void registerSniffer(Sniffer sniffer) {
+        sniffers.add(sniffer);
+    }
+
+    public void unregisterSniffer(Sniffer sniffer) {
+        sniffers.remove(sniffer);
+    }
+
+    public CourseImporter getImporter() {
+        return courseImporter;
+    }
+
+    public PathWrapper routeControls(List<ControlSite> route) {
+        return csf.routeRequest(route).getBest();
+    }
+
     public static void main(String[] args) {
         System.out.println("Hello World!");
 
+        // initializr the engine
+        var sniffer = new Sniffer();
         var streeto = new StreetO("extracts/great-britain-latest.osm.pbf", "osm_data");
-        var initialCourse = Course.buildFromProperties("./streeto.properties");
-        var course = streeto.generateCourse(initialCourse.getRequestedDistance(), initialCourse.getRequestedNumControls(), initialCourse.getControls());
-        if( course != null) {
-            var scoredCourse = streeto.score(course);
+        streeto.registerSniffer(sniffer);
 
-            System.out.printf("best score: %f%n", 1.0 - scoredCourse.getEnergy());
-            System.out.printf("distance: %f\n", scoredCourse.getRoute().getDistance());
+        // set up the initial course to analyse
+        var initialCourse = streeto.getImporter().buildFromProperties("./streeto.properties");
+
+        //generate a good route based on a set of initial parameters
+        var maybeControls = streeto.generateCourse(
+                initialCourse.getRequestedDistance(),
+                initialCourse.getRequestedNumControls(),
+                initialCourse.getControls());
+
+        if( maybeControls.isEmpty()) {
+            System.out.println("unable to generate a course");
+        } else {
+            var controls = maybeControls.get();
+            var scoreDetails = streeto.score(controls);
+            var route = streeto.routeControls(controls);
+
+            System.out.printf("best score: %f%n", scoreDetails.getOverallScore());
+            System.out.printf("distance: %f\n", route.getDistance());
+
+            System.out.println(scoreDetails.toString());
 
             try {
                 var outputFolder = new File("./");
-                streeto.writeGpx(scoredCourse, "abc", outputFolder);
-                streeto.writeMap(scoredCourse, "abc", outputFolder);
-                streeto.writeMapRunFiles(scoredCourse, "abc", outputFolder);
+                streeto.writeGpx(controls, route,"abc", outputFolder);
+                streeto.writeMap(controls,"abc", outputFolder);
+                streeto.writeMapRunFiles(controls, "abc", outputFolder);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        } else {
-            System.out.println("unable to generate a course");
         }
     }
-
 }

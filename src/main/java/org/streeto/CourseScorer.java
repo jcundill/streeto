@@ -50,7 +50,7 @@ public class CourseScorer {
     }
 
     public List<Double> scoreLegs(List<ControlSite> controls) {
-        var scores = score(controls);
+        var scores = generateScores(controls);
         return scores != null ? getDoubleList(scores.get(1)) : controls.stream().map(x -> 1.0).collect(Collectors.toList());
     }
 
@@ -59,7 +59,7 @@ public class CourseScorer {
         return scores.stream().map(this::average).collect(Collectors.toList());
     }
 
-    private List<List<List<Double>>> score(List<ControlSite> controls) {
+    private List<List<List<Double>>> generateScores(List<ControlSite> controls) {
         var legRoutes = windowed(controls, 2)
                 .map(ab -> findRoutes.apply(ab.get(0).getLocation(), ab.get(1).getLocation()))
                 .collect(Collectors.toList());
@@ -82,16 +82,14 @@ public class CourseScorer {
         return List.of(featureScores, legScores);
     }
 
-    public double score(Course step) {
-        var scores = score(step.getControls());
+    public ScoreDetails score(List<ControlSite> controls) {
+        var scores = generateScores(controls);
         if( scores != null) {
             var featureScores = scores.get(0);
             var legScores = scores.get(1);
-            step.setLegScores(getDoubleList(legScores));
-            step.setFeatureScores(getDetailedScores(featureScores));
-            return average(step.getLegScores());
+            return new ScoreDetails(getDoubleList(legScores), getDetailedScores(featureScores));
         } else
-            return 1.0;
+            return null;
     }
 
     private double average(List<Double> scores) {
