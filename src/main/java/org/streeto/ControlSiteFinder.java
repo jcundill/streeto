@@ -33,8 +33,8 @@ import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.index.QueryResult;
 import com.graphhopper.util.Parameters;
 import com.graphhopper.util.shapes.GHPoint;
-import com.vividsolutions.jts.geom.Envelope;
 import io.jenetics.util.RandomRegistry;
+import org.streeto.utils.Envelope;
 
 import java.util.HashMap;
 import java.util.List;
@@ -74,7 +74,7 @@ public class ControlSiteFinder {
         ).collect(Collectors.toList());
 
         var env = new Envelope();
-        routes.forEach(it -> it.getPoints().forEach(p -> env.expandToInclude(p.lon, p.lat)));
+        routes.forEach(it -> it.getPoints().forEach(env::expandToInclude));
         return env;
     }
 

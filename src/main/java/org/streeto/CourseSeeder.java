@@ -25,11 +25,11 @@
 
 package org.streeto;
 
-import com.vividsolutions.jts.geom.Envelope;
 import io.jenetics.util.RandomRegistry;
 import org.jetbrains.annotations.NotNull;
 import org.streeto.mapping.MapFitter;
 import org.streeto.seeders.*;
+import org.streeto.utils.Envelope;
 
 import java.util.List;
 import java.util.Random;
@@ -82,10 +82,10 @@ public class CourseSeeder {
                     .collect(Collectors.toList());
         }
 
-        env.expandToInclude(start.getLocation().getLon(), start.getLocation().getLat());
-        env.expandToInclude(finish.getLocation().getLon(), finish.getLocation().getLat());
+        env.expandToInclude(start.getLocation());
+        env.expandToInclude(finish.getLocation());
         chosenControls.forEach(it ->
-                env.expandToInclude(it.getLocation().getLon(), it.getLocation().getLat())
+                env.expandToInclude(it.getLocation())
         );
 
         if (!MapFitter.canBeMapped(env)) {

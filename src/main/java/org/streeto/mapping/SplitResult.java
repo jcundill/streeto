@@ -1,7 +1,7 @@
 package org.streeto.mapping;
 
-import com.vividsolutions.jts.geom.Envelope;
 import org.streeto.ControlSite;
+import org.streeto.utils.Envelope;
 
 import java.util.List;
 

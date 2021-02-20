@@ -156,6 +156,10 @@ public class StreetO {
         return csf.routeRequest(route).getBest();
     }
 
+    public List<PathWrapper> getLegRoutes(ControlSite a, ControlSite b) {
+        return csf.findRoutes(a.getLocation(), b.getLocation()).getAll();
+    }
+
     public static void main(String[] args) {
         System.out.println("Hello World!");
 

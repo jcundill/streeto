@@ -2,9 +2,9 @@ package org.streeto.constraints;
 
 import com.graphhopper.GHResponse;
 import com.graphhopper.PathWrapper;
-import com.vividsolutions.jts.geom.Envelope;
 import org.jetbrains.annotations.NotNull;
 import org.streeto.mapping.MapFitter;
+import org.streeto.utils.Envelope;
 
 import java.util.List;
 
@@ -19,7 +19,7 @@ public class PrintableOnMapConstraint implements CourseConstraint {
     private boolean routeFitsBox(List<PathWrapper> routes) {
         var env = new Envelope();
         routes.forEach(pw -> iterableAsStream(pw.getPoints())
-                .forEach(it -> env.expandToInclude(it.lon, it.lat)));
+                .forEach(env::expandToInclude));
         return MapFitter.getForEnvelope(env).isPresent();
     }
 }

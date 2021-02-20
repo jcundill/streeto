@@ -26,7 +26,6 @@
 package org.streeto.mapping;
 
 import com.graphhopper.util.shapes.GHPoint;
-import com.vividsolutions.jts.geom.Coordinate;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -68,7 +67,7 @@ public class MapDecorator {
         doc.save(filename);
     }
 
-    public void addMapPage(InputStream pdfStream, List<ControlSite> controls, MapBox box, Coordinate centre) throws IOException {
+    public void addMapPage(InputStream pdfStream, List<ControlSite> controls, MapBox box, GHPoint mapCentre) throws IOException {
         var map = PDDocument.load(pdfStream);
 
         PDPage page = map.getDocumentCatalog().getPages().get(0);
@@ -78,8 +77,6 @@ public class MapDecorator {
 
         var centrePage = new float[]{width / 2, height / 2};
 
-        // the centre is the thing in the middle
-        var mapCentre = new GHPoint(centre.y, centre.x); // this is what we told the tiler
         var offsetsInPts = getControlOffsets(controls, mapCentre, box, centrePage);
 
         // fade the lines a bit so that you can see the map through them

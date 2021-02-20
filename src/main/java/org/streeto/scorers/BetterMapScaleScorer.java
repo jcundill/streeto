@@ -1,11 +1,10 @@
 package org.streeto.scorers;
 
 import com.graphhopper.GHResponse;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
 import org.jetbrains.annotations.NotNull;
 import org.streeto.mapping.MapBox;
 import org.streeto.mapping.MapFitter;
+import org.streeto.utils.Envelope;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,7 +16,7 @@ public class BetterMapScaleScorer extends AbstractLegScorer {
     @Override
     public List<Double> score(List<GHResponse> routedLegs) {
          Envelope env = new Envelope();
-         routedLegs.forEach(leg -> leg.getAll().forEach(route -> route.getPoints().forEach(p -> env.expandToInclude(new Coordinate(p.lat, p.lon)))));
+         routedLegs.forEach(leg -> leg.getAll().forEach(route -> route.getPoints().forEach(env::expandToInclude)));
 
         Optional<MapBox> obox = MapFitter.getForEnvelope(env);
         if (obox.isEmpty()) return getScores(routedLegs, 1.0);

@@ -25,18 +25,10 @@
 
 package org.streeto.mapping;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import org.geotools.geometry.jts.JTS;
-import org.geotools.geometry.jts.JTSFactoryFinder;
-import org.geotools.referencing.CRS;
+import com.graphhopper.util.shapes.GHPoint;
 import org.jetbrains.annotations.NotNull;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
 import org.streeto.ControlSite;
+import org.streeto.utils.Envelope;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -44,6 +36,9 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
+
+import static java.lang.Math.*;
+import static org.streeto.utils.DistUtils.*;
 
 
 public class MapPrinter {
@@ -66,20 +61,7 @@ public class MapPrinter {
                                               "controls%5D%5B2%5D%5Blon%5D=-135425.9052604716&data%5Bcontrols%5D%5B2%5D%5Bwgs84lat%5D=52.990368510683766&data%5Bcontrol" +
                                               "s%5D%5B2%5D%5Bwgs84lon%5D=-1.2165516056120393";
     //Create transformation from WS84 to WGS84 Web Mercator
-    private final MathTransform wgs84ToWgs84Web;
-    public MapPrinter() {
-        try {
-            //create reference system WGS84 Web Mercator
-            CoordinateReferenceSystem wgs84Web = CRS.decode("EPSG:3857", true);
-            //create reference system WGS84
-            CoordinateReferenceSystem wgs84 = CRS.decode("EPSG:4326", true);
-            // create transform
-            wgs84ToWgs84Web = CRS.findMathTransform(wgs84, wgs84Web);
-        } catch (FactoryException e) {
-            // just give up
-            throw new RuntimeException("unable to create geo transforms needed");
-        }
-    }
+    public MapPrinter() { }
 
     private static String requestKey() {
         var dummyParameters = dummyString.getBytes(StandardCharsets.UTF_8);
@@ -121,18 +103,6 @@ public class MapPrinter {
         var code = message.split(":")[1].strip();
         code = code.substring(1, code.length() - 2);
         return code;
-    }
-
-    private Geometry convertBack(double lon, double lat) {
-        var jtsGf = JTSFactoryFinder.getGeometryFactory();
-        var pointInWgs84Web = jtsGf.createPoint(new Coordinate(lon, lat));
-        //transform point from WGS84 Web Mercator to WGS84
-        try {
-            return JTS.transform(pointInWgs84Web, wgs84ToWgs84Web);
-        } catch (TransformException e) {
-            // just give up
-            throw new RuntimeException("geo traansform not correctly initialised");
-        }
     }
 
     public void generateMapAsPdf(SplitResult split, String title, List<ControlSite> controls, File file) throws IOException {
@@ -179,12 +149,13 @@ public class MapPrinter {
         kmzStream.close();
     }
 
-    private InputStream generateArtifact(MapType mapType, MapBox box, Coordinate mapCentre, String title) throws IOException {
+    private InputStream generateArtifact(MapType mapType, MapBox box, GHPoint mapCentre, String title) throws IOException {
         var orientationString = (box.isLandscape()) ? "0.297,0.21" : "0.21,0.297";
 
-        var centre = convertBack(mapCentre.x, mapCentre.y).getCoordinate();
-        var centreLat = Math.round(centre.y);
-        var centreLon = Math.round(centre.x);
+        // the centre is the thing in the middle
+        var centre = degreesToMetres(mapCentre.getLon(), mapCentre.getLat());
+        var centreLat = round(centre.lat);
+        var centreLon = round(centre.lon);
 
         var escapedTitle = title.replaceAll(" ", "+");
 
@@ -209,11 +180,11 @@ public class MapPrinter {
         return bis;
     }
 
-    private enum MapType {
+     enum MapType {
         PDF("pdf"),
         KMZ("kmz");
 
-        private final String key;
+        public final String key;
 
         MapType(String key) {
             this.key = key;

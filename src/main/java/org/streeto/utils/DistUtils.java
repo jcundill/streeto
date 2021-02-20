@@ -1,7 +1,10 @@
 package org.streeto.utils;
 
 import com.graphhopper.util.DistancePlaneProjection;
+import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint;
+
+import static java.lang.Math.*;
 
 public class DistUtils {
 
@@ -15,4 +18,11 @@ public class DistUtils {
         return dist2d.calcDist(a, b, c, d);
     }
 
+    public static GHPoint degreesToMetres(double lon, double lat) {
+        // https://gist.github.com/springmeyer/871897
+        var x = lon * 20037508.34 / 180;
+        var y = log(tan((90 + lat) * PI / 360)) / (PI / 180);
+        y = y * 20037508.34 / 180;
+        return new GHPoint(y, x);
+    }
 }

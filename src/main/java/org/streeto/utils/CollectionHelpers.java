@@ -1,7 +1,5 @@
 package org.streeto.utils;
 
-import one.util.streamex.StreamEx;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -20,7 +18,13 @@ public class CollectionHelpers {
     }
 
     public static <T> Stream<List<T>> windowed(Iterable<T> pl, int size) {
-        return StreamEx.ofSubLists(iterableAsStream(pl).collect(Collectors.toList()), size, 1);
+        return windowed(iterableAsStream(pl).collect(Collectors.toList()), size);
+    }
+    public static <T> Stream<List<T>> windowed(List<T> pl, int size) {
+        if( pl.size() < size)
+            return Stream.empty();
+        else
+            return IntStream.range(0, pl.size() - size + 1).mapToObj(idx -> pl.subList(idx, idx + size));
     }
 
     public static <T> Stream<T> iterableAsStream(Iterable<T> iterable) {
@@ -35,9 +39,6 @@ public class CollectionHelpers {
         return first(iterableAsStream(points).collect(Collectors.toList()));
     }
 
-    public static <T> Stream<List<T>> windowed(List<T> pl, int size) {
-        return StreamEx.ofSubLists(pl, size, 1);
-    }
 
     public static <T> T last(List<T> list) {
         return list.get(list.size() - 1);

@@ -25,7 +25,7 @@
 
 package org.streeto.mapping;
 
-import com.vividsolutions.jts.geom.Envelope;
+import org.streeto.utils.Envelope;
 
 import java.util.List;
 import java.util.Optional;

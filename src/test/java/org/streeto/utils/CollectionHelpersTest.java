@@ -2,7 +2,10 @@ package org.streeto.utils;
 
 import org.junit.Test;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
@@ -127,5 +130,19 @@ public class CollectionHelpersTest {
         var b = List.of(2,4,6,8,10,12,14);
         var c = mapZipped(a, b, fun).collect(Collectors.toList());
         assertEquals(a, c);
+    }
+
+    @Test
+    public void testWindowed() {
+        var a = List.of(1,2,3,4,5,6,7);
+        var b = windowed(a, 3).collect(Collectors.toList());
+        assertEquals(List.of(List.of(1,2,3), List.of(2,3,4), List.of(3,4,5), List.of(4,5,6), List.of(5,6,7)), b);
+    }
+
+    @Test
+    public void testWindowedOfIterable() {
+        var a = new HashSet<>(List.of(1, 2, 3, 4, 5, 6, 7));
+        var b = windowed(a, 3).collect(Collectors.toList());
+        assertEquals(List.of(List.of(1,2,3), List.of(2,3,4), List.of(3,4,5), List.of(4,5,6), List.of(5,6,7)), b);
     }
 }
