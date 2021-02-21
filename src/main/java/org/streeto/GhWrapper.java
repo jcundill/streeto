@@ -25,7 +25,7 @@
 
 package org.streeto;
 
-import com.graphhopper.GraphHopper;
+import com.graphhopper.config.Profile;
 import com.graphhopper.reader.dem.SRTMProvider;
 import com.graphhopper.reader.osm.GraphHopperOSM;
 import com.graphhopper.routing.util.EncodingManager;
@@ -36,25 +36,19 @@ public class GhWrapper {
 
     private final FlagEncoder oFlagEncoder = new StreetOFlagEncoder();
 
-    public GraphHopper initGH(String pbf, String osmDirectory) {
+    public GraphHopperOSM initGH(String pbf, String osmDirectory) {
+        var profile = new Profile("streeto").setVehicle("streeto").setWeighting("fastest").setTurnCosts(false);
         var gh = new GraphHopperOSM()
                 .setOSMFile(pbf)
                 .forServer()
                 .setGraphHopperLocation(osmDirectory)
-                .setEnableCalcPoints(true)
-                .setCHEnabled(false)
+                .setProfiles(profile)
                 .setElevation(true)
                 .setElevationProvider(new SRTMProvider());
         if (!oFlagEncoder.isRegistered()) {
             gh.setEncodingManager(EncodingManager.create(oFlagEncoder));
         }
         gh.importOrLoad();
-        return gh;
-    }
-
-    public GraphHopper initGH(String name) {
-        var osmFile = String.format("extracts/%s.osm.pbf", name);
-        var graphHopperLocation = String.format("osm_data/grph_%s", name);
-        return initGH(osmFile, graphHopperLocation);
+        return (GraphHopperOSM) gh;
     }
 }

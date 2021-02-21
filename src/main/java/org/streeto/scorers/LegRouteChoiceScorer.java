@@ -26,7 +26,7 @@
 package org.streeto.scorers;
 
 import com.graphhopper.GHResponse;
-import com.graphhopper.PathWrapper;
+import com.graphhopper.ResponsePath;
 import com.graphhopper.util.shapes.GHPoint;
 import org.jetbrains.annotations.NotNull;
 import org.streeto.utils.CollectionHelpers;
@@ -52,8 +52,8 @@ public class LegRouteChoiceScorer extends AbstractLegScorer {
     }
 
     private Double evalAlts(GHResponse leg) {
-        List<PathWrapper> all = leg.getAll();
-        var sorted = all.stream().map(PathWrapper::getDistance).sorted().collect(Collectors.toList());
+        List<ResponsePath> all = leg.getAll();
+        var sorted = all.stream().map(ResponsePath::getDistance).sorted().collect(Collectors.toList());
         var num = sorted.size() - 1;
         var ratio = (sorted.get(num) - sorted.get(0)) / sorted.get(0);
         List<GHPoint> first = getAsList(leg, 0);

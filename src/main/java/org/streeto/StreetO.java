@@ -25,8 +25,8 @@
 
 package org.streeto;
 
-import com.graphhopper.GraphHopper;
-import com.graphhopper.PathWrapper;
+import com.graphhopper.ResponsePath;
+import com.graphhopper.reader.osm.GraphHopperOSM;
 import com.graphhopper.util.shapes.BBox;
 import org.streeto.furniture.StreetFurnitureFinder;
 import org.streeto.genetic.CourseFinderRunner;
@@ -58,7 +58,7 @@ public class StreetO {
     private final CourseImporter courseImporter;
 
     public StreetO(String pbf, String osmDir) {
-         GraphHopper gh = new GhWrapper().initGH(pbf, osmDir);
+         GraphHopperOSM gh = new GhWrapper().initGH(pbf, osmDir);
 
         List<LegScorer> featureScorers = List.of(
                 new LegLengthScorer(),
@@ -107,7 +107,7 @@ public class StreetO {
         printer.generateMapAsKmz(envelopeToMap, title, new File(path,title + ".kmz"));
     }
 
-    public void writeGpx(List<ControlSite> controlSites, PathWrapper route, String title, File outputFolder) throws IOException {
+    public void writeGpx(List<ControlSite> controlSites, ResponsePath route, String title, File outputFolder) throws IOException {
         GpxFacade.writeCourse(new File(outputFolder, title + ".gpx"), route, controlSites);
     }
 
@@ -152,11 +152,11 @@ public class StreetO {
         return courseImporter;
     }
 
-    public PathWrapper routeControls(List<ControlSite> route) {
+    public ResponsePath routeControls(List<ControlSite> route) {
         return csf.routeRequest(route).getBest();
     }
 
-    public List<PathWrapper> getLegRoutes(ControlSite a, ControlSite b) {
+    public List<ResponsePath> getLegRoutes(ControlSite a, ControlSite b) {
         return csf.findRoutes(a.getLocation(), b.getLocation()).getAll();
     }
 
@@ -165,7 +165,7 @@ public class StreetO {
 
         // initializr the engine
         var sniffer = new Sniffer();
-        var streeto = new StreetO("extracts/great-britain-latest.osm.pbf", "osm_data");
+        var streeto = new StreetO("extracts/derbyshire-latest.osm.pbf", "osm_data/grph_derbyshire-latest");
         streeto.registerSniffer(sniffer);
 
         // set up the initial course to analyse

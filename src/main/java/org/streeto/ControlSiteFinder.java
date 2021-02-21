@@ -28,9 +28,11 @@ package org.streeto;
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
 import com.graphhopper.GraphHopper;
+import com.graphhopper.reader.osm.GraphHopperOSM;
 import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.storage.index.QueryResult;
+import com.graphhopper.storage.index.Snap;
+import com.graphhopper.util.FetchMode;
 import com.graphhopper.util.Parameters;
 import com.graphhopper.util.shapes.GHPoint;
 import io.jenetics.util.RandomRegistry;
@@ -62,7 +64,7 @@ public class ControlSiteFinder {
     private int miss = 0;
 
 
-    public ControlSiteFinder(GraphHopper gh) {
+    public ControlSiteFinder(GraphHopperOSM gh) {
         this.gh = gh;
         filter = DefaultEdgeFilter.allEdges(gh.getEncodingManager().getEncoder("streeto"));
     }
@@ -109,11 +111,12 @@ public class ControlSiteFinder {
     }
 
     public GHResponse routeRequest(GHRequest req, int numAlternatives) {
-        req.setWeighting("fastest");
         if (numAlternatives > 1) {
             req.setAlgorithm(Parameters.Algorithms.ALT_ROUTE);
-            req.getHints().put(Parameters.Algorithms.AltRoute.MAX_SHARE, 0.5);
+            req.getHints().putObject(Parameters.Algorithms.AltRoute.MAX_SHARE, 0.5);
+            req.getHints().putObject(Parameters.Algorithms.AltRoute.MAX_PATHS, numAlternatives);
         }
+        req.setProfile("streeto");
         return gh.route(req);
     }
 
@@ -125,9 +128,10 @@ public class ControlSiteFinder {
         } else {
             miss++;
             var req = new GHRequest(from, to);
-            req.setWeighting("fastest");
             req.setAlgorithm(Parameters.Algorithms.ALT_ROUTE);
-            req.getHints().put(Parameters.Algorithms.AltRoute.MAX_SHARE, 0.8);
+            req.getHints().putObject(Parameters.Algorithms.AltRoute.MAX_SHARE, 0.5);
+            req.getHints().putObject(Parameters.Algorithms.AltRoute.MAX_PATHS, 4);
+            req.setProfile("streeto");
             var resp = gh.route(req);
             routedLegCache.put(p, resp);
             return resp;
@@ -147,7 +151,7 @@ public class ControlSiteFinder {
             if (f.isPresent()) return f.map( it -> new ControlSite(it.getLocation(), it.getDescription()));
             else {
                 var site = loc.get();
-                var isTower = gh.getLocationIndex().findClosest(site.lat, site.lon, filter).getSnappedPosition() == QueryResult.Position.TOWER;
+                var isTower = gh.getLocationIndex().findClosest(site.lat, site.lon, filter).getSnappedPosition() == Snap.Position.TOWER;
                 var desc = isTower ? "junction" : "bend";
                 return Optional.of(new ControlSite(site, desc));
             }
@@ -163,11 +167,11 @@ public class ControlSiteFinder {
         var qr = gh.getLocationIndex().findClosest(p.lat, p.lon, filter);
 
         if (!qr.isValid()) return Optional.empty();
-        else if (qr.getSnappedPosition() == QueryResult.Position.EDGE) {
-            var pl = qr.getClosestEdge().fetchWayGeometry(3);
+        else if (qr.getSnappedPosition() == Snap.Position.EDGE) {
+            var pl = qr.getClosestEdge().fetchWayGeometry(FetchMode.PILLAR_AND_ADJ);
             return iterableAsStream(pl).filter(pt -> {
                         var loc = gh.getLocationIndex().findClosest(pt.lat, pt.lon, filter).getSnappedPosition();
-                        return loc == QueryResult.Position.TOWER || loc == QueryResult.Position.PILLAR;
+                        return loc == Snap.Position.TOWER || loc == Snap.Position.PILLAR;
                     }
             ).findFirst();
         } else return Optional.of(qr.getSnappedPoint());

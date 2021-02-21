@@ -1,6 +1,6 @@
 package org.streeto.gpx;
 
-import com.graphhopper.PathWrapper;
+import com.graphhopper.ResponsePath;
 import com.graphhopper.util.shapes.GHPoint;
 import io.jenetics.jpx.GPX;
 import io.jenetics.jpx.Route;
@@ -43,7 +43,7 @@ public class GpxFacade {
                 wayPoint.getDescription().orElse(""));
     }
 
-    public static void writeCourse(File filename, PathWrapper pathWrapper, List<ControlSite> controls) throws IOException {
+    public static void writeCourse(File filename, ResponsePath pathWrapper, List<ControlSite> controls) throws IOException {
         var points = iterableAsStream(pathWrapper
                 .getPoints())
                 .map(GpxFacade::toWayPoint)
