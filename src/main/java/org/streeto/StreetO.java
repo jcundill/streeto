@@ -83,13 +83,13 @@ public class StreetO {
         var mapBox = MapFitter.getForEnvelope(envelopeToMap).orElseThrow();
 
         var splitResult = splitter.makeDoubleSidedIfPossible(controls, mapBox);
-        if( splitResult == null) {
+        if( splitResult.isEmpty()) {
             System.out.println("Not splitting");
              printer.generateMapAsPdf( envelopeToMap, mapTitle, controls, file);
             //printer.generateMapAsKmz("abc.kmz", "Test_Map");
         } else {
             System.out.println("Splitting");
-            printer.generateMapAsPdf(splitResult, mapTitle, controls, file);
+            printer.generateMapAsPdf(splitResult.get(), mapTitle, controls, file);
         }
     }
 

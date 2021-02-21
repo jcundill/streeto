@@ -6,6 +6,7 @@ import org.streeto.ControlSiteFinder;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -20,7 +21,7 @@ public class MapSplitter {
         this.csf = csf;
     }
 
-    public SplitResult makeDoubleSidedIfPossible(List<ControlSite> controls, MapBox box) {
+    public Optional<SplitResult> makeDoubleSidedIfPossible(List<ControlSite> controls, MapBox box) {
         // find subset in the middle where
         // subset can be mapped on a larger scale
         // and others including head and tail of subset can also be mapped on the same larger scale
@@ -30,15 +31,14 @@ public class MapSplitter {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         if (splitLocations.isEmpty()) {
-            return null;
+            return Optional.empty();
         } else {
             var sorted = splitLocations.stream()
                     .sorted(Comparator.comparingDouble(a -> a.box.getScale()))
                     .collect(Collectors.toList());
-            var mostEqual = sorted.stream()
+            return sorted.stream()
                     .takeWhile( it -> it.box.getScale() == first(sorted).box.getScale() )
                     .min(Comparator.comparingInt(SplitResult::lengthDiff));
-            return mostEqual.orElse(null);
         }
     }
 

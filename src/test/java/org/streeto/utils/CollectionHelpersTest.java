@@ -116,6 +116,13 @@ public class CollectionHelpersTest {
     }
 
     @Test
+    public void testIntersectionDisparate() {
+        var a = List.of(1,2,3);
+        var b = List.of(4,5,8,9,10);
+        assertEquals(List.of(), intersection(a,b));
+    }
+
+    @Test
     public void testForEachZipped() {
         BiConsumer<Integer,Integer> fun = (a, b) -> assertEquals(a * 2, b);
         var a = List.of(1,2,3,4,5,6,7);
@@ -137,6 +144,13 @@ public class CollectionHelpersTest {
         var a = List.of(1,2,3,4,5,6,7);
         var b = windowed(a, 3).collect(Collectors.toList());
         assertEquals(List.of(List.of(1,2,3), List.of(2,3,4), List.of(3,4,5), List.of(4,5,6), List.of(5,6,7)), b);
+    }
+
+    @Test
+    public void testWindowedTooShort() {
+        var a = List.of(1,2);
+        var b = windowed(a, 3).collect(Collectors.toList());
+        assertEquals(List.of(), b);
     }
 
     @Test
