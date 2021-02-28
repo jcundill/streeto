@@ -8,7 +8,6 @@ import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.routing.util.spatialrules.TransportationMode;
 import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.storage.IntsRef;
-import com.graphhopper.util.PMap;
 
 import java.util.*;
 
@@ -43,16 +42,12 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
         this(4, 1);
     }
 
-    public StreetOFlagEncoder(PMap properties) {
-        this(properties.getInt("speed_bits", 4), properties.getDouble("speed_factor", 1));
-
+    protected StreetOFlagEncoder(int speedBits, double speedFactor) {
+        super(speedBits, speedFactor, 0);
         blockPrivate(true);
         blockFords(false);
         blockBarriersByDefault(false);
-    }
 
-    protected StreetOFlagEncoder(int speedBits, double speedFactor) {
-        super(speedBits, speedFactor, 0);
         restrictions.addAll(Arrays.asList("foot", "access"));
 
         restrictedValues.add("no");
@@ -76,7 +71,6 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
         sidewalkValues.add("left");
         sidewalkValues.add("right");
 
-        blockBarriersByDefault(false);
         absoluteBarriers.add("fence");
         potentialBarriers.add("gate");
         potentialBarriers.add("cattle_grid");
@@ -88,7 +82,6 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
         safeHighwayTags.add("living_street");
         safeHighwayTags.add("track");
         safeHighwayTags.add("residential");
-        safeHighwayTags.add("service");
         safeHighwayTags.add("platform");
 
         avoidHighwayTags.add("trunk");
@@ -99,6 +92,7 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
         avoidHighwayTags.add("secondary_link");
         avoidHighwayTags.add("tertiary");
         avoidHighwayTags.add("tertiary_link");
+        avoidHighwayTags.add("service");
 
         // for now no explicit avoiding #257
         //avoidHighwayTags.add("cycleway");
@@ -135,8 +129,6 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
         // larger value required - ferries are faster than pedestrians
         registerNewEncodedValue.add(avgSpeedEnc = new UnsignedDecimalEncodedValue(getKey(prefix, "average_speed"), speedBits, speedFactor, speedTwoDirections));
         registerNewEncodedValue.add(priorityWayEncoder = new UnsignedDecimalEncodedValue(getKey(prefix, "priority"), 3, PriorityCode.getFactor(1), speedTwoDirections));
-
-        //footRouteEnc = getEnumEncodedValue(RouteNetwork.key("foot"), RouteNetwork.class);
     }
 
     /**
@@ -174,8 +166,6 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
 //            return EncodingManager.Access.CAN_SKIP;
 
         // no need to evaluate ferries or fords - already included here
-        if (way.hasTag("foot", intendedValues))
-            return EncodingManager.Access.WAY;
 
         // check access restrictions
         if (way.hasTag(restrictions, restrictedValues) && !getConditionalTagInspector().isRestrictedWayConditionallyPermitted(way))
@@ -192,6 +182,9 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
 
         // do not get our feet wet, "yes" is already included above
         if (way.hasTag("highway", "ford") || way.hasTag("ford"))
+            return EncodingManager.Access.WAY;
+
+        if (way.hasTag("foot", intendedValues))
             return EncodingManager.Access.WAY;
 
         if (getConditionalTagInspector().isPermittedWayConditionallyRestricted(way))

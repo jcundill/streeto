@@ -164,7 +164,7 @@ public class StreetO {
         System.out.println("Hello World!");
 
         // initializr the engine
-        var sniffer = new Sniffer();
+        var sniffer = new StreetOSniffer();
         var streeto = new StreetO("extracts/derbyshire-latest.osm.pbf", "osm_data/grph_derbyshire-latest");
         streeto.registerSniffer(sniffer);
 

@@ -45,6 +45,13 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>3.1.1</version>
                 <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>
+                                org.streeto.StreetO
+                            </mainClass>
+                        </manifest>
+                    </archive>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
@@ -125,5 +132,5 @@
             <version>4.13</version>
             <scope>test</scope>
         </dependency>
-     </dependencies>
+    </dependencies>
 </project>
