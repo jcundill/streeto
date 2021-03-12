@@ -43,13 +43,14 @@ import java.util.stream.Stream;
 
 public class KmlWriter {
 
-    private String getControlKML(ControlSite control, String name) {
-        return getKML(control, name);
+    private String getControlKML(ControlSite control) {
+        return getKML(control);
     }
 
-    private String getKML(ControlSite control, String name) {
+    private String getKML(ControlSite control) {
         return "<Placemark>" +
-               String.format("        <name>%s</name>", name) +
+               String.format("        <name>%s</name>", control.getNumber()) +
+               String.format("        <description>%s</description>", control.getDescription()) +
                "        <styleUrl>#startfinish</styleUrl>" +
                "        <Point>" +
                "            <gx:drawOrder>1</gx:drawOrder>" +
@@ -74,10 +75,11 @@ public class KmlWriter {
         return mapIndexed(i -> (Element) markers.item(i), markers.getLength())
                 .map(node -> {
                     var name = node.getElementsByTagName("name").item(0).getTextContent();
+                    var description = node.getElementsByTagName("description").item(0).getTextContent();
                     var point = (Element) node.getElementsByTagName("Point").item(0);
                     var coords = point.getElementsByTagName("coordinates").item(0).getTextContent();
                     var x = coords.split(",");
-                    var ret = new ControlSite(Double.parseDouble(x[1]), Double.parseDouble(x[0]), "");
+                    var ret = new ControlSite(Double.parseDouble(x[1]), Double.parseDouble(x[0]), description);
                     ret.setNumber(name);
                     return ret;
                 });
@@ -103,7 +105,7 @@ public class KmlWriter {
         kml.append(kmlheader);
 
         var body = controls.stream()
-                .map(control -> getControlKML(control, control.getNumber())).collect(Collectors.joining("\n"));
+                .map(this::getControlKML).collect(Collectors.joining("\n"));
 
         kml.append(body);
         kml.append(kmlfooter);

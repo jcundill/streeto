@@ -58,6 +58,12 @@ public class CollectionHelpers {
         return list.subList(0, n);
     }
 
+    public static <T> List<T> take(Iterable<T> list, int n) {
+        var ret = iterableAsStream(list)
+                .collect(Collectors.toList());
+        return ret.subList(0, n);
+    }
+
     public static <T> List<T> takeLast(Iterable<T> iterable, int i) {
         var ret = iterableAsStream(iterable).collect(Collectors.toList());
         return ret.subList( ret.size() - i, ret.size());

@@ -83,7 +83,8 @@ public class ControlSite {
 
         ControlSite that = (ControlSite) o;
 
-        if (!location.equals(that.location)) return false;
+        if (location.lon != that.location.lon) return false;
+        if (location.lat != that.location.lat) return false;
         if (!Objects.equals(description, that.description)) return false;
         return Objects.equals(number, that.number);
     }

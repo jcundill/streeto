@@ -41,9 +41,9 @@ public class ScoreDetails {
     }
     @Override
     public String toString() {
-        var titles = new ArrayList<>(featureScores.keySet());
-        var fScores = titles.stream().map(featureScores::get).collect(Collectors.toList());
-        var header = titles.stream().map(title -> "\t" + formatName(title)).collect(Collectors.joining("", "Leg   Score     ", "\n"));
+            var titles = new ArrayList<>(featureScores.keySet());
+            var fScores = titles.stream().map(featureScores::get).collect(Collectors.toList());
+            var header = titles.stream().map(title -> "\t" + formatName(title)).collect(Collectors.joining("", "Leg   Score     ", "\n"));
         var legDetails = transpose(fScores);
         var ret = new StringBuilder(header);
         forEachIndexed(legScores, (idx, score) ->

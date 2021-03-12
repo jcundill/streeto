@@ -80,7 +80,7 @@ public class StreetO {
         File file = new File(path.getAbsoluteFile(), mapTitle + ".pdf");
         var printer = new MapPrinter();
         var envelopeToMap = csf.getEnvelopeForProbableRoutes(controls);
-        var mapBox = MapFitter.getForEnvelope(envelopeToMap).orElseThrow();
+        var mapBox = MapFitter.getForEnvelope(envelopeToMap).orElse( envelopeToMap.getHeight() > envelopeToMap.getWidth() ? MapFitter.portrait15000 : MapFitter.landscape15000);
 
         var splitResult = splitter.makeDoubleSidedIfPossible(controls, mapBox);
         if( splitResult.isEmpty()) {

@@ -48,6 +48,7 @@ class CourseFinderProblem implements Problem<ISeq<ControlSite>, AnyGene<ISeq<Con
                 new CourseLengthConstraint(requestedDistance),
                 new MustVisitWaypointsConstraint(dropFirstAndLast(initialControls, 1)),
                 new PrintableOnMapConstraint(),
+                new FirstControlNearTheStartConstraint(),
                 new LastControlNearTheFinishConstraint(),
                 new DidntMoveConstraint(),
                 new OnlyGoToTheFinishAtTheEndConstraint()
