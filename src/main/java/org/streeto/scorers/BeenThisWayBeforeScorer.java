@@ -24,7 +24,7 @@ public class BeenThisWayBeforeScorer extends AbstractLegScorer {
 
     private double evaluate(List<GHResponse> previousLegs, GHResponse thisLeg) {
         // no legs other than the previous
-        if (previousLegs.size() < 2) return 0.0;
+        if (previousLegs.size() < 2) return 1.0;
 
         var xs = previousLegs.stream()
                 .map(l -> compareLegs(l, thisLeg))
@@ -39,10 +39,11 @@ public class BeenThisWayBeforeScorer extends AbstractLegScorer {
     private double compareLegs(GHResponse a, GHResponse b) {
         var pointsA = dropFirstAndLast(getBestAsList(a), 1);
         var pointsB = dropFirstAndLast(getBestAsList(b), 1);
-        if (pointsA.isEmpty() || pointsB.isEmpty()) return 0.0;
+        if (pointsA.isEmpty() || pointsB.isEmpty()) return 1.0;
         else {
             var result = intersection(pointsA, pointsB);
-            return result.size() * 1.0 / min(pointsB.size(), pointsA.size());
+            var sameness = result.size() * 1.0 / min(pointsB.size(), pointsA.size());
+            return 1.0 - sameness;
         }
     }
 }

@@ -44,29 +44,32 @@ public class CourseScorer {
     private final List<LegScorer> legScorers;
     private final BiFunction<GHPoint, GHPoint, GHResponse> findRoutes;
 
-    public CourseScorer(List<LegScorer> legScorers, BiFunction<GHPoint, GHPoint, GHResponse> findroutes) {
+    public CourseScorer(List<LegScorer> legScorers, BiFunction<GHPoint, GHPoint, GHResponse> findRoutes) {
         this.legScorers = legScorers;
-        this.findRoutes = findroutes;
+        this.findRoutes = findRoutes;
     }
 
     public List<Double> scoreLegs(List<ControlSite> controls) {
-        var scores = generateScores(controls);
-        return scores != null ? getDoubleList(scores.get(1)) : controls.stream().map(x -> 1.0).collect(Collectors.toList());
+        var featureScores = getFeatureScoresPerLeg(controls);
+        return featureScores != null ? getAverageLegScore(featureScores) : scoreAsWorst(controls);
     }
 
     @NotNull
-    private List<Double> getDoubleList(List<List<Double>> scores) {
-        return scores.stream().map(this::average).collect(Collectors.toList());
+    private List<Double> scoreAsWorst(List<ControlSite> controls) {
+        return controls.stream().map(x -> 0.0).collect(Collectors.toList());
     }
 
-    private List<List<List<Double>>> generateScores(List<ControlSite> controls) {
+    @NotNull
+    private List<Double> getAverageLegScore(List<List<Double>> featureScores) {
+        var legScores = transpose(featureScores);
+        return legScores.stream().map(this::average).collect(Collectors.toList());
+    }
+
+    private List<List<Double>> getFeatureScoresPerLeg(List<ControlSite> controls) {
         var legRoutes = windowed(controls, 2)
                 .map(ab -> findRoutes.apply(ab.get(0).getLocation(), ab.get(1).getLocation()))
                 .collect(Collectors.toList());
         if( legRoutes.stream().anyMatch(GHResponse::hasErrors)) return null;
-        var featureScores = legScorers.stream()
-                .map(raw -> raw.score(legRoutes).stream().map(s -> s * raw.getWeighting()).collect(Collectors.toList())
-        ).collect(Collectors.toList());
 
         /*
                 featureScores =
@@ -78,16 +81,15 @@ public class CourseScorer {
                 step.numberedControlScores = 0.2, 0.167, 0.167, 0.167, 0.267, 0.167
                 featureScores =
          */
-        var legScores = transpose(featureScores);
-        return List.of(featureScores, legScores);
+         return legScorers.stream()
+                 .map(raw -> raw.score(legRoutes).stream().map(s -> s * raw.getWeighting()).collect(Collectors.toList())
+         ).collect(Collectors.toList());
     }
 
     public ScoreDetails score(List<ControlSite> controls) {
-        var scores = generateScores(controls);
-        if( scores != null) {
-            var featureScores = scores.get(0);
-            var legScores = scores.get(1);
-            return new ScoreDetails(getDoubleList(legScores), getDetailedScores(featureScores));
+        var featureScores = getFeatureScoresPerLeg(controls);
+        if( featureScores != null) {
+            return new ScoreDetails(getAverageLegScore(featureScores), getDetailedScores(featureScores));
         } else
             return null;
     }

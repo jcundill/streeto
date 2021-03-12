@@ -2,12 +2,11 @@ package org.streeto.scorers;
 
 import com.graphhopper.GHResponse;
 import com.graphhopper.util.shapes.GHPoint;
-import com.graphhopper.util.shapes.GHPoint3D;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.streeto.utils.CollectionHelpers.*;
+import static org.streeto.utils.CollectionHelpers.iterableAsStream;
 
 public abstract class AbstractLegScorer implements LegScorer {
 
@@ -15,7 +14,7 @@ public abstract class AbstractLegScorer implements LegScorer {
         return weighting;
     }
 
-    protected List<GHPoint3D> getBestAsList(GHResponse a) {
+    protected List<GHPoint> getBestAsList(GHResponse a) {
         return iterableAsStream(a.getBest().getPoints()).collect(Collectors.toList());
     }
 

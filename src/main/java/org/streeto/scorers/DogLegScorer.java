@@ -50,9 +50,9 @@ public class DogLegScorer extends AbstractLegScorer {
     }
 
     List<Double> dogLegs(List<PointList> routes) {
-        if (routes.size() < 2) return List.of(0.0);
+        if (routes.size() < 2) return List.of(1.0);
         else {
-            var ret = new ArrayList<>(List.of(0.0));
+            var ret = new ArrayList<>(List.of(1.0));
             var dogLegScores = windowed(routes,2).map(this::dogLegScore).collect(Collectors.toList());
             ret.addAll(dogLegScores);
             return ret;
@@ -62,17 +62,17 @@ public class DogLegScorer extends AbstractLegScorer {
     private Double dogLegScore(List<PointList> legs) {
         var a2b = legs.get(0);
         var b2c = legs.get(1);
-        if (a2b.size() < 2 || b2c.size() < 2) return 1.0; //controls are in the same place
+        if (a2b.size() < 2 || b2c.size() < 2) return 0.0; //controls are in the same place
         var inAandB = dropLast(a2b, 1).stream().filter(it -> drop(b2c, 1).contains(it)).collect(Collectors.toList());
         var numInAandB = inAandB.size();
-        if (numInAandB == 0) return 0.0;
+        if (numInAandB == 0) return 1.0;
         else {
             var distInAandB = dist(first(inAandB), last(inAandB));
 
-            if (distInAandB < 50.0) return 0.0;
-            else if (distInAandB < 100.0) return 0.25;
+            if (distInAandB < 50.0) return 1.0;
+            else if (distInAandB < 100.0) return 0.75;
             else if (distInAandB < 200.0) return 0.5;
-            else return 1.0;
+            else return 0.0;
         }
     }
 }

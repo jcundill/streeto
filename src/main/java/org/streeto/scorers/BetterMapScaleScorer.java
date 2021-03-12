@@ -9,7 +9,6 @@ import org.streeto.utils.Envelope;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class BetterMapScaleScorer extends AbstractLegScorer {
 
@@ -19,19 +18,15 @@ public class BetterMapScaleScorer extends AbstractLegScorer {
          routedLegs.forEach(leg -> leg.getAll().forEach(route -> route.getPoints().forEach(env::expandToInclude)));
 
         Optional<MapBox> obox = MapFitter.getForEnvelope(env);
-        if (obox.isEmpty()) return getScores(routedLegs, 1.0);
+        if (obox.isEmpty()) return fillScores(routedLegs, 0.0);
         var box = obox.get();
         var ratio = box.getScale() /15000.0 - 1.0/3.0;
-        return getScores(routedLegs, ratio /2.0);
+        return fillScores(routedLegs, 1.0 - ratio / 2.0);
     }
 
     @NotNull
-    private List<Double> getScores(List<GHResponse> routedLegs, double v) {
-        return scoreLegs(routedLegs, v).collect(Collectors.toList());
+    private List<Double> fillScores(List<GHResponse> routedLegs, double v) {
+        return routedLegs.stream().map(x -> v).collect(Collectors.toList());
     }
 
-    @NotNull
-    private Stream<Double> scoreLegs(List<GHResponse> routedLegs, double amount) {
-        return routedLegs.stream().map(x -> amount);
-    }
 }

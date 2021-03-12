@@ -57,14 +57,14 @@ public class TooCloseToAFutureControlScorer extends AbstractLegScorer {
     }
 
     private double evaluate(List<GHResponse> futureLegs, GHResponse thisLeg) {
-        if (futureLegs.size() < 2) return 0.0; // no further legs
+        if (futureLegs.size() < 2) return 1.0; // no further legs
         else {
             var remainingControls = futureLegs.stream()
                     .map(this::getLastPoint)
                     .collect(Collectors.toList());
             if (iterableAsStream(thisLeg.getBest().getPoints())
-                    .anyMatch(it -> goesTooCloseToAFutureControl(remainingControls, it))) return 1.0;
-            else return 0.0;
+                    .anyMatch(it -> goesTooCloseToAFutureControl(remainingControls, it))) return 0.0;
+            else return 1.0;
         }
     }
 

@@ -48,7 +48,7 @@ public class LegLengthScorer extends AbstractLegScorer {
     private double evaluate(GHResponse leg, double maxLegLength) {
         var best = leg.getBest().getDistance();
         double minLegLength = 20.0;
-        if (best < minLegLength || best > maxLegLength) return 1.0;
-        else return 0.0;
+        if (best < minLegLength || best > maxLegLength) return 0.0;
+        else return 1.0;
     }
 }

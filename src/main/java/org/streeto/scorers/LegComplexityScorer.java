@@ -30,11 +30,11 @@ public class LegComplexityScorer extends AbstractLegScorer {
                 .count();
         var turnDensity = 1000.0 * turns / leg.getBest().getDistance();   // turns per K
 
-        double result = 1.0;
+        double result = 0.0;
         if (turnDensity > 8.0) {
-            result = 0.0;
+            result = 1.0;
         } else if (turnDensity > 4.0) {
-            result = 0.25;
+            result = 0.75;
         } //- (turns.toDouble() / num.toDouble())
 
         return result;

@@ -27,7 +27,7 @@ public class ScoreDetails {
     }
 
     public double getOverallScore() {
-        return 1.0 - legScores.stream().collect(Collectors.averagingDouble(it -> it));
+        return legScores.stream().collect(Collectors.averagingDouble(it -> it));
     }
 
     private String formatName(String cls) {
@@ -47,7 +47,7 @@ public class ScoreDetails {
         var legDetails = transpose(fScores);
         var ret = new StringBuilder(header);
         forEachIndexed(legScores, (idx, score) ->
-                ret.append(String.format("%2s:   %7f   %s\n", (idx + 1), 1.0 - score, legDetails.get(idx).stream().map(it -> String.format("  %7f      ", 1.0 - it)).collect(Collectors.joining("","", "")) )));
+                ret.append(String.format("%2s:   %7f   %s\n", (idx + 1), score, legDetails.get(idx).stream().map(it -> String.format("  %7f      ", it)).collect(Collectors.joining("","", "")) )));
 
         return ret.toString();
     }

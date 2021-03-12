@@ -48,7 +48,7 @@ public class LegRouteChoiceScorer extends AbstractLegScorer {
 
     private Double evaluate(GHResponse leg) {
         if (leg.hasAlternatives()) return evalAlts(leg);
-        else return 1.0;
+        else return 0.0;
     }
 
     private Double evalAlts(GHResponse leg) {
@@ -62,8 +62,8 @@ public class LegRouteChoiceScorer extends AbstractLegScorer {
         var total = Math.min(first.size(), second.size());
         var commonRatio = common * 1.0 / total;
 
-        if (commonRatio > 0.5 && ratio > 0.5) return 0.9;
-        if (commonRatio > 0.5 && ratio < 0.2) return 0.75;
-        return ratio;
+        if (commonRatio > 0.5 && ratio > 0.5) return 0.1;
+        if (commonRatio > 0.5 && ratio < 0.2) return 0.25;
+        return 1.0 - ratio;
     }
 }

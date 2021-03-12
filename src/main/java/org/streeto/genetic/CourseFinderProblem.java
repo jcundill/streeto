@@ -90,8 +90,7 @@ class CourseFinderProblem implements Problem<ISeq<ControlSite>, AnyGene<ISeq<Con
 
     private Double courseFitness(ISeq<ControlSite> controls) {
         var legScores = legScorer.apply(controls.asList());
-        var average = legScores.stream().mapToDouble(x -> x).average().orElseThrow();
-        return 1.0 - average;
+        return legScores.stream().mapToDouble(x -> x).average().orElseThrow();
     }
 
 
