@@ -2,6 +2,7 @@ package org.streeto.scorers;
 
 import com.graphhopper.GHResponse;
 import org.jetbrains.annotations.NotNull;
+import org.streeto.StreetOPreferences;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -11,6 +12,10 @@ import static java.lang.Math.min;
 import static org.streeto.utils.CollectionHelpers.*;
 
 public class BeenThisWayBeforeScorer extends AbstractLegScorer {
+    public BeenThisWayBeforeScorer(StreetOPreferences preferences) {
+        super(preferences.getBeenHereBeforeWeighting());
+    }
+
     @Override
     public List<Double> score(List<GHResponse> routedLegs) {
         return mapIndexed(routedLegs, (idx, leg) -> evaluate(previousLegs(routedLegs, idx), leg))

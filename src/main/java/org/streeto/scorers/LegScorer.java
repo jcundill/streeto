@@ -30,13 +30,6 @@ import com.graphhopper.GHResponse;
 import java.util.List;
 
 public interface LegScorer {
-    double weighting = 1.0;
-
-    @SuppressWarnings("SameReturnValue")
-    default double getWeighting() {
-        return weighting;
-    }
-
     /**
      * returns the points awarded to each numbered control
      * so the returned list is 1 less than the number of passed in legs
@@ -44,4 +37,5 @@ public interface LegScorer {
      * We are generally evaluating the leg to this numbered control from the previous one with these scorers
      */
     List<Double> score(List<GHResponse> routedLegs);
+    double getWeighting();
 }

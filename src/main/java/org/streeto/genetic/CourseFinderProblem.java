@@ -34,7 +34,8 @@ class CourseFinderProblem implements Problem<ISeq<ControlSite>, AnyGene<ISeq<Con
                         ControlSiteFinder csf,
                         double requestedDistance,
                         int requestedNumControls,
-                        List<ControlSite> initialControls) {
+                        List<ControlSite> initialControls,
+                        StreetOPreferences preferences) {
         this.legScorer = legScorer;
         this.csf = csf;
         this.requestedDistance = requestedDistance;
@@ -45,13 +46,13 @@ class CourseFinderProblem implements Problem<ISeq<ControlSite>, AnyGene<ISeq<Con
 
         this.constraints = List.of(
                 new IsRouteableConstraint(),
-                new CourseLengthConstraint(requestedDistance),
+                new CourseLengthConstraint(requestedDistance, preferences),
                 new MustVisitWaypointsConstraint(dropFirstAndLast(initialControls, 1)),
-                new PrintableOnMapConstraint(),
-                new FirstControlNearTheStartConstraint(),
-                new LastControlNearTheFinishConstraint(),
-                new DidntMoveConstraint(),
-                new OnlyGoToTheFinishAtTheEndConstraint()
+                new PrintableOnMapConstraint(preferences),
+                new FirstControlNearTheStartConstraint(preferences),
+                new LastControlNearTheFinishConstraint(preferences),
+                new DidntMoveConstraint(preferences),
+                new OnlyGoToTheFinishAtTheEndConstraint(preferences)
         );
     }
 

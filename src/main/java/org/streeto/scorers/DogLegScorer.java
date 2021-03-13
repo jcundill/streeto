@@ -28,6 +28,7 @@ package org.streeto.scorers;
 import com.graphhopper.GHResponse;
 import com.graphhopper.util.PointList;
 import org.jetbrains.annotations.NotNull;
+import org.streeto.StreetOPreferences;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +39,13 @@ import static org.streeto.utils.DistUtils.dist;
 
 
 public class DogLegScorer extends AbstractLegScorer {
+
+    private final double minLegLength;
+
+    public DogLegScorer(StreetOPreferences preferences) {
+        super(preferences.getDogLegWeighting());
+        this.minLegLength = preferences.getMinLegLength();
+    }
 
     /**
      * scores each numbered control based on the repetition of the route to it and the route from the previous control.
@@ -69,9 +77,9 @@ public class DogLegScorer extends AbstractLegScorer {
         else {
             var distInAandB = dist(first(inAandB), last(inAandB));
 
-            if (distInAandB < 50.0) return 1.0;
-            else if (distInAandB < 100.0) return 0.75;
-            else if (distInAandB < 200.0) return 0.5;
+            if (distInAandB < minLegLength) return 1.0;
+            else if (distInAandB < 2 * minLegLength) return 0.75;
+            else if (distInAandB < 4 * minLegLength) return 0.5;
             else return 0.0;
         }
     }

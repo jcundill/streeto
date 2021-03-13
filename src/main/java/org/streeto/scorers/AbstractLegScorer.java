@@ -9,6 +9,11 @@ import java.util.stream.Collectors;
 import static org.streeto.utils.CollectionHelpers.iterableAsStream;
 
 public abstract class AbstractLegScorer implements LegScorer {
+    private final double weighting;
+
+    protected AbstractLegScorer(double weighting) {
+        this.weighting = weighting;
+    }
 
     public double getWeighting() {
         return weighting;

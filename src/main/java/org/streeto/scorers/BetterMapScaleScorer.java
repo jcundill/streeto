@@ -12,6 +12,10 @@ import java.util.stream.Collectors;
 
 public class BetterMapScaleScorer extends AbstractLegScorer {
 
+    public BetterMapScaleScorer(double weighting) {
+        super(weighting);
+    }
+
     @Override
     public List<Double> score(List<GHResponse> routedLegs) {
          Envelope env = new Envelope();

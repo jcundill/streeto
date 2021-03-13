@@ -27,11 +27,19 @@ package org.streeto.scorers;
 
 import com.graphhopper.GHResponse;
 import org.jetbrains.annotations.NotNull;
+import org.streeto.StreetOPreferences;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class LegLengthScorer extends AbstractLegScorer {
+
+    private final double minLegLength;
+
+    public LegLengthScorer(StreetOPreferences preferences) {
+        super(preferences.getLegLengthWeighting());
+        this.minLegLength = preferences.getMinLegLength();
+    }
 
     /**
      * scores each leg just based on its length.
@@ -47,8 +55,7 @@ public class LegLengthScorer extends AbstractLegScorer {
 
     private double evaluate(GHResponse leg, double maxLegLength) {
         var best = leg.getBest().getDistance();
-        double minLegLength = 20.0;
-        if (best < minLegLength || best > maxLegLength) return 0.0;
+         if (best < minLegLength || best > maxLegLength) return 0.0;
         else return 1.0;
     }
 }

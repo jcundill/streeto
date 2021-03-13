@@ -3,6 +3,7 @@ package org.streeto.scorers;
 import com.graphhopper.GHResponse;
 import com.graphhopper.util.Instruction;
 import org.jetbrains.annotations.NotNull;
+import org.streeto.StreetOPreferences;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,6 +22,10 @@ public class LegComplexityScorer extends AbstractLegScorer {
             Instruction.U_TURN_UNKNOWN,
             Instruction.LEAVE_ROUNDABOUT
     );
+
+    public LegComplexityScorer(StreetOPreferences preferences) {
+        super(preferences.getLegComplexityWeighting());
+    }
 
     private static double evaluate(GHResponse leg) {
         var instructions = leg.getBest().getInstructions();

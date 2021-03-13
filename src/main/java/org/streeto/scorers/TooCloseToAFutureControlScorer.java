@@ -29,6 +29,7 @@ import com.graphhopper.GHResponse;
 import com.graphhopper.util.shapes.GHPoint;
 import com.graphhopper.util.shapes.GHPoint3D;
 import org.jetbrains.annotations.NotNull;
+import org.streeto.StreetOPreferences;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,6 +39,13 @@ import static org.streeto.utils.CollectionHelpers.*;
 import static org.streeto.utils.DistUtils.dist;
 
 public class TooCloseToAFutureControlScorer extends AbstractLegScorer {
+    private final double minLegLength;
+
+    public TooCloseToAFutureControlScorer(StreetOPreferences preferences) {
+        super(preferences.getComesTooCloseWeighting());
+        this.minLegLength = preferences.getMinLegLength();
+    }
+
     /**
      * works out if we run through a future control on this leg
      * and scores it badly if we do
@@ -73,6 +81,6 @@ public class TooCloseToAFutureControlScorer extends AbstractLegScorer {
     }
 
     private boolean goesTooCloseToAFutureControl(List<? extends GHPoint> ctrls, GHPoint p) {
-        return ctrls.stream().anyMatch(c -> dist(p, c) < 50.0); // can't get too close to yourself
+        return ctrls.stream().anyMatch(c -> dist(p, c) < minLegLength); // can't get too close to yourself
     }
 }

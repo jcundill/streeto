@@ -4,6 +4,7 @@ package org.streeto.kml;
 import org.junit.jupiter.api.Test;
 import org.streeto.ScoreDetails;
 import org.streeto.StreetO;
+import org.streeto.StreetOPreferences;
 
 import java.util.stream.Collectors;
 

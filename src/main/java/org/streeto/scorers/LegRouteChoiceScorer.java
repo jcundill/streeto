@@ -29,12 +29,17 @@ import com.graphhopper.GHResponse;
 import com.graphhopper.ResponsePath;
 import com.graphhopper.util.shapes.GHPoint;
 import org.jetbrains.annotations.NotNull;
+import org.streeto.StreetOPreferences;
 import org.streeto.utils.CollectionHelpers;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class LegRouteChoiceScorer extends AbstractLegScorer {
+
+    public LegRouteChoiceScorer(StreetOPreferences preferences) {
+        super(preferences.getRouteChoiceWeighting());
+    }
 
     /**
      * scores each numbered control based on the route choice available in the previous leg.

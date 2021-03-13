@@ -43,15 +43,18 @@ public class CourseScorer {
 
     private final List<LegScorer> legScorers;
     private final BiFunction<GHPoint, GHPoint, GHResponse> findRoutes;
+    private final double sumOfWeights;
 
     public CourseScorer(List<LegScorer> legScorers, BiFunction<GHPoint, GHPoint, GHResponse> findRoutes) {
         this.legScorers = legScorers;
         this.findRoutes = findRoutes;
+        this.sumOfWeights = this.legScorers.stream().mapToDouble(LegScorer::getWeighting).sum();
+
     }
 
     public List<Double> scoreLegs(List<ControlSite> controls) {
         var featureScores = getFeatureScoresPerLeg(controls);
-        return featureScores != null ? getAverageLegScore(featureScores) : scoreAsWorst(controls);
+        return featureScores != null ? getAveragedLegScores(featureScores) : scoreAsWorst(controls);
     }
 
     @NotNull
@@ -60,42 +63,33 @@ public class CourseScorer {
     }
 
     @NotNull
-    private List<Double> getAverageLegScore(List<List<Double>> featureScores) {
-        var legScores = transpose(featureScores);
-        return legScores.stream().map(this::average).collect(Collectors.toList());
+    private List<Double> getAveragedLegScores(List<List<Double>> featureScores) {
+        var weightedFeatureScores = mapIndexed(featureScores, (idx, scores) -> {
+            var scorerWeighting = legScorers.get(idx).getWeighting();
+            return scores.stream().map(score -> score * scorerWeighting).collect(Collectors.toList());
+        }).collect(Collectors.toList());
+        var weightedLegScores = transpose(weightedFeatureScores);
+        return weightedLegScores.stream().map(ws -> ws.stream().mapToDouble(x -> x).sum() / sumOfWeights).collect(Collectors.toList());
     }
 
     private List<List<Double>> getFeatureScoresPerLeg(List<ControlSite> controls) {
         var legRoutes = windowed(controls, 2)
-                .map(ab -> findRoutes.apply(ab.get(0).getLocation(), ab.get(1).getLocation()))
+                .map(leg -> findRoutes.apply(first(leg).getLocation(), last(leg).getLocation()))
                 .collect(Collectors.toList());
-        if( legRoutes.stream().anyMatch(GHResponse::hasErrors)) return null;
 
-        /*
-                featureScores =
-                        1       2       3       4       5       6
-                FS1     0.1     0.2     0.1     0.1     0.5     0.1
-                FS2     0.2     0.1     0.1     0.4     0.3     0.0
-                FS3     0.3     0.1     0.2     0.0     0.0     0.4
+        if (legRoutes.stream().anyMatch(GHResponse::hasErrors)) return null;
 
-                step.numberedControlScores = 0.2, 0.167, 0.167, 0.167, 0.267, 0.167
-                featureScores =
-         */
-         return legScorers.stream()
-                 .map(raw -> raw.score(legRoutes).stream().map(s -> s * raw.getWeighting()).collect(Collectors.toList())
-         ).collect(Collectors.toList());
+        return legScorers.stream()
+                .map(scorer -> scorer.score(legRoutes))
+                .collect(Collectors.toList());
     }
 
     public ScoreDetails score(List<ControlSite> controls) {
         var featureScores = getFeatureScoresPerLeg(controls);
-        if( featureScores != null) {
-            return new ScoreDetails(getAverageLegScore(featureScores), getDetailedScores(featureScores));
+        if (featureScores != null) {
+            return new ScoreDetails(getAveragedLegScores(featureScores), getDetailedScores(featureScores));
         } else
             return null;
-    }
-
-    private double average(List<Double> scores) {
-        return scores.stream().reduce(0.0, Double::sum) / scores.size();
     }
 
     private Map<String, List<Double>> getDetailedScores(List<List<Double>> featureScores) {

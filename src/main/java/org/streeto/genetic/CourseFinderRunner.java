@@ -10,6 +10,7 @@ import io.jenetics.stat.DoubleMomentStatistics;
 import io.jenetics.util.ISeq;
 import org.streeto.ControlSite;
 import org.streeto.ControlSiteFinder;
+import org.streeto.StreetOPreferences;
 
 import java.time.Duration;
 import java.util.List;
@@ -20,29 +21,33 @@ public class CourseFinderRunner {
     private final Function<List<ControlSite>, List<Double>> legScorer;
     private final ControlSiteFinder csf;
     private final List<Sniffer> callbacks;
+    private final StreetOPreferences preferences;
     private final Alterer<AnyGene<ISeq<ControlSite>>, Double> myAlterer;
 
-    public CourseFinderRunner(Function<List<ControlSite>, List<Double>> legScorer, ControlSiteFinder csf, List<Sniffer> callbacks) {
+    public CourseFinderRunner(Function<List<ControlSite>, List<Double>> legScorer, ControlSiteFinder csf, List<Sniffer> callbacks, StreetOPreferences preferences) {
         this.legScorer = legScorer;
         this.csf = csf;
         this.callbacks = callbacks;
+        this.preferences = preferences;
 
         myAlterer = Alterer.of(
-                new ControlSiteSwapper(Alterer.DEFAULT_ALTER_PROBABILITY),
-                new CourseMutator(this.csf, Alterer.DEFAULT_ALTER_PROBABILITY)
+                new ControlSiteSwapper(preferences.getSwapProbability()),
+                new CourseMutator(this.csf,preferences.getMutateProbability())
         );
     }
 
     public Optional<List<ControlSite>> run(double requestedDistance, int requestedNumControls, List<ControlSite> initialControls) {
         final Engine<AnyGene<ISeq<ControlSite>>, Double> engine = Engine
-                .builder(new CourseFinderProblem(legScorer, csf, requestedDistance, requestedNumControls,initialControls))
+                .builder(new CourseFinderProblem(legScorer, csf, requestedDistance, requestedNumControls,initialControls, preferences))
                 .alterers(myAlterer)
+                .offspringFraction(preferences.getOffspringFraction())
+                .populationSize(preferences.getPopulationSize())
                 .build();
         EvolutionStatistics<Double, DoubleMomentStatistics> statistics = EvolutionStatistics.ofNumber();
         var population = engine.stream()
-                .limit(Limits.byFitnessThreshold(0.99))
-                .limit(Limits.byExecutionTime(Duration.ofSeconds(120)))
-                .limit(Limits.byFixedGeneration(100))
+                .limit(Limits.byFitnessThreshold(preferences.getStoppingFitness()))
+                .limit(Limits.byExecutionTime(Duration.ofSeconds(preferences.getMaxExecutionTime())))
+                .limit(Limits.byFixedGeneration(preferences.getMaxGenerations()))
                 .peek(statistics)
                 .peek(this::callEveryoneBack)
                 .collect(EvolutionResult.toBestPhenotype());

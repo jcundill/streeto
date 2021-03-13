@@ -51,27 +51,36 @@ import static org.streeto.utils.CollectionHelpers.*;
 public class StreetO {
 
     final ControlSiteFinder csf;
-    private final CourseScorer scorer;
+    private CourseScorer scorer;
     private final StreetFurnitureFinder finder = new StreetFurnitureFinder();
     private final MapSplitter splitter;
     private final List<Sniffer> sniffers = new ArrayList<>();
     private final CourseImporter courseImporter;
+    private StreetOPreferences preferences = new StreetOPreferences();
 
     public StreetO(String pbf, String osmDir) {
-         GraphHopperOSM gh = new GhWrapper().initGH(pbf, osmDir);
-
-        List<LegScorer> featureScorers = List.of(
-                new LegLengthScorer(),
-                new LegRouteChoiceScorer(),
-                new LegComplexityScorer(),
-                new BeenThisWayBeforeScorer(),
-                new TooCloseToAFutureControlScorer(),
-                new DogLegScorer()
-        );
+        GraphHopperOSM gh = new GhWrapper().initGH(pbf, osmDir);
         csf = new ControlSiteFinder(gh);
-        scorer = new CourseScorer(featureScorers, csf::findRoutes);
         splitter = new MapSplitter(csf);
         courseImporter = new CourseImporter(csf);
+        initialiseScorer();
+    }
+
+    private void initialiseScorer() {
+        List<LegScorer> featureScorers = List.of(
+                new LegLengthScorer(preferences),
+                new LegRouteChoiceScorer(preferences),
+                new LegComplexityScorer(preferences),
+                new BeenThisWayBeforeScorer(preferences),
+                new TooCloseToAFutureControlScorer(preferences),
+                new DogLegScorer(preferences)
+        );
+        scorer = new CourseScorer(featureScorers, csf::findRoutes);
+    }
+
+    public void setPreferences(StreetOPreferences preferences) {
+        this.preferences = preferences;
+        initialiseScorer();
     }
 
 
@@ -113,7 +122,7 @@ public class StreetO {
 
     public Optional<List<ControlSite>> generateCourse(double distance, int numControls, List<ControlSite> initialControls) {
         findFurniture(initialControls.get(0));
-        var lastMondayRunner = new CourseFinderRunner(scorer::scoreLegs, csf, sniffers);
+        var lastMondayRunner = new CourseFinderRunner(scorer::scoreLegs, csf, sniffers, preferences);
         var maybeBest = lastMondayRunner.run(distance, numControls, initialControls);
         return maybeBest.map( best -> {
             formatNumber(first(best), "S1");
@@ -163,13 +172,25 @@ public class StreetO {
     public static void main(String[] args) {
         System.out.println("Hello World!");
 
-        // initializr the engine
+        // initialize the engine
         var sniffer = new StreetOSniffer();
-        var streeto = new StreetO("extracts/derbyshire-latest.osm.pbf", "osm_data/grph_derbyshire-latest");
+        var streeto = new StreetO(
+                "extracts/derbyshire-latest.osm.pbf",
+                "osm_data/grph_derbyshire-latest");
         streeto.registerSniffer(sniffer);
 
         // set up the initial course to analyse
         var initialCourse = streeto.getImporter().buildFromProperties("./streeto.properties");
+
+        // set up the preferences
+        var preferences = new StreetOPreferences();
+        preferences.setRouteChoiceWeighting(15.0);
+        preferences.setControlSwapProbability(0.1);
+        preferences.setMutateProbability(0.5);
+        preferences.setMaxGenerations(300);
+        preferences.setMaxExecutionTime(30);
+        preferences.setMaxLastLegLength(200.0);
+        streeto.setPreferences(preferences);
 
         //generate a good route based on a set of initial parameters
         var maybeControls = streeto.generateCourse(
@@ -189,14 +210,14 @@ public class StreetO {
 
             System.out.println(scoreDetails.toString());
 
-            try {
-                var outputFolder = new File("./");
-                streeto.writeGpx(controls, route,"abc", outputFolder);
-                streeto.writeMap(controls,"abc", outputFolder);
-                streeto.writeMapRunFiles(controls, "abc", outputFolder);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+//            try {
+//                var outputFolder = new File("./");
+//                streeto.writeGpx(controls, route,"abc", outputFolder);
+//                streeto.writeMap(controls,"abc", outputFolder);
+//                streeto.writeMapRunFiles(controls, "abc", outputFolder);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
         }
     }
 }
