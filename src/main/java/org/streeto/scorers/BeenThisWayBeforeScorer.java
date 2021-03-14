@@ -31,14 +31,10 @@ public class BeenThisWayBeforeScorer extends AbstractLegScorer {
         // no legs other than the previous
         if (previousLegs.size() < 2) return 1.0;
 
-        var xs = previousLegs.stream()
+        return previousLegs.stream()
                 .map(l -> compareLegs(l, thisLeg))
-                .collect(Collectors.toList());
-
-        return xs.stream()
-                .max(Double::compareTo)
+                .min(Double::compareTo)
                 .orElseThrow(NoSuchElementException::new);
-
     }
 
     private double compareLegs(GHResponse a, GHResponse b) {
@@ -46,9 +42,10 @@ public class BeenThisWayBeforeScorer extends AbstractLegScorer {
         var pointsB = dropFirstAndLast(getBestAsList(b), 1);
         if (pointsA.isEmpty() || pointsB.isEmpty()) return 1.0;
         else {
-            var result = intersection(pointsA, pointsB);
-            var sameness = result.size() * 1.0 / min(pointsB.size(), pointsA.size());
-            return 1.0 - sameness;
+            var commonLen = getCommonRouteLength(pointsA, pointsB);
+            // only care about the amount of repetition on this leg
+            var commonRatio = commonLen / b.getBest().getDistance();
+            return 1.0 - commonRatio;
         }
     }
 }

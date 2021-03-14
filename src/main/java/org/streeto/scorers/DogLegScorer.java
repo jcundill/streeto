@@ -26,6 +26,7 @@
 package org.streeto.scorers;
 
 import com.graphhopper.GHResponse;
+import com.graphhopper.ResponsePath;
 import com.graphhopper.util.PointList;
 import org.jetbrains.annotations.NotNull;
 import org.streeto.StreetOPreferences;
@@ -33,6 +34,8 @@ import org.streeto.StreetOPreferences;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static org.streeto.utils.CollectionHelpers.*;
 import static org.streeto.utils.DistUtils.dist;
@@ -54,33 +57,25 @@ public class DogLegScorer extends AbstractLegScorer {
     @NotNull
     @Override
     public List<Double> score(List<GHResponse> routedLegs) {
-        return dogLegs(routedLegs.stream().map(it -> it.getBest().getPoints()).collect(Collectors.toList()));
+        return dogLegs(routedLegs.stream().map(GHResponse::getBest).collect(Collectors.toList()));
     }
 
-    List<Double> dogLegs(List<PointList> routes) {
-        if (routes.size() < 2) return List.of(1.0);
-        else {
-            var ret = new ArrayList<>(List.of(1.0));
-            var dogLegScores = windowed(routes,2).map(this::dogLegScore).collect(Collectors.toList());
-            ret.addAll(dogLegScores);
-            return ret;
-        }
+    List<Double> dogLegs(List<ResponsePath> routes) {
+        return Stream.concat(Stream.of(1.0), windowed(routes,2).map(this::dogLegScore)).collect(Collectors.toList());
     }
 
-    private Double dogLegScore(List<PointList> legs) {
-        var a2b = legs.get(0);
-        var b2c = legs.get(1);
-        if (a2b.size() < 2 || b2c.size() < 2) return 0.0; //controls are in the same place
-        var inAandB = dropLast(a2b, 1).stream().filter(it -> drop(b2c, 1).contains(it)).collect(Collectors.toList());
-        var numInAandB = inAandB.size();
-        if (numInAandB == 0) return 1.0;
-        else {
-            var distInAandB = dist(first(inAandB), last(inAandB));
+    private Double dogLegScore(List<ResponsePath> previous2this2next) {
+        var prev2this = previous2this2next.get(0);
+        var this2next = previous2this2next.get(1);
+        var prevPoints = prev2this.getPoints();
+        var nextPoints = this2next.getPoints();
+        if (prevPoints.size() < 2 || nextPoints.size() < 2) return 0.0; //controls are in the same place
+        var inBoth = dropLast(prevPoints, 1).stream().filter(it -> drop(nextPoints, 1).contains(it)).collect(Collectors.toList());
 
-            if (distInAandB < minLegLength) return 1.0;
-            else if (distInAandB < 2 * minLegLength) return 0.75;
-            else if (distInAandB < 4 * minLegLength) return 0.5;
-            else return 0.0;
+        if (inBoth.size() == 0) return 1.0;
+        else {
+            var distInBoth = dist(first(inBoth), last(inBoth));
+            return 1.0 - distInBoth / this2next.getDistance();
         }
     }
 }

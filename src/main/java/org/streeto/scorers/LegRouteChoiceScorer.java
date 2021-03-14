@@ -32,8 +32,12 @@ import org.jetbrains.annotations.NotNull;
 import org.streeto.StreetOPreferences;
 import org.streeto.utils.CollectionHelpers;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static org.streeto.utils.CollectionHelpers.*;
+import static org.streeto.utils.DistUtils.dist;
 
 public class LegRouteChoiceScorer extends AbstractLegScorer {
 
@@ -43,7 +47,7 @@ public class LegRouteChoiceScorer extends AbstractLegScorer {
 
     /**
      * scores each numbered control based on the route choice available in the previous leg.
-     * i.e. control 2 is in a bad place as the route from 1 to 2 is to straightforward
+     * i.e. control 2 is in a bad place as the route from 1 to 2 is too straightforward
      */
     @NotNull
     @Override
@@ -57,18 +61,17 @@ public class LegRouteChoiceScorer extends AbstractLegScorer {
     }
 
     private Double evalAlts(GHResponse leg) {
-        List<ResponsePath> all = leg.getAll();
-        var sorted = all.stream().map(ResponsePath::getDistance).sorted().collect(Collectors.toList());
-        var num = sorted.size() - 1;
-        var ratio = (sorted.get(num) - sorted.get(0)) / sorted.get(0);
-        List<GHPoint> first = getAsList(leg, 0);
-        List<GHPoint> second = getAsList(leg, num);
-        var common = CollectionHelpers.intersection(first, second).size();
-        var total = Math.min(first.size(), second.size());
-        var commonRatio = common * 1.0 / total;
+        var sortedDistances = leg.getAll().stream().map(ResponsePath::getDistance).sorted().collect(Collectors.toList());
+        // work out the delta between the length of the best and the length of the next best
+        var ratio = (sortedDistances.get(1) - sortedDistances.get(0)) / sortedDistances.get(0);
+        //work out how much these two routes have in common
+        List<GHPoint> first = dropFirstAndLast(getAsList(leg, 0), 1);
+        List<GHPoint> second = dropFirstAndLast(getAsList(leg, 1), 1);
 
-        if (commonRatio > 0.5 && ratio > 0.5) return 0.1;
-        if (commonRatio > 0.5 && ratio < 0.2) return 0.25;
-        return 1.0 - ratio;
+        double commonLen = getCommonRouteLength(first, second);
+        var shortest = (first.size() < second.size()) ? leg.getAll().get(0).getDistance() : leg.getAll().get(1).getDistance();
+        var commonRatio = commonLen / shortest;
+        return 1.0 - ratio - commonRatio;
     }
+
 }
