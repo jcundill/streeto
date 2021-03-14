@@ -32,7 +32,7 @@ public class CourseFinderRunner {
 
         myAlterer = Alterer.of(
                 new ControlSiteSwapper(preferences.getSwapProbability()),
-                new CourseMutator(this.csf,preferences.getMutateProbability())
+                new CourseMutator(this.csf,preferences.getMutateProbability(), preferences.getMutationRadius())
         );
     }
 

@@ -20,6 +20,7 @@ public class StreetOPreferences {
     private double minApproachToFinish = 150.0;
     private double offspringFraction = 0.6;
     private int populationSize = 50;
+    private double mutationRadius = 500.0;
 
 
     public double getRouteChoiceWeighting() {
@@ -173,5 +174,13 @@ public class StreetOPreferences {
 
     public void setPopulationSize(int populationSize) {
         this.populationSize = populationSize;
+    }
+
+    public double getMutationRadius() {
+        return mutationRadius;
+    }
+
+    public void setMutationRadius(double mutationRadius) {
+        this.mutationRadius = mutationRadius;
     }
 }

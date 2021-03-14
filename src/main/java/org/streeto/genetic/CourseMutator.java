@@ -11,10 +11,12 @@ import java.util.Random;
 
 public class CourseMutator extends Mutator<AnyGene<ISeq<ControlSite>>, Double> {
     private final ControlSiteFinder csf;
+    private final double mutateRadius;
 
-    public CourseMutator(ControlSiteFinder csf, Double probability) {
-        super(probability);
+    public CourseMutator(ControlSiteFinder csf, double mutateProbability, double mutateRadius) {
+        super(mutateProbability);
         this.csf = csf;
+        this.mutateRadius = mutateRadius;
     }
 
     @Override
@@ -26,7 +28,7 @@ public class CourseMutator extends Mutator<AnyGene<ISeq<ControlSite>>, Double> {
 
     private ISeq<ControlSite> randomMutate(ISeq<ControlSite> controls, Random random) {
         return controls.map(ctrl -> {
-            if (random.nextDouble() < probability()) return csf.findAlternativeControlSiteFor(ctrl, 500.0);
+            if (random.nextDouble() < probability()) return csf.findAlternativeControlSiteFor(ctrl, mutateRadius);
             else return ctrl;
         });
     }
