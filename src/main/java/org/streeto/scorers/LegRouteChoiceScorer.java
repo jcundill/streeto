@@ -68,6 +68,9 @@ public class LegRouteChoiceScorer extends AbstractLegScorer {
         List<GHPoint> first = dropFirstAndLast(getAsList(leg, 0), 1);
         List<GHPoint> second = dropFirstAndLast(getAsList(leg, 1), 1);
 
+        if( first.isEmpty() || second.isEmpty())
+            return 0.0; // not a real choice
+
         double commonLen = getCommonRouteLength(first, second);
         var shortest = (first.size() < second.size()) ? leg.getAll().get(0).getDistance() : leg.getAll().get(1).getDistance();
         var commonRatio = commonLen / shortest;
