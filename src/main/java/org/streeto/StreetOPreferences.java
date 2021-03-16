@@ -21,6 +21,7 @@ public class StreetOPreferences {
     private double offspringFraction = 0.6;
     private int populationSize = 50;
     private double mutationRadius = 500.0;
+    private long maxPhenotypeAge = 10L;
 
 
     public double getRouteChoiceWeighting() {
@@ -182,5 +183,13 @@ public class StreetOPreferences {
 
     public void setMutationRadius(double mutationRadius) {
         this.mutationRadius = mutationRadius;
+    }
+
+    public long getMaxPhenotypeAge() {
+        return maxPhenotypeAge;
+    }
+
+    public void setMaxPhenotypeAge(long maxPhenotypeAge) {
+        this.maxPhenotypeAge = maxPhenotypeAge;
     }
 }

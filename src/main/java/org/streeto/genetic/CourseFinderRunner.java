@@ -38,10 +38,11 @@ public class CourseFinderRunner {
 
     public Optional<List<ControlSite>> run(double requestedDistance, int requestedNumControls, List<ControlSite> initialControls) {
         final Engine<AnyGene<ISeq<ControlSite>>, Double> engine = Engine
-                .builder(new CourseFinderProblem(legScorer, csf, requestedDistance, requestedNumControls,initialControls, preferences))
+                .builder(new CourseFinderProblem(legScorer, csf, requestedDistance, requestedNumControls, initialControls, preferences))
                 .alterers(myAlterer)
                 .offspringFraction(preferences.getOffspringFraction())
                 .populationSize(preferences.getPopulationSize())
+                .maximalPhenotypeAge(preferences.getMaxPhenotypeAge())
                 .build();
         EvolutionStatistics<Double, DoubleMomentStatistics> statistics = EvolutionStatistics.ofNumber();
         var population = engine.stream()

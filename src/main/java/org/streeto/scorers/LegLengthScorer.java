@@ -32,13 +32,19 @@ import org.streeto.StreetOPreferences;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.streeto.utils.CollectionHelpers.mapIndexed;
+
 public class LegLengthScorer extends AbstractLegScorer {
 
     private final double minLegLength;
+    private final double maxLastLegLength;
+    private final double maxFirstLegLength;
 
     public LegLengthScorer(StreetOPreferences preferences) {
         super(preferences.getLegLengthWeighting());
         this.minLegLength = preferences.getMinLegLength();
+        this.maxLastLegLength = preferences.getMaxLastLegLength();
+        this.maxFirstLegLength = preferences.getMaxFirstControlDistance();
     }
 
     /**
@@ -49,8 +55,11 @@ public class LegLengthScorer extends AbstractLegScorer {
     @Override
     public List<Double> score(List<GHResponse> routedLegs) {
         var averageLegLength = routedLegs.stream().mapToDouble(it -> it.getBest().getDistance()).sum() / routedLegs.size();
-        var maxLegLength = 2.0 * averageLegLength;
-        return routedLegs.stream().map(it -> evaluate(it, maxLegLength)).collect(Collectors.toList());
+        var maxLegLength = Math.min(1000.0, 3.0 * averageLegLength);
+        return mapIndexed(routedLegs, (idx, leg) -> {
+            var len = idx == 0 ? maxFirstLegLength : idx == routedLegs.size() - 1 ? maxLastLegLength : maxLegLength;
+            return evaluate(leg, len);
+        }).collect(Collectors.toList());
     }
 
     private double evaluate(GHResponse leg, double maxLegLength) {
