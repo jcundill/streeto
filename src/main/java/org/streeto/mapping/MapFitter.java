@@ -27,6 +27,7 @@ package org.streeto.mapping;
 
 import org.streeto.utils.Envelope;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -109,7 +110,7 @@ public class MapFitter {
      */
     public static Optional<MapBox> getForEnvelope(Envelope env) {
         return possibleBoxes.stream().filter(it ->
-                env.getWidth() < it.getMaxWidth() && env.getHeight() < it.getMaxHeight()).findFirst();
+                env.getWidth() < it.getMaxWidth() && env.getHeight() < it.getMaxHeight()).min(Comparator.comparingDouble(MapBox::getScale));
     }
 
     public static boolean canBeMapped(Envelope env) {
