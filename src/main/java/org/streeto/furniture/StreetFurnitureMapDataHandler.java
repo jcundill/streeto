@@ -57,6 +57,7 @@ class StreetFurnitureMapDataHandler implements MapDataWithGeometryHandler {
         else if (tags.containsKey("highway")) return tags.get("highway");
         else if (tags.containsKey("amenity")) return tags.get("amenity");
         else if (tags.containsKey("natural")) return tags.get("natural");
+        else if (tags.containsKey("historic")) return tags.get("historic");
         else return tags.getOrDefault("barrier", "");
     }
 
