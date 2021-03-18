@@ -47,6 +47,10 @@ class CourseFinderProblem implements Problem<ISeq<ControlSite>, AnyGene<ISeq<Con
         );
     }
 
+    private static double scoreFitness(List<Double> legScores) {
+        return legScores.stream().mapToDouble(x->Math.pow(x, 2)).average().orElseThrow();
+    }
+
     @Override
     public Function<ISeq<ControlSite>, Double> fitness() {
         return this::courseFitness;
@@ -77,7 +81,7 @@ class CourseFinderProblem implements Problem<ISeq<ControlSite>, AnyGene<ISeq<Con
             return 0.0;
         }
         var legScores = legScorer.apply(controls.asList());
-        return legScores.stream().mapToDouble(x -> x).average().orElseThrow();
+        return scoreFitness(legScores);
     }
 
 
