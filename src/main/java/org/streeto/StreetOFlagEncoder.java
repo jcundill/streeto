@@ -84,15 +84,7 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
         safeHighwayTags.add("residential");
         safeHighwayTags.add("platform");
 
-        avoidHighwayTags.add("trunk");
-        avoidHighwayTags.add("trunk_link");
-        avoidHighwayTags.add("primary");
-        avoidHighwayTags.add("primary_link");
-        avoidHighwayTags.add("secondary");
-        avoidHighwayTags.add("secondary_link");
-        avoidHighwayTags.add("tertiary");
-        avoidHighwayTags.add("tertiary_link");
-        avoidHighwayTags.add("service");
+       avoidHighwayTags.add("service");
 
         // for now no explicit avoiding #257
         //avoidHighwayTags.add("cycleway");
@@ -146,7 +138,7 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
 
             // special case not for all acceptedRailways, only platform
             if (way.hasTag("railway", "platform"))
-                acceptPotentially = EncodingManager.Access.WAY;
+                return EncodingManager.Access.CAN_SKIP;
 
             if (way.hasTag("man_made", "pier"))
                 acceptPotentially = EncodingManager.Access.WAY;
@@ -166,6 +158,15 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
 //            return EncodingManager.Access.CAN_SKIP;
 
         // no need to evaluate ferries or fords - already included here
+
+        //be fussy about service roads
+        if (way.hasTag("highway", "service")) {
+            if( !way.hasTag("designation", "public_footpath", "public_bridleway", "byway", "byway_open_to_all_traffic")
+                && !way.hasTag("foot", intendedValues )
+                && !way.hasTag("access", intendedValues)) {
+                return EncodingManager.Access.CAN_SKIP;
+            }
+        }
 
         // check access restrictions
         if (way.hasTag(restrictions, restrictedValues) && !getConditionalTagInspector().isRestrictedWayConditionallyPermitted(way))
@@ -262,8 +263,8 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
                     weightToPrioMap.put(40.0D, PriorityCode.UNCHANGED.getValue());
                 }
             }
-        } else if ((maxSpeed > 50.0D || this.avoidHighwayTags.contains(highway)) && !way.hasTag("sidewalk", this.sidewalkValues)) {
-            weightToPrioMap.put(45.0D, PriorityCode.AVOID_AT_ALL_COSTS.getValue());
+        } else if ( this.avoidHighwayTags.contains(highway) && !way.hasTag("sidewalk", this.sidewalkValues)) {
+            weightToPrioMap.put(100.0D, PriorityCode.AVOID_AT_ALL_COSTS.getValue());
         }
     }
 
