@@ -8,6 +8,10 @@ import org.streeto.StreetOPreferences;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.streeto.utils.CollectionHelpers.first;
+import static org.streeto.utils.CollectionHelpers.last;
+import static org.streeto.utils.DistUtils.dist;
+
 public class LegComplexityScorer extends AbstractLegScorer {
 
     private static final List<Integer> turnInstructions = List.of(
@@ -15,8 +19,6 @@ public class LegComplexityScorer extends AbstractLegScorer {
             Instruction.TURN_RIGHT,
             Instruction.TURN_SHARP_LEFT,
             Instruction.TURN_SHARP_RIGHT,
-            Instruction.TURN_SLIGHT_LEFT,
-            Instruction.TURN_SLIGHT_RIGHT,
             Instruction.U_TURN_LEFT,
             Instruction.U_TURN_RIGHT,
             Instruction.U_TURN_UNKNOWN,
@@ -31,18 +33,13 @@ public class LegComplexityScorer extends AbstractLegScorer {
         var instructions = leg.getBest().getInstructions();
 
         var turns = instructions.stream()
-                .filter(it -> turnInstructions.contains(it.getSign()))
-                .count();
-        var turnDensity = 1000.0 * turns / leg.getBest().getDistance();   // turns per K
-
-        double result = 0.0;
-        if (turnDensity > 8.0) {
-            result = 1.0;
-        } else if (turnDensity > 4.0) {
-            result = 0.75;
-        } //- (turns.toDouble() / num.toDouble())
-
-        return result;
+                            .filter(it -> turnInstructions.contains(it.getSign()))
+                            .count();
+        var points = leg.getBest().getPoints();
+        if (leg.getBest().getDistance() == 0.0) return 0.0; //in the same place - not complex at all
+        if (turns == 0.0) return 0.0; // no decisions - not complex at all
+        var straightness = 1.0 - dist(last(points), first(points)) / leg.getBest().getDistance();
+        return 1.0 - straightness / turns;
     }
 
     /**

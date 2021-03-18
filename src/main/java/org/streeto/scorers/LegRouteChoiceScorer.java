@@ -71,10 +71,10 @@ public class LegRouteChoiceScorer extends AbstractLegScorer {
         if( first.isEmpty() || second.isEmpty())
             return 0.0; // not a real choice
 
-        double commonLen = getCommonRouteLength(first, second);
+        var commonLen = getCommonRouteLength(first, second);
         var shortest = (first.size() < second.size()) ? leg.getAll().get(0).getDistance() : leg.getAll().get(1).getDistance();
         var commonRatio = commonLen / shortest;
-        return 1.0 - ratio - commonRatio;
+        return 1.0 - (ratio + commonRatio);
     }
 
 }

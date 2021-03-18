@@ -27,15 +27,13 @@ package org.streeto.scorers;
 
 import com.graphhopper.GHResponse;
 import com.graphhopper.ResponsePath;
-import com.graphhopper.util.PointList;
+import com.graphhopper.util.shapes.GHPoint3D;
 import org.jetbrains.annotations.NotNull;
 import org.streeto.StreetOPreferences;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import static org.streeto.utils.CollectionHelpers.*;
 import static org.streeto.utils.DistUtils.dist;
@@ -43,11 +41,8 @@ import static org.streeto.utils.DistUtils.dist;
 
 public class DogLegScorer extends AbstractLegScorer {
 
-    private final double minLegLength;
-
     public DogLegScorer(StreetOPreferences preferences) {
         super(preferences.getDogLegWeighting());
-        this.minLegLength = preferences.getMinLegLength();
     }
 
     /**
@@ -70,8 +65,8 @@ public class DogLegScorer extends AbstractLegScorer {
         var prevPoints = prev2this.getPoints();
         var nextPoints = this2next.getPoints();
         if (prevPoints.size() < 2 || nextPoints.size() < 2) return 0.0; //controls are in the same place
-        var inBoth = dropLast(prevPoints, 1).stream().filter(it -> drop(nextPoints, 1).contains(it)).collect(Collectors.toList());
-
+        List<GHPoint3D> nextTail = drop(nextPoints, 1);
+        var inBoth = dropLast(prevPoints, 1).stream().filter(nextTail::contains).collect(Collectors.toList());
         if (inBoth.size() == 0) return 1.0;
         else {
             var distInBoth = dist(first(inBoth), last(inBoth));

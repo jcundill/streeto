@@ -57,7 +57,7 @@ public class LegLengthScorer extends AbstractLegScorer {
         var averageLegLength = routedLegs.stream().mapToDouble(it -> it.getBest().getDistance()).sum() / routedLegs.size();
         var maxLegLength = Math.min(1000.0, 3.0 * averageLegLength);
         return mapIndexed(routedLegs, (idx, leg) -> {
-            var len = idx == 0 ? maxFirstLegLength : idx == routedLegs.size() - 1 ? maxLastLegLength : maxLegLength;
+            var len = (idx == 0) ? maxFirstLegLength : ((idx == (routedLegs.size() - 1)) ? maxLastLegLength : maxLegLength);
             return evaluate(leg, len);
         }).collect(Collectors.toList());
     }
