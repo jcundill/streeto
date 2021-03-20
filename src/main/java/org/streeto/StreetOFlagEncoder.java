@@ -84,7 +84,15 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
         safeHighwayTags.add("residential");
         safeHighwayTags.add("platform");
 
-       avoidHighwayTags.add("service");
+//        avoidHighwayTags.add("trunk");
+//        avoidHighwayTags.add("trunk_link");
+        avoidHighwayTags.add("primary");
+        avoidHighwayTags.add("primary_link");
+        avoidHighwayTags.add("secondary");
+        avoidHighwayTags.add("secondary_link");
+        avoidHighwayTags.add("tertiary");
+        avoidHighwayTags.add("tertiary_link");
+        avoidHighwayTags.add("service");
 
         // for now no explicit avoiding #257
         //avoidHighwayTags.add("cycleway");
@@ -131,15 +139,6 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
         String highwayValue = way.getTag("highway");
         if (highwayValue == null) {
             EncodingManager.Access acceptPotentially = EncodingManager.Access.CAN_SKIP;
-
-            if (way.hasTag("route", ferries)) {
-                return EncodingManager.Access.CAN_SKIP; // haven't got time to get a ferry
-            }
-
-            // special case not for all acceptedRailways, only platform
-            if (way.hasTag("railway", "platform"))
-                return EncodingManager.Access.CAN_SKIP;
-
             if (way.hasTag("man_made", "pier"))
                 acceptPotentially = EncodingManager.Access.WAY;
 
@@ -164,6 +163,12 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
             if( !way.hasTag("designation", "public_footpath", "public_bridleway", "byway", "byway_open_to_all_traffic")
                 && !way.hasTag("foot", intendedValues )
                 && !way.hasTag("access", intendedValues)) {
+                return EncodingManager.Access.CAN_SKIP;
+            }
+        }
+
+        if( avoidHighwayTags.contains(way.getTag("highway"))) {
+            if( !way.hasTag("sidewalk", sidewalkValues)) {
                 return EncodingManager.Access.CAN_SKIP;
             }
         }
@@ -215,6 +220,12 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
             setSpeed(edgeFlags, ferrySpeed);
         }
 
+        if( avoidHighwayTags.contains(way.getTag("highway"))) {
+            if( !way.hasTag("sidewalk", sidewalkValues)) {
+               priorityFromRelation = AVOID_AT_ALL_COSTS.getValue();
+            }
+        }
+
         priorityWayEncoder.setDecimal(false, edgeFlags, PriorityCode.getFactor(handlePriority(way, priorityFromRelation)));
         return edgeFlags;
     }
@@ -264,7 +275,7 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
                 }
             }
         } else if ( this.avoidHighwayTags.contains(highway) && !way.hasTag("sidewalk", this.sidewalkValues)) {
-            weightToPrioMap.put(100.0D, PriorityCode.AVOID_AT_ALL_COSTS.getValue());
+            weightToPrioMap.put(120.0D, PriorityCode.AVOID_AT_ALL_COSTS.getValue());
         }
     }
 
