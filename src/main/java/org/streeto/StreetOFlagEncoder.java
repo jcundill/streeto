@@ -84,8 +84,8 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
         safeHighwayTags.add("residential");
         safeHighwayTags.add("platform");
 
-//        avoidHighwayTags.add("trunk");
-//        avoidHighwayTags.add("trunk_link");
+        avoidHighwayTags.add("trunk");
+        avoidHighwayTags.add("trunk_link");
         avoidHighwayTags.add("primary");
         avoidHighwayTags.add("primary_link");
         avoidHighwayTags.add("secondary");
@@ -98,7 +98,6 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
         //avoidHighwayTags.add("cycleway");
         allowedHighwayTags.addAll(safeHighwayTags);
         allowedHighwayTags.addAll(avoidHighwayTags);
-        allowedHighwayTags.add("cycleway");
         allowedHighwayTags.add("unclassified");
         allowedHighwayTags.add("road");
         // disallowed in some countries
@@ -168,7 +167,7 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
         }
 
         if( avoidHighwayTags.contains(way.getTag("highway"))) {
-            if( !way.hasTag("sidewalk", sidewalkValues)) {
+            if( way.hasTag("sidewalk", sidewalksNoValues)) {
                 return EncodingManager.Access.CAN_SKIP;
             }
         }
@@ -221,7 +220,7 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
         }
 
         if( avoidHighwayTags.contains(way.getTag("highway"))) {
-            if( !way.hasTag("sidewalk", sidewalkValues)) {
+            if( way.hasTag("sidewalk", sidewalksNoValues)) {
                priorityFromRelation = AVOID_AT_ALL_COSTS.getValue();
             }
         }
@@ -274,7 +273,10 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
                     weightToPrioMap.put(40.0D, PriorityCode.UNCHANGED.getValue());
                 }
             }
-        } else if ( this.avoidHighwayTags.contains(highway) && !way.hasTag("sidewalk", this.sidewalkValues)) {
+        } else if ( this.avoidHighwayTags.contains(highway)
+                    && !way.hasTag("sidewalk", this.sidewalkValues) //Bakewell - didn't annotate with sidewalk
+                    && !way.hasTag("sidewalk", this.sidewalksNoValues)
+                    && maxSpeed > 50.0D) {  // more than 30mph
             weightToPrioMap.put(120.0D, PriorityCode.AVOID_AT_ALL_COSTS.getValue());
         }
     }
