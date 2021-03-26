@@ -7,6 +7,7 @@ public class StreetOPreferences {
     private double beenHereBeforeWeighting = 1.0;
     private double comesTooCloseWeighting = 1.0;
     private double dogLegWeighting = 1.0;
+    private double distinctControlSiteWeighting = 1.0;
     private long maxExecutionTime = 120;
     private long maxGenerations = 100;
     private double stoppingFitness = 0.95;
@@ -22,6 +23,10 @@ public class StreetOPreferences {
     private int populationSize = 50;
     private double mutationRadius = 500.0;
     private long maxPhenotypeAge = 10L;
+    private double maxRouteShare = 0.5;
+    private double maxFurnitureDistance = 25.0;
+    private double junctionScoreFactor = 0.85;
+    private double minTurnAngle = 30.0;
 
 
     public double getRouteChoiceWeighting() {
@@ -191,5 +196,45 @@ public class StreetOPreferences {
 
     public void setMaxPhenotypeAge(long maxPhenotypeAge) {
         this.maxPhenotypeAge = maxPhenotypeAge;
+    }
+
+    public double getMaxRouteShare() {
+        return maxRouteShare;
+    }
+
+    public void setMaxRouteShare(double maxRouteShare) {
+        this.maxRouteShare = maxRouteShare;
+    }
+
+    public double getMaxFurnitureDistance() {
+        return maxFurnitureDistance;
+    }
+
+    public void setMaxFurnitureDistance(double maxFurnitureDistance) {
+        this.maxFurnitureDistance = maxFurnitureDistance;
+    }
+
+    public double getJunctionScoreFactor() {
+        return junctionScoreFactor;
+    }
+
+    public void setJunctionScoreFactor(double junctionScoreFactor) {
+        this.junctionScoreFactor = junctionScoreFactor;
+    }
+
+    public double getDistinctControlSiteWeighting() {
+        return distinctControlSiteWeighting;
+    }
+
+    public void setDistinctControlSiteWeighting(double distinctControlSiteWeighting) {
+        this.distinctControlSiteWeighting = distinctControlSiteWeighting;
+    }
+
+    public double getMinTurnAngle() {
+        return minTurnAngle;
+    }
+
+    public void setMinTurnAngle(double minTurnAngle) {
+        this.minTurnAngle = minTurnAngle;
     }
 }

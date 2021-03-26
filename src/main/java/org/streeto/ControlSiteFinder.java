@@ -59,20 +59,27 @@ public class ControlSiteFinder {
     private final EdgeFilter filter;
     private final HashMap<List<GHPoint>, GHResponse> routedLegCache = new HashMap<>();
     private final Random rnd = RandomRegistry.random();
+    private final double maxShare;
     List<ControlSite> furniture;
     private int hit = 0;
     private int miss = 0;
+    private final double maxFurnitureDistance;
+
+    public enum ControlType {
+        FURNITURE, TOWER, PILLAR
+    }
 
 
-    public ControlSiteFinder(GraphHopperOSM gh) {
+    public ControlSiteFinder(GraphHopperOSM gh, StreetOPreferences preferences) {
         this.gh = gh;
         filter = DefaultEdgeFilter.allEdges(gh.getEncodingManager().getEncoder("streeto"));
+        this.maxShare = preferences.getMaxRouteShare();
+        this.maxFurnitureDistance = preferences.getMaxFurnitureDistance();
     }
 
     public Envelope getEnvelopeForProbableRoutes(List<ControlSite> controls) {
         var routes = windowed(controls, 2).map(it ->
-                //TODO - routeFitsBox thinks that this is OK even if we don't
-                routeRequest(it, 3).getBest()
+                routeRequest(it).getBest()
         ).collect(Collectors.toList());
 
         var env = new Envelope();
@@ -113,7 +120,7 @@ public class ControlSiteFinder {
     public GHResponse routeRequest(GHRequest req, int numAlternatives) {
         if (numAlternatives > 1) {
             req.setAlgorithm(Parameters.Algorithms.ALT_ROUTE);
-            req.getHints().putObject(Parameters.Algorithms.AltRoute.MAX_SHARE, 0.5);
+            req.getHints().putObject(Parameters.Algorithms.AltRoute.MAX_SHARE, maxShare);
             req.getHints().putObject(Parameters.Algorithms.AltRoute.MAX_PATHS, numAlternatives);
         }
         req.setProfile("streeto");
@@ -129,7 +136,7 @@ public class ControlSiteFinder {
             miss++;
             var req = new GHRequest(from, to);
             req.setAlgorithm(Parameters.Algorithms.ALT_ROUTE);
-            req.getHints().putObject(Parameters.Algorithms.AltRoute.MAX_SHARE, 0.5);
+            req.getHints().putObject(Parameters.Algorithms.AltRoute.MAX_SHARE, maxShare);
             req.getHints().putObject(Parameters.Algorithms.AltRoute.MAX_PATHS, 4);
             req.setProfile("streeto");
             var resp = gh.route(req);
@@ -158,9 +165,8 @@ public class ControlSiteFinder {
         }
     }
 
-    private Optional<ControlSite> findLocalStreetFurniture(GHPoint p) {
-        var distance = 25.0;
-        return furniture.stream().filter(it -> dist(it.getLocation(), p) < distance).findFirst();
+  private Optional<ControlSite> findLocalStreetFurniture(GHPoint p) {
+         return furniture.stream().filter(it -> dist(it.getLocation(), p) < maxFurnitureDistance).findFirst();
     }
 
     private Optional<? extends GHPoint> findClosestStreetLocation(GHPoint p) {
@@ -195,5 +201,20 @@ public class ControlSiteFinder {
 
     public double randomBearing() {
         return 2 * PI * rnd.nextDouble();
+    }
+
+    public ControlType getFeatureAtLocation(GHPoint p) {
+        var qr = gh.getLocationIndex().findClosest(p.lat, p.lon, filter);
+
+        if (!qr.isValid())
+            return null;
+        else if( findLocalStreetFurniture(p).isPresent()) {
+            return ControlType.FURNITURE;
+        }
+        else if (qr.getSnappedPosition() == Snap.Position.TOWER) {
+            return ControlType.TOWER;
+        }
+        else
+            return ControlType.PILLAR;
     }
 }
