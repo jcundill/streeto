@@ -28,6 +28,7 @@ package org.streeto;
 import io.jenetics.util.RandomRegistry;
 import org.jetbrains.annotations.NotNull;
 import org.streeto.mapping.MapFitter;
+import org.streeto.mapping.PaperSize;
 import org.streeto.seeders.*;
 import org.streeto.utils.Envelope;
 
@@ -41,10 +42,14 @@ import static org.streeto.utils.CollectionHelpers.*;
 public class CourseSeeder {
 
     private final ControlSiteFinder csf;
+    private final PaperSize paperSize;
+    private final double maxScale;
     private final List<SeedingStrategy> seeders;
 
-    public CourseSeeder(ControlSiteFinder csf) {
+    public CourseSeeder(ControlSiteFinder csf, PaperSize paperSize, double maxScale) {
         this.csf = csf;
+        this.paperSize = paperSize;
+        this.maxScale = maxScale;
         seeders = List.of(
                 new RectangleSeeder(this.csf),
                 new TriangleSeeder(this.csf),
@@ -88,7 +93,7 @@ public class CourseSeeder {
                 env.expandToInclude(it.getLocation())
         );
 
-        if (!MapFitter.canBeMapped(env)) {
+        if (!MapFitter.canBeMapped(env, paperSize, maxScale)) {
             throw new RuntimeException("initial course cannot be mapped");
         }
 

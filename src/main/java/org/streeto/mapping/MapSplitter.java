@@ -16,17 +16,21 @@ import static org.streeto.utils.CollectionHelpers.*;
 public class MapSplitter {
 
     private final ControlSiteFinder csf;
+    private final PaperSize paperSize;
+    private final double maxScale;
 
-    public MapSplitter(ControlSiteFinder csf) {
+    public MapSplitter(ControlSiteFinder csf, PaperSize paperSize, double maxScale) {
         this.csf = csf;
+        this.paperSize = paperSize;
+        this.maxScale = maxScale;
     }
 
     public Optional<SplitResult> makeDoubleSidedIfPossible(List<ControlSite> controls, MapBox box) {
         // find subset in the middle where
         // subset can be mapped on a larger scale
-        // and others including head and tail of subset can also be mapped on the same larger scale
+        // and others including head and tail of subset can also be mapped on the _same_ larger scale
         var splitLocations = IntStream.range(1, controls.size())
-                .mapToObj( startOffset -> findPartitionsFromOffset(startOffset, controls, box))
+                .mapToObj(startOffset -> findPartitionsFromOffset(startOffset, controls, box))
                 .flatMap(x -> x)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
@@ -37,39 +41,39 @@ public class MapSplitter {
                     .sorted(Comparator.comparingDouble(a -> a.box.getScale()))
                     .collect(Collectors.toList());
             return sorted.stream()
-                    .takeWhile( it -> it.box.getScale() == first(sorted).box.getScale() )
+                    .takeWhile(it -> it.box.getScale() == first(sorted).box.getScale())
                     .min(Comparator.comparingInt(SplitResult::lengthDiff));
         }
     }
 
     private Stream<SplitResult> findPartitionsFromOffset(int startOffset, List<ControlSite> controls, MapBox box) {
         return IntStream.range(startOffset + 1, controls.size() - 2)
-                .mapToObj( endOffset -> getSplitForOffset(controls, startOffset, endOffset, box)
-        );
+                .mapToObj(endOffset -> getSplitForOffset(controls, startOffset, endOffset, box)
+                );
     }
 
-    private SplitResult getSplitForOffset(List<ControlSite> controls, int startOffset, int endOffset, MapBox box){
-        var middle = drop( take(controls, endOffset), startOffset);
+    private SplitResult getSplitForOffset(List<ControlSite> controls, int startOffset, int endOffset, MapBox box) {
+        var middle = drop(take(controls, endOffset), startOffset);
         var remainder = Stream.concat(take(controls, startOffset + 1).stream(), drop(controls, endOffset - 1).stream())
                 .collect(Collectors.toList());//include start and end of middle in remainder
 
-        if(middle.size() < 2 || remainder.size() < 2) return null;
+        if (middle.size() < 2 || remainder.size() < 2) return null;
         var envMiddle = csf.getEnvelopeForProbableRoutes(middle);
         var envRemainder = csf.getEnvelopeForProbableRoutes(remainder);
-        var middleBox = MapFitter.getForEnvelope(envMiddle).orElse(null);
-        var remainderBox = MapFitter.getForEnvelope(envRemainder).orElse(null);
+        var middleBox = MapFitter.getForEnvelope(envMiddle, paperSize, maxScale).orElse(null);
+        var remainderBox = MapFitter.getForEnvelope(envRemainder, paperSize, maxScale).orElse(null);
         if (middleBox != null && remainderBox != null) {
             var canPossiblySplit = middleBox.getScale() < box.getScale() && remainderBox.getScale() < box.getScale();
-            if( !canPossiblySplit ) return null;
-            else if( middleBox.getScale() == remainderBox.getScale() && middleBox.isLandscape() == remainderBox.isLandscape() ||
+            if (!canPossiblySplit) return null;
+            else if (middleBox.getScale() == remainderBox.getScale() && middleBox.isLandscape() == remainderBox.isLandscape() ||
                      middleBox.getScale() > remainderBox.getScale() && MapFitter.canFitOnMap(envRemainder, middleBox)) {
                 return new SplitResult(remainder, envRemainder, middle, envMiddle, middleBox);
-            } else if( remainderBox.getScale() > middleBox.getScale() && MapFitter.canFitOnMap(envMiddle, remainderBox)) {
-                return new SplitResult(remainder,envRemainder, middle, envMiddle, remainderBox);
+            } else if (remainderBox.getScale() > middleBox.getScale() && MapFitter.canFitOnMap(envMiddle, remainderBox)) {
+                return new SplitResult(remainder, envRemainder, middle, envMiddle, remainderBox);
             } else {
                 return null;
             }
         } else
-           return null;
+            return null;
     }
 }

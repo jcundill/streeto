@@ -28,6 +28,7 @@ package org.streeto.mapping;
 import com.graphhopper.util.shapes.GHPoint;
 import org.jetbrains.annotations.NotNull;
 import org.streeto.ControlSite;
+import org.streeto.StreetOPreferences;
 import org.streeto.utils.Envelope;
 
 import java.io.*;
@@ -60,11 +61,20 @@ public class MapPrinter {
                                               "c_startfinish&data%5Bcontrols%5D%5B2%5D%5Bdescription%5D=&data%5Bcontrols%5D%5B2%5D%5Blat%5D=6981216.554224269&data%5B" +
                                               "controls%5D%5B2%5D%5Blon%5D=-135425.9052604716&data%5Bcontrols%5D%5B2%5D%5Bwgs84lat%5D=52.990368510683766&data%5Bcontrol" +
                                               "s%5D%5B2%5D%5Bwgs84lon%5D=-1.2165516056120393";
-    //Create transformation from WS84 to WGS84 Web Mercator
-    public MapPrinter() { }
 
-    private static String requestKey() {
-        var dummyParameters = dummyString.getBytes(StandardCharsets.UTF_8);
+     private final StreetOPreferences preferences;
+
+    //Create transformation from WS84 to WGS84 Web Mercator
+    public MapPrinter(StreetOPreferences preferences) {
+        this.preferences = preferences;
+    }
+
+    private String requestKey() {
+        var string = dummyString;
+        if(preferences.getPaperSize() == PaperSize.A3) {
+            string = string.replace("p2970-2100", "p4200-2970");
+        }
+        var dummyParameters = string.getBytes(StandardCharsets.UTF_8);
 
         URL url;
         StringBuilder response = new StringBuilder();
@@ -98,7 +108,7 @@ public class MapPrinter {
     }
 
     @NotNull
-    private static String extractKeyFromResponse(StringBuilder response) {
+    private String extractKeyFromResponse(StringBuilder response) {
         var message = Arrays.stream(response.toString().split(",")).filter(it -> it.startsWith("\"message\"")).findFirst().orElseThrow();
         var code = message.split(":")[1].strip();
         code = code.substring(1, code.length() - 2);
@@ -106,18 +116,16 @@ public class MapPrinter {
     }
 
     public void generateMapAsPdf(SplitResult split, String title, List<ControlSite> controls, File file) throws IOException {
-        var mapBox1 = MapFitter.getForEnvelope(split.getEnv1()).orElseThrow();
         var mapCentre1 = split.getEnv1().centre();
-        var pdfStream1 = generateArtifact(MapType.PDF, mapBox1, mapCentre1, title + "_Part_1");
+        var pdfStream1 = generateArtifact(MapType.PDF, split.getBox(), mapCentre1, title + "_Part_1");
 
-        var mapBox2 = MapFitter.getForEnvelope(split.getEnv2()).orElseThrow();
         var mapCentre2 = split.getEnv2().centre();
-        var pdfStream2 = generateArtifact(MapType.PDF, mapBox2, mapCentre2, title + "_Part_2");
+        var pdfStream2 = generateArtifact(MapType.PDF, split.getBox(), mapCentre2, title + "_Part_2");
 
         var decorator = new MapDecorator();
-        decorator.addMapPage(pdfStream1, split.getSplit1(), mapBox1, mapCentre1);
+        decorator.addMapPage(pdfStream1, split.getSplit1(), split.getBox(), mapCentre1);
         pdfStream1.close();
-        decorator.addMapPage(pdfStream2, split.getSplit2(), mapBox2, mapCentre2);
+        decorator.addMapPage(pdfStream2, split.getSplit2(), split.getBox(), mapCentre2);
         pdfStream2.close();
         decorator.addControlSheet(controls);
 
@@ -125,7 +133,7 @@ public class MapPrinter {
       }
 
     public void generateMapAsPdf(Envelope envelopeToMap, String title, List<ControlSite> controls, File file) throws IOException {
-        var mapBox = MapFitter.getForEnvelope(envelopeToMap).orElseThrow();
+        var mapBox = MapFitter.getForEnvelope(envelopeToMap, preferences.getPaperSize(), preferences.getMaxMapScale()).orElseThrow();
         var mapCentre = envelopeToMap.centre();
         var pdfStream = generateArtifact(MapType.PDF, mapBox, mapCentre, title);
         var decorator = new MapDecorator();
@@ -138,7 +146,7 @@ public class MapPrinter {
 
     public void generateMapAsKmz(Envelope envelopeToMap, String title, File file) throws IOException {
         //the map scale and orientation we are going to print
-        var mapBox = MapFitter.getForEnvelope(envelopeToMap).orElseThrow();
+        var mapBox = MapFitter.getForEnvelope(envelopeToMap, preferences.getPaperSize(), preferences.getMaxMapScale()).orElseThrow();
         // coords of the centre of this map
         var mapCentre = envelopeToMap.centre();
         var kmzStream = generateArtifact(MapType.KMZ, mapBox, mapCentre, title);
@@ -150,7 +158,7 @@ public class MapPrinter {
     }
 
     private InputStream generateArtifact(MapType mapType, MapBox box, GHPoint mapCentre, String title) throws IOException {
-        var orientationString = (box.isLandscape()) ? "0.297,0.21" : "0.21,0.297";
+        var orientationString = getOrientationString(box);
 
         // the centre is the thing in the middle
         var centre = degreesToMetres(mapCentre.getLon(), mapCentre.getLat());
@@ -161,7 +169,7 @@ public class MapPrinter {
 
         var id = requestKey();
 
-        var url = new URL(String.format("https://tiler4.oobrien.com/%s/?style=streeto|" +
+        var url = new URL(String.format("https://tiler4.oobrien.com/%s/?style=%s|" +
                                         "paper=%s" +
                                         "|scale=%d" +
                                         "|centre=%d,%d" +
@@ -171,7 +179,15 @@ public class MapPrinter {
                                         "|start=" +
                                         "|crosses=" +
                                         "|cps=" +
-                                        "|controls=", mapType.key, orientationString, (int) box.getScale(), centreLat, centreLon, escapedTitle, id));
+                                        "|controls=",
+                mapType.key,
+                preferences.getMapStyle().getValue(),
+                orientationString,
+                (int) box.getScale(),
+                centreLat,
+                centreLon,
+                escapedTitle,
+                id));
 
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         var bis = new BufferedInputStream(new ByteArrayInputStream(conn.getInputStream().readAllBytes()));
@@ -180,7 +196,17 @@ public class MapPrinter {
         return bis;
     }
 
-     enum MapType {
+    private String getOrientationString(MapBox box) {
+        String ret;
+        if (box.isLandscape())  {
+            ret = box.getPaperSize() == PaperSize.A4 ? "0.297,0.21" :  "0.42,0.297";
+        } else {
+            ret = box.getPaperSize() == PaperSize.A4 ? "0.21,0.297" : "0.297,0.42";
+        }
+        return ret;
+    }
+
+    enum MapType {
         PDF("pdf"),
         KMZ("kmz");
 

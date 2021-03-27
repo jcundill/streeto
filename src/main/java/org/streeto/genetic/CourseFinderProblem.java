@@ -37,7 +37,7 @@ class CourseFinderProblem implements Problem<ISeq<ControlSite>, AnyGene<ISeq<Con
         this.requestedNumControls = requestedNumControls;
         this.initialControls = initialControls;
 
-        this.seeder = new CourseSeeder(this.csf);
+        this.seeder = new CourseSeeder(this.csf, preferences.getPaperSize(), preferences.getMaxMapScale());
 
         this.constraints = List.of(
                 new IsRouteableConstraint(),

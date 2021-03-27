@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.streeto.StreetOPreferences;
 import org.streeto.mapping.MapBox;
 import org.streeto.mapping.MapFitter;
+import org.streeto.mapping.PaperSize;
 import org.streeto.utils.Envelope;
 
 import java.util.List;
@@ -15,9 +16,12 @@ import static org.streeto.utils.CollectionHelpers.iterableAsStream;
 
 public class PrintableOnMapConstraint implements CourseConstraint {
     private final double maxMapScale;
+    private final PaperSize paperSize;
+
 
     public PrintableOnMapConstraint(StreetOPreferences preferences) {
         this.maxMapScale = preferences.getMaxMapScale();
+        this.paperSize = preferences.getPaperSize();
     }
 
     @Override
@@ -29,7 +33,7 @@ public class PrintableOnMapConstraint implements CourseConstraint {
         var env = new Envelope();
         routes.forEach(pw -> iterableAsStream(pw.getPoints())
                 .forEach(env::expandToInclude));
-        Optional<MapBox> maybeMap = MapFitter.getForEnvelope(env);
-        return maybeMap.isPresent() && maybeMap.get().getScale() <= maxMapScale;
+        Optional<MapBox> maybeMap = MapFitter.getForEnvelope(env, paperSize, maxMapScale);
+        return maybeMap.isPresent();
     }
 }

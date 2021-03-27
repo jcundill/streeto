@@ -34,10 +34,7 @@ import org.streeto.genetic.CourseFinderRunner;
 import org.streeto.genetic.Sniffer;
 import org.streeto.gpx.GpxFacade;
 import org.streeto.kml.KmlWriter;
-import org.streeto.mapping.MapFitter;
-import org.streeto.mapping.MapPrinter;
-import org.streeto.mapping.MapSplitter;
-import org.streeto.mapping.SplitResult;
+import org.streeto.mapping.*;
 import org.streeto.scorers.*;
 
 import java.io.File;
@@ -63,7 +60,7 @@ public class StreetO {
     public StreetO(String pbf, String osmDir) {
         GraphHopperOSM gh = new GhWrapper().initGH(pbf, osmDir);
         csf = new ControlSiteFinder(gh, preferences);
-        splitter = new MapSplitter(csf);
+        splitter = new MapSplitter(csf, preferences.getPaperSize(), preferences.getMaxMapScale());
         courseImporter = new CourseImporter(csf);
         initialiseScorer();
     }
@@ -86,11 +83,14 @@ public class StreetO {
         //preferences.setRouteChoiceWeighting(15.0);
         //preferences.setControlSwapProbability(0.1);
         //preferences.setMutateProbability(0.5);
-        preferences.setMaxGenerations(3000);
-        preferences.setLegLengthWeighting(2.0);
+        preferences.setMaxGenerations(1000);
+        //preferences.setLegLengthWeighting(2.0);
         preferences.setMaxExecutionTime(120);
         preferences.setMaxLastLegLength(600.0);
         preferences.setMinApproachToFinish(100.0);
+        preferences.setSplitForBetterScale(false);
+        preferences.setPaperSize(PaperSize.A3);
+        preferences.setMapStyle(MapStyle.PSEUDO);
         streeto.setPreferences(preferences);
 
         //generate a good route based on a set of initial parameters
@@ -149,7 +149,7 @@ public class StreetO {
         fw.flush();
         fw.close();
 
-        var printer = new MapPrinter();
+        var printer = new MapPrinter(preferences);
         var envelopeToMap = csf.getEnvelopeForProbableRoutes(controls);
         printer.generateMapAsKmz(envelopeToMap, title, new File(path, title + ".kmz"));
     }
@@ -215,19 +215,19 @@ public class StreetO {
     public void writeMap(List<ControlSite> controls, String mapTitle, File path) throws IOException {
 
         File file = new File(path.getAbsoluteFile(), mapTitle + ".pdf");
-        var printer = new MapPrinter();
+        var printer = new MapPrinter(preferences);
         var envelopeToMap = csf.getEnvelopeForProbableRoutes(controls);
-        var mapBox = MapFitter.getForEnvelope(envelopeToMap).orElseThrow();
+        var mapBox = MapFitter.getForEnvelope(envelopeToMap, preferences.getPaperSize(), preferences.getMaxMapScale()).orElseThrow();
 
-
-        Optional<SplitResult> splitResult = Optional.empty();// splitter.makeDoubleSidedIfPossible(controls, mapBox);
-        if (splitResult.isEmpty()) {
-            System.out.println("Not splitting");
-            printer.generateMapAsPdf(envelopeToMap, mapTitle, controls, file);
-            //printer.generateMapAsKmz("abc.kmz", "Test_Map");
+        if( preferences.isSplitForBetterScale() ) {
+            var maybeSplit = splitter.makeDoubleSidedIfPossible(controls, mapBox);
+            if( maybeSplit.isPresent() ) {
+                printer.generateMapAsPdf(maybeSplit.get(), mapTitle, controls, file);
+            } else {
+                printer.generateMapAsPdf(envelopeToMap, mapTitle, controls, file);
+            }
         } else {
-            System.out.println("Splitting");
-            printer.generateMapAsPdf(splitResult.get(), mapTitle, controls, file);
+            printer.generateMapAsPdf(envelopeToMap, mapTitle, controls, file);
         }
     }
 

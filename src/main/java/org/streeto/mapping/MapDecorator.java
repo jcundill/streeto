@@ -151,7 +151,7 @@ public class MapDecorator {
                         .build())
         );
         var table = tableBuilder.build();
-        var page2Box = doc.getPage(1).getMediaBox();
+        var page2Box = controlSheetPage.getMediaBox();
         var tableDrawer = TableDrawer.builder()
                 .contentStream(content2)
                 .startX(20f)
@@ -171,10 +171,10 @@ public class MapDecorator {
 
         var legs = windowed(controls, 2).collect(Collectors.toList());
         var offsets = windowed(offsetsInPts, 2).collect(Collectors.toList());
-        forEachZipped(legs, offsets, (leg, offsets1) -> {
+        forEachZipped(legs, offsets, (leg, pts) -> {
             if(isSequential(leg)) {
                 try {
-                    drawLine(content, offsets1);
+                    drawLine(content, pts);
                 } catch (IOException e) {
                     // ignore
                 }

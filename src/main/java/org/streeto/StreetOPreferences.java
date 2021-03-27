@@ -1,5 +1,8 @@
 package org.streeto;
 
+import org.streeto.mapping.MapStyle;
+import org.streeto.mapping.PaperSize;
+
 public class StreetOPreferences {
     private double routeChoiceWeighting = 1.0;
     private double legLengthWeighting = 1.0;
@@ -27,6 +30,17 @@ public class StreetOPreferences {
     private double maxFurnitureDistance = 25.0;
     private double junctionScoreFactor = 0.85;
     private double minTurnAngle = 30.0;
+    private boolean splitForBetterScale = false;
+    private MapStyle mapStyle = MapStyle.STREETO;
+    private PaperSize paperSize = PaperSize.A4;
+
+    public PaperSize getPaperSize() {
+        return paperSize;
+    }
+
+    public void setPaperSize(PaperSize paperSize) {
+        this.paperSize = paperSize;
+    }
 
 
     public double getRouteChoiceWeighting() {
@@ -236,5 +250,21 @@ public class StreetOPreferences {
 
     public void setMinTurnAngle(double minTurnAngle) {
         this.minTurnAngle = minTurnAngle;
+    }
+
+    public boolean isSplitForBetterScale() {
+        return splitForBetterScale;
+    }
+
+    public void setSplitForBetterScale(boolean splitForBetterScale) {
+        this.splitForBetterScale = splitForBetterScale;
+    }
+
+    public MapStyle getMapStyle() {
+        return mapStyle;
+    }
+
+    public void setMapStyle(MapStyle mapStyle) {
+        this.mapStyle = mapStyle;
     }
 }
