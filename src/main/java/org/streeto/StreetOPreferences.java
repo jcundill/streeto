@@ -33,6 +33,7 @@ public class StreetOPreferences {
     private boolean splitForBetterScale = false;
     private MapStyle mapStyle = MapStyle.STREETO;
     private PaperSize paperSize = PaperSize.A4;
+    private boolean printA3OnA4 = true;
 
     public PaperSize getPaperSize() {
         return paperSize;
@@ -266,5 +267,13 @@ public class StreetOPreferences {
 
     public void setMapStyle(MapStyle mapStyle) {
         this.mapStyle = mapStyle;
+    }
+
+    public boolean isPrintA3OnA4() {
+        return printA3OnA4;
+    }
+
+    public void setPrintA3OnA4(boolean printA3OnA4) {
+        this.printA3OnA4 = printA3OnA4;
     }
 }

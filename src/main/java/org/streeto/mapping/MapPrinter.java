@@ -26,6 +26,7 @@
 package org.streeto.mapping;
 
 import com.graphhopper.util.shapes.GHPoint;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.jetbrains.annotations.NotNull;
 import org.streeto.ControlSite;
 import org.streeto.StreetOPreferences;
@@ -135,10 +136,36 @@ public class MapPrinter {
     public void generateMapAsPdf(Envelope envelopeToMap, String title, List<ControlSite> controls, File file) throws IOException {
         var mapBox = MapFitter.getForEnvelope(envelopeToMap, preferences.getPaperSize(), preferences.getMaxMapScale()).orElseThrow();
         var mapCentre = envelopeToMap.centre();
+        boolean cutDownMiddle = preferences.getPaperSize() == PaperSize.A3 && preferences.isPrintA3OnA4();
         var pdfStream = generateArtifact(MapType.PDF, mapBox, mapCentre, title);
-        var decorator = new MapDecorator();
-        decorator.addMapPage(pdfStream, controls, mapBox, mapCentre);
+        byte [] bytes = pdfStream.readAllBytes();
         pdfStream.close();
+
+        var decorator = new MapDecorator();
+        if( cutDownMiddle) {
+            var a4 = PDRectangle.A4;
+
+            var firstCrop = mapBox.isLandscape() ?
+                    new PDRectangle(0 ,0, a4.getWidth(), a4.getHeight()) :  // A4 Portrait
+                    new PDRectangle(0 ,0, a4.getHeight(), a4.getWidth());   // A4 Landscape
+
+            var secondCrop = mapBox.isLandscape() ?
+                    new PDRectangle(a4.getWidth() ,0, a4.getWidth(), a4.getHeight()) : // A4 Portrait x += A4 width
+                    new PDRectangle(0 ,a4.getWidth(), a4.getHeight(), a4.getWidth()); // A4 Landscape y += A4 width
+
+            new PDRectangle(PDRectangle.A4.getWidth(), PDRectangle.A4.getHeight(), PDRectangle.A3.getWidth(), PDRectangle.A3.getHeight());
+             try (var bis = new ByteArrayInputStream(bytes)) {
+                decorator.addCroppedMapPage(bis, controls, mapBox, mapCentre, firstCrop);
+            }
+
+            try (var bis = new ByteArrayInputStream(bytes)) {
+                decorator.addCroppedMapPage(bis, controls, mapBox, mapCentre, secondCrop);
+            }
+        } else {
+            try (var bis = new ByteArrayInputStream(bytes)) {
+                decorator.addMapPage(bis, controls, mapBox, mapCentre);
+            }
+        }
         decorator.addControlSheet(controls);
 
         decorator.saveAs(file);

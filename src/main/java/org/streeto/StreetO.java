@@ -80,17 +80,14 @@ public class StreetO {
 
         // set up the preferences
         var preferences = new StreetOPreferences();
-        //preferences.setRouteChoiceWeighting(15.0);
-        //preferences.setControlSwapProbability(0.1);
-        //preferences.setMutateProbability(0.5);
         preferences.setMaxGenerations(1000);
-        //preferences.setLegLengthWeighting(2.0);
-        preferences.setMaxExecutionTime(120);
-        preferences.setMaxLastLegLength(600.0);
+        preferences.setMaxExecutionTime(180);
+        preferences.setMaxLastLegLength(300.0);
         preferences.setMinApproachToFinish(100.0);
         preferences.setSplitForBetterScale(false);
         preferences.setPaperSize(PaperSize.A3);
-        preferences.setMapStyle(MapStyle.PSEUDO);
+        preferences.setMapStyle(MapStyle.STREETO);
+        preferences.setPrintA3OnA4(true);
         streeto.setPreferences(preferences);
 
         //generate a good route based on a set of initial parameters

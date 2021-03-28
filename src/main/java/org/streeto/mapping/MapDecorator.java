@@ -45,7 +45,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -67,7 +66,14 @@ public class MapDecorator {
         doc.save(filename);
     }
 
-    public void addMapPage(InputStream pdfStream, List<ControlSite> controls, MapBox box, GHPoint mapCentre) throws IOException {
+    public void addMapPage(InputStream pdfStream, List<ControlSite> controls, MapBox mapBox, GHPoint mapCentre) throws IOException{
+        addMapPage(pdfStream,controls,mapBox,mapCentre, null);
+    }
+    public void addCroppedMapPage(InputStream pdfStream, List<ControlSite> controls, MapBox mapBox, GHPoint mapCentre, PDRectangle crop) throws IOException{
+        addMapPage(pdfStream, controls, mapBox, mapCentre, crop);
+    }
+
+    private void addMapPage(InputStream pdfStream, List<ControlSite> controls, MapBox box, GHPoint mapCentre, PDRectangle crop) throws IOException {
         var map = PDDocument.load(pdfStream);
 
         PDPage page = map.getDocumentCatalog().getPages().get(0);
@@ -99,6 +105,9 @@ public class MapDecorator {
         content.setStrokingColor(Color.WHITE);
 
         drawCourse(content, controls, offsetsInPts);
+        if( crop != null) {
+            page.setCropBox(crop);
+        }
     }
 
 
@@ -162,12 +171,15 @@ public class MapDecorator {
         content2.close();
     }
 
-    private void drawControls(PDPageContentStream content, List<ControlSite> controls, List<float []> offsetsInPts) throws IOException {
+    private void drawControls(PDPageContentStream content, List<ControlSite> controls, List<float []> offsetsInPts) {
         var positions = offsetsInPts.subList(1, offsetsInPts.size() - 1);
-        var index = new AtomicInteger(1);
-        for (float[] position : positions) {
-            drawControl(content, controls.get(index.getAndIncrement()).getNumber(), position);
-        }
+        forEachIndexed(positions, (index, position) -> {
+            try {
+                drawControl(content, controls.get(index + 1).getNumber(), position);
+            } catch (IOException e) {
+                // ignore
+            }
+        });
 
         var legs = windowed(controls, 2).collect(Collectors.toList());
         var offsets = windowed(offsetsInPts, 2).collect(Collectors.toList());
