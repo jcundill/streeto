@@ -147,7 +147,7 @@ public class MapDecorator {
         var content2 = new PDPageContentStream(doc, controlSheetPage, PDPageContentStream.AppendMode.APPEND, true, true);
 
         var tableBuilder = Table.builder()
-                .addColumnsOfWidth(60.0f, 100.0f)
+                .addColumnsOfWidth(60.0f, 120.0f)
                 .addRow(Row.builder()
                         .add(CellText.builder().text("Control").borderWidth(1.0f).backgroundColor(Color.LIGHT_GRAY).build())
                         .add(CellText.builder().text("Description").borderWidth(1.0f).backgroundColor(Color.LIGHT_GRAY).build())
