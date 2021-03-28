@@ -1,0 +1,3 @@
+- [ ] Score course generation
+- [ ] Allow Control Sites to be pinned
+	- [ ] Can't be mutated or removed
