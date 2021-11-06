@@ -9,7 +9,7 @@ Helper functions are provided to:
 +  Generate a printable PDF A4 open orienteering map <https://oomap.co.uk/gb> of the generated course overlaid with the controls as a line course.
 +  Generate the KML and KMZ files needed for uploading to MapRunF <https://play.google.com/store/apps/details?id=au.com.fne.maprunf&hl=en_GB> 
 
-This allows you to immediately run the generated course yourself by printing out the map and importing the maprun files into CheckSites <http://www.p.fne.com.au/#/checksitesupload>
+This allows you to immediately run the generated course yourself by printing out the map and importing the maprun files into CheckSites <https://console.maprun.net/#/check_sites_create>
 
 
 
@@ -88,7 +88,7 @@ Graphhopper works against a local database built from OSM protobuf files. You wi
 
 For details of pbf file downloads see <https://download.geofabrik.de/europe/great-britain.html>
 
-The downloaded pbf file needs to go into a folder called extracts in order to initialise the Graphhopper database - see the `GhWrapper` class for details of how this is done.
+The downloaded pbf file needs to go into a folder called extracts in order to initialise the Graphhopper database - see the `main` method in the `StreetO` class for details of how this is done.
 
 
 
