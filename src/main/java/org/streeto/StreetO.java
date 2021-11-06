@@ -106,13 +106,14 @@ public class StreetO {
             System.out.printf("best score: %f%n", scoreDetails.getOverallScore());
             System.out.printf("distance: %f\n", route.getDistance());
 
-            System.out.println(scoreDetails.toString());
+            System.out.println(scoreDetails);
 
             try {
                 var outputFolder = new File("./");
-                streeto.writeGpx(controls, route, "abc", outputFolder);
-                streeto.writeMap(controls, "abc", outputFolder);
-                streeto.writeMapRunFiles(controls, "abc", outputFolder);
+                var title = String.format("abc-%d", System.currentTimeMillis());
+                streeto.writeGpx(controls, route, title, outputFolder);
+                streeto.writeMap(controls, title, outputFolder);
+                streeto.writeMapRunFiles(controls, title, outputFolder);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -156,7 +157,7 @@ public class StreetO {
     }
 
     public Optional<List<ControlSite>> generateCourse(double distance, int numControls, List<ControlSite> initialControls) {
-        if( csf.furniture == null) {
+        if (csf.furniture == null) {
             findFurniture(first(initialControls));
         }
         var lastMondayRunner = new CourseFinderRunner(scorer::scoreLegs, csf, sniffers, preferences);
@@ -170,7 +171,7 @@ public class StreetO {
     }
 
     public ScoreDetails score(List<ControlSite> controls) {
-        if( csf.furniture == null) {
+        if (csf.furniture == null) {
             findFurniture(first(controls));
         }
         return scorer.score(controls);
@@ -216,9 +217,9 @@ public class StreetO {
         var envelopeToMap = csf.getEnvelopeForProbableRoutes(controls);
         var mapBox = MapFitter.getForEnvelope(envelopeToMap, preferences.getPaperSize(), preferences.getMaxMapScale()).orElseThrow();
 
-        if( preferences.isSplitForBetterScale() ) {
+        if (preferences.isSplitForBetterScale()) {
             var maybeSplit = splitter.makeDoubleSidedIfPossible(controls, mapBox);
-            if( maybeSplit.isPresent() ) {
+            if (maybeSplit.isPresent()) {
                 printer.generateMapAsPdf(maybeSplit.get(), mapTitle, controls, file);
             } else {
                 printer.generateMapAsPdf(envelopeToMap, mapTitle, controls, file);
@@ -228,7 +229,7 @@ public class StreetO {
         }
     }
 
-    public Optional<ControlSite> findNearestControlSiteTo(double lat, double lon){
+    public Optional<ControlSite> findNearestControlSiteTo(double lat, double lon) {
         return csf.findNearestControlSiteTo(new GHPoint(lat, lon));
     }
 }

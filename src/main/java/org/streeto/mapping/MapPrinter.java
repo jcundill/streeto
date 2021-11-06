@@ -39,8 +39,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
-import static java.lang.Math.*;
-import static org.streeto.utils.DistUtils.*;
+import static java.lang.Math.round;
+import static org.streeto.utils.DistUtils.degreesToMetres;
 
 
 public class MapPrinter {
@@ -63,7 +63,7 @@ public class MapPrinter {
                                               "controls%5D%5B2%5D%5Blon%5D=-135425.9052604716&data%5Bcontrols%5D%5B2%5D%5Bwgs84lat%5D=52.990368510683766&data%5Bcontrol" +
                                               "s%5D%5B2%5D%5Bwgs84lon%5D=-1.2165516056120393";
 
-     private final StreetOPreferences preferences;
+    private final StreetOPreferences preferences;
 
     //Create transformation from WS84 to WGS84 Web Mercator
     public MapPrinter(StreetOPreferences preferences) {
@@ -72,7 +72,7 @@ public class MapPrinter {
 
     private String requestKey() {
         var string = dummyString;
-        if(preferences.getPaperSize() == PaperSize.A3) {
+        if (preferences.getPaperSize() == PaperSize.A3) {
             string = string.replace("p2970-2100", "p4200-2970");
         }
         var dummyParameters = string.getBytes(StandardCharsets.UTF_8);
@@ -131,30 +131,30 @@ public class MapPrinter {
         decorator.addControlSheet(controls);
 
         decorator.saveAs(file);
-      }
+    }
 
     public void generateMapAsPdf(Envelope envelopeToMap, String title, List<ControlSite> controls, File file) throws IOException {
         var mapBox = MapFitter.getForEnvelope(envelopeToMap, preferences.getPaperSize(), preferences.getMaxMapScale()).orElseThrow();
         var mapCentre = envelopeToMap.centre();
         boolean cutDownMiddle = preferences.getPaperSize() == PaperSize.A3 && preferences.isPrintA3OnA4();
         var pdfStream = generateArtifact(MapType.PDF, mapBox, mapCentre, title);
-        byte [] bytes = pdfStream.readAllBytes();
+        byte[] bytes = pdfStream.readAllBytes();
         pdfStream.close();
 
         var decorator = new MapDecorator();
-        if( cutDownMiddle) {
+        if (cutDownMiddle) {
             var a4 = PDRectangle.A4;
 
             var firstCrop = mapBox.isLandscape() ?
-                    new PDRectangle(0 ,0, a4.getWidth(), a4.getHeight()) :  // A4 Portrait
-                    new PDRectangle(0 ,0, a4.getHeight(), a4.getWidth());   // A4 Landscape
+                    new PDRectangle(0, 0, a4.getWidth(), a4.getHeight()) :  // A4 Portrait
+                    new PDRectangle(0, 0, a4.getHeight(), a4.getWidth());   // A4 Landscape
 
             var secondCrop = mapBox.isLandscape() ?
-                    new PDRectangle(a4.getWidth() ,0, a4.getWidth(), a4.getHeight()) : // A4 Portrait x += A4 width
-                    new PDRectangle(0 ,a4.getWidth(), a4.getHeight(), a4.getWidth()); // A4 Landscape y += A4 width
+                    new PDRectangle(a4.getWidth(), 0, a4.getWidth(), a4.getHeight()) : // A4 Portrait x += A4 width
+                    new PDRectangle(0, a4.getWidth(), a4.getHeight(), a4.getWidth()); // A4 Landscape y += A4 width
 
             new PDRectangle(PDRectangle.A4.getWidth(), PDRectangle.A4.getHeight(), PDRectangle.A3.getWidth(), PDRectangle.A3.getHeight());
-             try (var bis = new ByteArrayInputStream(bytes)) {
+            try (var bis = new ByteArrayInputStream(bytes)) {
                 decorator.addCroppedMapPage(bis, controls, mapBox, mapCentre, firstCrop);
             }
 
@@ -225,8 +225,8 @@ public class MapPrinter {
 
     private String getOrientationString(MapBox box) {
         String ret;
-        if (box.isLandscape())  {
-            ret = box.getPaperSize() == PaperSize.A4 ? "0.297,0.21" :  "0.42,0.297";
+        if (box.isLandscape()) {
+            ret = box.getPaperSize() == PaperSize.A4 ? "0.297,0.21" : "0.42,0.297";
         } else {
             ret = box.getPaperSize() == PaperSize.A4 ? "0.21,0.297" : "0.297,0.42";
         }

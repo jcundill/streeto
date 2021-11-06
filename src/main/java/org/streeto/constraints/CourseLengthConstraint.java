@@ -14,8 +14,7 @@ public class CourseLengthConstraint implements CourseConstraint {
         this.allowedLengthDelta = preferences.getAllowedCourseLengthDelta();
     }
 
-    @Override
-    public boolean valid(@NotNull GHResponse routedCourse) {
+    public boolean test(@NotNull GHResponse routedCourse) {
         double maxAllowedDistance = desiredDistance + desiredDistance * allowedLengthDelta;
         return routedCourse.getBest().getDistance() < maxAllowedDistance;
     }

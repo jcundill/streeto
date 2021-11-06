@@ -6,11 +6,10 @@
       {
         "id": "9422207a0e895d12",
         "type": "leaf",
-        "active": true,
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Frontend Bugs.md",
+            "file": "Untitled 1.md",
             "mode": "source"
           }
         }
@@ -69,12 +68,14 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Frontend Bugs.md",
-                "collapseAll": false,
-                "extraContext": false,
+                "file": "Untitled 1.md",
+                "collapseAll": true,
+                "extraContext": true,
                 "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
                 "backlinkCollapsed": false,
-                "unlinkedCollapsed": true
+                "unlinkedCollapsed": false
               }
             }
           }
@@ -85,14 +86,16 @@
     "width": 300,
     "collapsed": true
   },
+  "active": "9422207a0e895d12",
   "lastOpenFiles": [
+    "Untitled 1.md",
+    "Untitled.md",
     "Frontend Bugs.md",
+    "User Guide.md",
     "Frontend Features Missing.md",
-    "Backend Features Missing.md",
     "02 Backend.md",
     "Backend Bugs.md",
-    "User Guide.md",
-    "01 Frontend.md",
-    "Untitled.md"
+    "Backend Features Missing.md",
+    "01 Frontend.md"
   ]
 }

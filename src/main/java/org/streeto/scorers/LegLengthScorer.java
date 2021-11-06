@@ -53,7 +53,7 @@ public class LegLengthScorer extends AbstractLegScorer {
      */
     @NotNull
     @Override
-    public List<Double> score(List<GHResponse> routedLegs) {
+    public List<Double> apply(List<GHResponse> routedLegs) {
         var averageLegLength = routedLegs.stream().mapToDouble(it -> it.getBest().getDistance()).sum() / routedLegs.size();
         var maxLegLength = Math.min(1000.0, 3.0 * averageLegLength);
         return mapIndexed(routedLegs, (idx, leg) -> {
@@ -64,7 +64,7 @@ public class LegLengthScorer extends AbstractLegScorer {
 
     private double evaluate(GHResponse leg, double maxLegLength) {
         var best = leg.getBest().getDistance();
-         if (best < minLegLength || best > maxLegLength) return 0.0;
+        if (best < minLegLength || best > maxLegLength) return 0.0;
         else return 1.0;
     }
 }

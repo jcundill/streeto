@@ -24,8 +24,7 @@ public class PrintableOnMapConstraint implements CourseConstraint {
         this.paperSize = preferences.getPaperSize();
     }
 
-    @Override
-    public boolean valid(@NotNull GHResponse routedCourse) {
+    public boolean test(@NotNull GHResponse routedCourse) {
         return routeFitsBox(routedCourse.getAll());
     }
 

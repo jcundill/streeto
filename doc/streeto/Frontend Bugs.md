@@ -1,3 +1,4 @@
+- [ ] Map works on Windows
 - [ ] Route Choice should follow Focussed Control/Leg
 - [ ] Don't reset zoom on focs control
 - [ ] Need to load the HTML from a relative location
@@ -7,3 +8,4 @@
 - [ ]  Set initial map load to last location from prefs - not Boston all the time
 - [ ]  Move tile layer chooser off the Map
 - [ ]  Tell the user there is no OSM data for the selected location
+	- [ ]  Auto retrieve it - see features

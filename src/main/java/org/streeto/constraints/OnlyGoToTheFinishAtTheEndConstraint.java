@@ -4,7 +4,8 @@ import com.graphhopper.GHResponse;
 import org.jetbrains.annotations.NotNull;
 import org.streeto.StreetOPreferences;
 
-import static org.streeto.utils.CollectionHelpers.*;
+import static org.streeto.utils.CollectionHelpers.iterableAsStream;
+import static org.streeto.utils.CollectionHelpers.last;
 import static org.streeto.utils.DistUtils.dist;
 
 
@@ -16,7 +17,7 @@ public class OnlyGoToTheFinishAtTheEndConstraint implements CourseConstraint {
     }
 
     @Override
-    public boolean valid(@NotNull GHResponse routedCourse) {
+    public boolean test(@NotNull GHResponse routedCourse) {
         var track = routedCourse.getBest().getPoints();
         var finish = last(track);
         return iterableAsStream(track)

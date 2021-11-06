@@ -8,11 +8,11 @@ public enum MapStyle {
 
     private final String value;
 
-    public String getValue() {
-        return value;
-    }
-
     MapStyle(String value) {
         this.value = value;
+    }
+
+    public String getValue() {
+        return value;
     }
 }

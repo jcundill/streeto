@@ -51,12 +51,12 @@ public class TooCloseToAFutureControlScorer extends AbstractLegScorer {
      * and scores it badly if we do
      */
     @Override
-    public List<Double> score(List<GHResponse> routedLegs) {
+    public List<Double> apply(List<GHResponse> routedLegs) {
         //evaluate the start without including the finish
-        var startScore = evaluate( dropLast(futureLegs(routedLegs, 0), 1), first(routedLegs));
+        var startScore = evaluate(dropLast(futureLegs(routedLegs, 0), 1), first(routedLegs));
         var restScore = drop(mapIndexed(routedLegs, (idx, leg) -> evaluate(futureLegs(routedLegs, idx), leg))
                 .collect(Collectors.toList()), 1);
-        return Stream.concat(List.of(startScore).stream(), restScore.stream()).collect(Collectors.toList());
+        return Stream.concat(Stream.of(startScore), restScore.stream()).collect(Collectors.toList());
     }
 
     @NotNull

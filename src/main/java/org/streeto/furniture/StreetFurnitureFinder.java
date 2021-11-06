@@ -27,7 +27,7 @@ package org.streeto.furniture;
 
 import com.graphhopper.util.shapes.BBox;
 import de.westnordost.osmapi.OsmConnection;
-import de.westnordost.osmapi.overpass.OverpassMapDataDao;
+import de.westnordost.osmapi.overpass.OverpassMapDataApi;
 import org.streeto.ControlSite;
 
 import java.util.ArrayList;
@@ -38,7 +38,7 @@ public class StreetFurnitureFinder {
     public List<ControlSite> findForBoundingBox(BBox box) {
         var locations = new ArrayList<ControlSite>();
         var connection = new OsmConnection("https://overpass-api.de/api/", "streeto");
-        var overpass = new OverpassMapDataDao(connection);
+        var overpass = new OverpassMapDataApi(connection);
         var handler = new StreetFurnitureMapDataHandler(locations);
         var bbox = String.format("%f,%f,%f,%f", box.minLat, box.minLon, box.maxLat, box.maxLon);
         var q = ("            (\n" +

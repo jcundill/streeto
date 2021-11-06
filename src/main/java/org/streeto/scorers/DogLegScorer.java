@@ -51,12 +51,12 @@ public class DogLegScorer extends AbstractLegScorer {
      */
     @NotNull
     @Override
-    public List<Double> score(List<GHResponse> routedLegs) {
+    public List<Double> apply(List<GHResponse> routedLegs) {
         return dogLegs(routedLegs.stream().map(GHResponse::getBest).collect(Collectors.toList()));
     }
 
     List<Double> dogLegs(List<ResponsePath> routes) {
-        return Stream.concat(Stream.of(1.0), windowed(routes,2).map(this::dogLegScore)).collect(Collectors.toList());
+        return Stream.concat(Stream.of(1.0), windowed(routes, 2).map(this::dogLegScore)).collect(Collectors.toList());
     }
 
     private Double dogLegScore(List<ResponsePath> previous2this2next) {

@@ -32,22 +32,23 @@ public class ScoreDetails {
 
     private String formatName(String cls) {
         var a = cls.replaceAll("Scorer", "");
-        if( a.length() > 15) {
+        if (a.length() > 15) {
             a = a.substring(0, 15);
         }
 
         return String.format("%-12s", a);
 
     }
+
     @Override
     public String toString() {
-            var titles = new ArrayList<>(featureScores.keySet());
-            var fScores = titles.stream().map(featureScores::get).collect(Collectors.toList());
-            var header = titles.stream().map(title -> "\t" + formatName(title)).collect(Collectors.joining("", "Leg   Score     ", "\n"));
+        var titles = new ArrayList<>(featureScores.keySet());
+        var fScores = titles.stream().map(featureScores::get).collect(Collectors.toList());
+        var header = titles.stream().map(title -> "\t" + formatName(title)).collect(Collectors.joining("", "Leg   Score     ", "\n"));
         var legDetails = transpose(fScores);
         var ret = new StringBuilder(header);
         forEachIndexed(legScores, (idx, score) ->
-                ret.append(String.format("%2s:   %7f   %s\n", (idx + 1), score, legDetails.get(idx).stream().map(it -> String.format("  %7f      ", it)).collect(Collectors.joining("","", "")) )));
+                ret.append(String.format("%2s:   %7f   %s\n", (idx + 1), score, legDetails.get(idx).stream().map(it -> String.format("  %7f      ", it)).collect(Collectors.joining("", "", "")))));
 
         return ret.toString();
     }

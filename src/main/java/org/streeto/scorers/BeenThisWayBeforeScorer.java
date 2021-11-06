@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
-import static java.lang.Math.min;
-import static org.streeto.utils.CollectionHelpers.*;
+import static org.streeto.utils.CollectionHelpers.dropFirstAndLast;
+import static org.streeto.utils.CollectionHelpers.mapIndexed;
 
 public class BeenThisWayBeforeScorer extends AbstractLegScorer {
     public BeenThisWayBeforeScorer(StreetOPreferences preferences) {
@@ -17,7 +17,7 @@ public class BeenThisWayBeforeScorer extends AbstractLegScorer {
     }
 
     @Override
-    public List<Double> score(List<GHResponse> routedLegs) {
+    public List<Double> apply(List<GHResponse> routedLegs) {
         return mapIndexed(routedLegs, (idx, leg) -> evaluate(previousLegs(routedLegs, idx), leg))
                 .collect(Collectors.toList());
     }

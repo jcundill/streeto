@@ -1,7 +1,9 @@
 package org.streeto;
 
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.ev.*;
+import com.graphhopper.routing.ev.DecimalEncodedValue;
+import com.graphhopper.routing.ev.EncodedValue;
+import com.graphhopper.routing.ev.UnsignedDecimalEncodedValue;
 import com.graphhopper.routing.util.AbstractFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.PriorityCode;
@@ -12,7 +14,8 @@ import com.graphhopper.storage.IntsRef;
 import java.util.*;
 
 import static com.graphhopper.routing.util.EncodingManager.getKey;
-import static com.graphhopper.routing.util.PriorityCode.*;
+import static com.graphhopper.routing.util.PriorityCode.AVOID_AT_ALL_COSTS;
+import static com.graphhopper.routing.util.PriorityCode.UNCHANGED;
 import static com.graphhopper.routing.util.spatialrules.TransportationMode.FOOT;
 
 /**
@@ -29,12 +32,12 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
     static final int SLOW_SPEED = 2;
     static final int MEAN_SPEED = 5;
     static final int FERRY_SPEED = 15;
+    protected final HashSet<String> sidewalkValues = new HashSet<>(5);
+    protected final HashSet<String> sidewalksNoValues = new HashSet<>(5);
     final Set<String> safeHighwayTags = new HashSet<>();
     final Set<String> allowedHighwayTags = new HashSet<>();
     final Set<String> avoidHighwayTags = new HashSet<>();
     final Set<String> allowedSacScale = new HashSet<>();
-    protected final HashSet<String> sidewalkValues = new HashSet<>(5);
-    protected final HashSet<String> sidewalksNoValues = new HashSet<>(5);
     protected boolean speedTwoDirections = false;
     private DecimalEncodedValue priorityWayEncoder;
 
@@ -130,6 +133,37 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
         registerNewEncodedValue.add(priorityWayEncoder = new UnsignedDecimalEncodedValue(getKey(prefix, "priority"), 3, PriorityCode.getFactor(1), speedTwoDirections));
     }
 
+    @Override
+    public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, EncodingManager.Access access) {
+        if (access.canSkip())
+            return edgeFlags;
+
+        int priorityFromRelation = UNCHANGED.getValue();
+        accessEnc.setBool(false, edgeFlags, true);
+        accessEnc.setBool(true, edgeFlags, true);
+        if (!access.isFerry()) {
+            String sacScale = way.getTag("sac_scale");
+            if (sacScale != null) {
+                setSpeed(edgeFlags, "hiking".equals(sacScale) ? MEAN_SPEED : SLOW_SPEED);
+            } else {
+                setSpeed(edgeFlags, way.hasTag("highway", "steps") ? MEAN_SPEED - 2 : MEAN_SPEED);
+            }
+        } else {
+            priorityFromRelation = PriorityCode.AVOID_IF_POSSIBLE.getValue();
+            double ferrySpeed = getFerrySpeed(way);
+            setSpeed(edgeFlags, ferrySpeed);
+        }
+
+        if (avoidHighwayTags.contains(way.getTag("highway"))) {
+            if (way.hasTag("sidewalk", sidewalksNoValues)) {
+                priorityFromRelation = AVOID_AT_ALL_COSTS.getValue();
+            }
+        }
+
+        priorityWayEncoder.setDecimal(false, edgeFlags, PriorityCode.getFactor(handlePriority(way, priorityFromRelation)));
+        return edgeFlags;
+    }
+
     /**
      * Some ways are okay but not separate for pedestrians.
      */
@@ -159,15 +193,15 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
 
         //be fussy about service roads
         if (way.hasTag("highway", "service")) {
-            if( !way.hasTag("designation", "public_footpath", "public_bridleway", "byway", "byway_open_to_all_traffic")
-                && !way.hasTag("foot", intendedValues )
+            if (!way.hasTag("designation", "public_footpath", "public_bridleway", "byway", "byway_open_to_all_traffic")
+                && !way.hasTag("foot", intendedValues)
                 && !way.hasTag("access", intendedValues)) {
                 return EncodingManager.Access.CAN_SKIP;
             }
         }
 
-        if( avoidHighwayTags.contains(way.getTag("highway"))) {
-            if( way.hasTag("sidewalk", sidewalksNoValues)) {
+        if (avoidHighwayTags.contains(way.getTag("highway"))) {
+            if (way.hasTag("sidewalk", sidewalksNoValues)) {
                 return EncodingManager.Access.CAN_SKIP;
             }
         }
@@ -199,34 +233,11 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
     }
 
     @Override
-    public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, EncodingManager.Access access) {
-        if (access.canSkip())
-            return edgeFlags;
+    public boolean supports(Class<?> feature) {
+        if (super.supports(feature))
+            return true;
 
-        int priorityFromRelation = UNCHANGED.getValue();
-        accessEnc.setBool(false, edgeFlags, true);
-        accessEnc.setBool(true, edgeFlags, true);
-        if (!access.isFerry()) {
-            String sacScale = way.getTag("sac_scale");
-            if (sacScale != null) {
-                setSpeed(edgeFlags, "hiking".equals(sacScale) ? MEAN_SPEED : SLOW_SPEED);
-            } else {
-                setSpeed(edgeFlags, way.hasTag("highway", "steps") ? MEAN_SPEED - 2 : MEAN_SPEED);
-            }
-        } else {
-            priorityFromRelation = PriorityCode.AVOID_IF_POSSIBLE.getValue();
-            double ferrySpeed = getFerrySpeed(way);
-            setSpeed(edgeFlags, ferrySpeed);
-        }
-
-        if( avoidHighwayTags.contains(way.getTag("highway"))) {
-            if( way.hasTag("sidewalk", sidewalksNoValues)) {
-               priorityFromRelation = AVOID_AT_ALL_COSTS.getValue();
-            }
-        }
-
-        priorityWayEncoder.setDecimal(false, edgeFlags, PriorityCode.getFactor(handlePriority(way, priorityFromRelation)));
-        return edgeFlags;
+        return PriorityWeighting.class.isAssignableFrom(feature);
     }
 
     void setSpeed(IntsRef edgeFlags, double speed) {
@@ -273,21 +284,12 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
                     weightToPrioMap.put(40.0D, PriorityCode.UNCHANGED.getValue());
                 }
             }
-        } else if ( this.avoidHighwayTags.contains(highway)
-                    && !way.hasTag("sidewalk", this.sidewalkValues) //Bakewell - didn't annotate with sidewalk
-                    && !way.hasTag("sidewalk", this.sidewalksNoValues)
-                    && maxSpeed > 50.0D) {  // more than 30mph
+        } else if (this.avoidHighwayTags.contains(highway)
+                   && !way.hasTag("sidewalk", this.sidewalkValues) //Bakewell - didn't annotate with sidewalk
+                   && !way.hasTag("sidewalk", this.sidewalksNoValues)
+                   && maxSpeed > 50.0D) {  // more than 30mph
             weightToPrioMap.put(120.0D, PriorityCode.AVOID_AT_ALL_COSTS.getValue());
         }
-    }
-
-
-    @Override
-    public boolean supports(Class<?> feature) {
-        if (super.supports(feature))
-            return true;
-
-        return PriorityWeighting.class.isAssignableFrom(feature);
     }
 
     @Override

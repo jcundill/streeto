@@ -32,7 +32,7 @@ public class CourseFinderRunner {
 
         myAlterer = Alterer.of(
                 new ControlSiteSwapper(preferences.getSwapProbability()),
-                new CourseMutator(this.csf,preferences.getMutateProbability(), preferences.getMutationRadius())
+                new CourseMutator(this.csf, preferences.getMutateProbability(), preferences.getMutationRadius())
         );
     }
 
@@ -52,7 +52,7 @@ public class CourseFinderRunner {
                 .peek(statistics)
                 .peek(this::callEveryoneBack)
                 .collect(EvolutionResult.toBestPhenotype());
-        callbacks.forEach( it -> it.acceptStatistics(statistics));
+        callbacks.forEach(it -> it.acceptStatistics(statistics));
         if (population.isValid()) {
             return Optional.of(population.genotype().gene().allele().asList());
         } else {

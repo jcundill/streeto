@@ -6,7 +6,6 @@ import io.jenetics.engine.EvolutionStatistics;
 import io.jenetics.stat.DoubleMomentStatistics;
 import io.jenetics.util.ISeq;
 import org.streeto.ControlSite;
-import org.streeto.StreetOSniffer;
 
 import java.util.List;
 import java.util.function.Consumer;

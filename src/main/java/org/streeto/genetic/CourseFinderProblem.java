@@ -48,7 +48,7 @@ class CourseFinderProblem implements Problem<ISeq<ControlSite>, AnyGene<ISeq<Con
     }
 
     private static double scoreFitness(List<Double> legScores) {
-        return legScores.stream().mapToDouble(x->Math.pow(x, 2)).average().orElseThrow();
+        return legScores.stream().mapToDouble(x -> Math.pow(x, 2)).average().orElseThrow();
     }
 
     @Override
@@ -70,14 +70,14 @@ class CourseFinderProblem implements Problem<ISeq<ControlSite>, AnyGene<ISeq<Con
         while (!ok) {
             course = ISeq.of(seeder.chooseInitialPoints(initialControls, requestedNumControls, requestedDistance));
             var route = csf.routeRequest(course.asList());
-            ok = constraints.stream().allMatch(it -> it.valid(route));
+            ok = constraints.stream().allMatch(it -> it.test(route));
         }
         return course;
     }
 
     private Double courseFitness(ISeq<ControlSite> controls) {
         var route = csf.routeRequest(controls.asList());
-        if (!constraints.stream().allMatch(it -> it.valid(route))) {
+        if (!constraints.stream().allMatch(it -> it.test(route))) {
             return 0.0;
         }
         var legScores = legScorer.apply(controls.asList());

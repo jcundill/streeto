@@ -38,7 +38,7 @@ import org.vandeseer.easytable.TableDrawer;
 import org.vandeseer.easytable.settings.HorizontalAlignment;
 import org.vandeseer.easytable.structure.Row;
 import org.vandeseer.easytable.structure.Table;
-import org.vandeseer.easytable.structure.cell.CellText;
+import org.vandeseer.easytable.structure.cell.TextCell;
 
 import java.awt.*;
 import java.io.File;
@@ -66,10 +66,11 @@ public class MapDecorator {
         doc.save(filename);
     }
 
-    public void addMapPage(InputStream pdfStream, List<ControlSite> controls, MapBox mapBox, GHPoint mapCentre) throws IOException{
-        addMapPage(pdfStream,controls,mapBox,mapCentre, null);
+    public void addMapPage(InputStream pdfStream, List<ControlSite> controls, MapBox mapBox, GHPoint mapCentre) throws IOException {
+        addMapPage(pdfStream, controls, mapBox, mapCentre, null);
     }
-    public void addCroppedMapPage(InputStream pdfStream, List<ControlSite> controls, MapBox mapBox, GHPoint mapCentre, PDRectangle crop) throws IOException{
+
+    public void addCroppedMapPage(InputStream pdfStream, List<ControlSite> controls, MapBox mapBox, GHPoint mapCentre, PDRectangle crop) throws IOException {
         addMapPage(pdfStream, controls, mapBox, mapCentre, crop);
     }
 
@@ -105,7 +106,7 @@ public class MapDecorator {
         content.setStrokingColor(Color.WHITE);
 
         drawCourse(content, controls, offsetsInPts);
-        if( crop != null) {
+        if (crop != null) {
             page.setCropBox(crop);
         }
     }
@@ -127,12 +128,12 @@ public class MapDecorator {
     private void paintControls(PDPageContentStream content, List<ControlSite> controls, List<float[]> positions) throws IOException {
         String firstNum = first(controls).getNumber();
         String lastNum = last(controls).getNumber();
-        if( firstNum.equals("S1")) {
+        if (firstNum.equals("S1")) {
             drawStart(content, positions.get(0), positions.get(1));
         } else {
             drawControl(content, firstNum, first(positions));
         }
-        if(lastNum.equals("F1")) {
+        if (lastNum.equals("F1")) {
             drawFinish(content, last(positions));
         } else {
             drawControl(content, lastNum, last(positions));
@@ -149,14 +150,14 @@ public class MapDecorator {
         var tableBuilder = Table.builder()
                 .addColumnsOfWidth(60.0f, 120.0f)
                 .addRow(Row.builder()
-                        .add(CellText.builder().text("Control").borderWidth(1.0f).backgroundColor(Color.LIGHT_GRAY).build())
-                        .add(CellText.builder().text("Description").borderWidth(1.0f).backgroundColor(Color.LIGHT_GRAY).build())
+                        .add(TextCell.builder().text("Control").borderWidth(1.0f).backgroundColor(Color.LIGHT_GRAY).build())
+                        .add(TextCell.builder().text("Description").borderWidth(1.0f).backgroundColor(Color.LIGHT_GRAY).build())
                         .build());
 
         controls.forEach(control ->
                 tableBuilder.addRow(Row.builder()
-                        .add(CellText.builder().text(control.getNumber()).borderWidth(1.0f).horizontalAlignment(HorizontalAlignment.RIGHT).build())
-                        .add(CellText.builder().text(control.getDescription()).borderWidth(1.0f).build())
+                        .add(TextCell.builder().text(control.getNumber()).borderWidth(1.0f).horizontalAlignment(HorizontalAlignment.RIGHT).build())
+                        .add(TextCell.builder().text(control.getDescription()).borderWidth(1.0f).build())
                         .build())
         );
         var table = tableBuilder.build();
@@ -171,7 +172,7 @@ public class MapDecorator {
         content2.close();
     }
 
-    private void drawControls(PDPageContentStream content, List<ControlSite> controls, List<float []> offsetsInPts) {
+    private void drawControls(PDPageContentStream content, List<ControlSite> controls, List<float[]> offsetsInPts) {
         var positions = offsetsInPts.subList(1, offsetsInPts.size() - 1);
         forEachIndexed(positions, (index, position) -> {
             try {
@@ -184,7 +185,7 @@ public class MapDecorator {
         var legs = windowed(controls, 2).collect(Collectors.toList());
         var offsets = windowed(offsetsInPts, 2).collect(Collectors.toList());
         forEachZipped(legs, offsets, (leg, pts) -> {
-            if(isSequential(leg)) {
+            if (isSequential(leg)) {
                 try {
                     drawLine(content, pts);
                 } catch (IOException e) {
@@ -198,11 +199,11 @@ public class MapDecorator {
     private boolean isSequential(List<ControlSite> ab) {
         var a = ab.get(0).getNumber();
         var b = ab.get(1).getNumber();
-        if( a.equals("S1") || b.equals("F1")) return true;
+        if (a.equals("S1") || b.equals("F1")) return true;
         else return Integer.parseInt(b) == Integer.parseInt(a) + 1;
     }
 
-    private void drawStart(PDPageContentStream content, float [] start, float [] next) throws IOException {
+    private void drawStart(PDPageContentStream content, float[] start, float[] next) throws IOException {
         var angle = (float) atan2((next[1] - start[1]), (next[0] - start[0]));
         if (angle < 0) {
             angle += (2.0f * (float) PI);

@@ -77,10 +77,13 @@ public class CourseScorer {
                 .map(leg -> findRoutes.apply(first(leg).getLocation(), last(leg).getLocation()))
                 .collect(Collectors.toList());
 
-        if (legRoutes.stream().anyMatch(GHResponse::hasErrors)) return null;
 
-        return legScorers.stream()
-                .map(scorer -> scorer.score(legRoutes))
+        var noPaths = legRoutes.stream()
+                .anyMatch(it -> it.getAll().isEmpty() || it.getBest().hasErrors());
+        if (noPaths)
+            return null;
+        else return legScorers.stream()
+                .map(scorer -> scorer.apply(legRoutes))
                 .collect(Collectors.toList());
     }
 

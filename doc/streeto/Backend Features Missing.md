@@ -1,3 +1,4 @@
 - [ ] Score course generation
 - [ ] Allow Control Sites to be pinned
 	- [ ] Can't be mutated or removed
+- [ ] Scorer based on climb in a leg

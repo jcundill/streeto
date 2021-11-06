@@ -28,14 +28,16 @@ package org.streeto.scorers;
 import com.graphhopper.GHResponse;
 
 import java.util.List;
+import java.util.function.Function;
 
-public interface LegScorer {
-    /**
-     * returns the points awarded to each numbered control
-     * so the returned list is 1 less than the number of passed in legs
-     * and score[0] refers to control numbered 1
-     * We are generally evaluating the leg to this numbered control from the previous one with these scorers
-     */
-    List<Double> score(List<GHResponse> routedLegs);
+/**
+ * returns the points awarded to each numbered control
+ * so the returned list is 1 less than the number of passed in legs
+ * and score[0] refers to control numbered 1
+ * We are generally evaluating the leg to this numbered control from the previous one with these scorers
+ */
+
+public interface LegScorer extends Function<List<GHResponse>, List<Double>> {
+
     double getWeighting();
 }

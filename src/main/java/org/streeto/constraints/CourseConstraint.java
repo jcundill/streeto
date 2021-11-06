@@ -27,7 +27,7 @@ package org.streeto.constraints;
 
 import com.graphhopper.GHResponse;
 
-public interface CourseConstraint {
+import java.util.function.Predicate;
 
-    boolean valid(GHResponse routedCourse);
+public interface CourseConstraint extends Predicate<GHResponse> {
 }

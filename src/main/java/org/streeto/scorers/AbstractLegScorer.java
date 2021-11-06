@@ -35,11 +35,10 @@ public abstract class AbstractLegScorer implements LegScorer {
         boolean lastIsCommon = second.contains(first(first));
         for (int i = 1; i < first.size(); i++) {
             boolean isCommon = second.contains(first.get(i));
-            if( isCommon && !lastIsCommon) {
+            if (isCommon && !lastIsCommon) {
                 //startCommon section
                 lastCommonStart = i;
-            }
-            else if( !isCommon && lastIsCommon) {
+            } else if (!isCommon && lastIsCommon) {
                 //end common section
                 commonLen += dist(first.get(lastCommonStart), first.get(i - 1));
             }

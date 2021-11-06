@@ -33,8 +33,8 @@ public class LegComplexityScorer extends AbstractLegScorer {
         var instructions = leg.getBest().getInstructions();
 
         var turns = instructions.stream()
-                            .filter(it -> turnInstructions.contains(it.getSign()))
-                            .count();
+                .filter(it -> turnInstructions.contains(it.getSign()))
+                .count();
         var points = leg.getBest().getPoints();
         if (leg.getBest().getDistance() == 0.0) return 0.0; //in the same place - not complex at all
         if (turns == 0.0) return 0.0; // no decisions - not complex at all
@@ -48,7 +48,7 @@ public class LegComplexityScorer extends AbstractLegScorer {
      */
     @NotNull
     @Override
-    public List<Double> score(List<GHResponse> routedLegs) {
+    public List<Double> apply(List<GHResponse> routedLegs) {
         return routedLegs.stream()
                 .map(LegComplexityScorer::evaluate)
                 .collect(Collectors.toList());

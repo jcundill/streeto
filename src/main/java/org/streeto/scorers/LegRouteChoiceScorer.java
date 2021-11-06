@@ -30,14 +30,11 @@ import com.graphhopper.ResponsePath;
 import com.graphhopper.util.shapes.GHPoint;
 import org.jetbrains.annotations.NotNull;
 import org.streeto.StreetOPreferences;
-import org.streeto.utils.CollectionHelpers;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.streeto.utils.CollectionHelpers.*;
-import static org.streeto.utils.DistUtils.dist;
+import static org.streeto.utils.CollectionHelpers.dropFirstAndLast;
 
 public class LegRouteChoiceScorer extends AbstractLegScorer {
 
@@ -51,7 +48,7 @@ public class LegRouteChoiceScorer extends AbstractLegScorer {
      */
     @NotNull
     @Override
-    public List<Double> score(List<GHResponse> routedLegs) {
+    public List<Double> apply(List<GHResponse> routedLegs) {
         return routedLegs.stream().map(this::evaluate).collect(Collectors.toList());
     }
 
@@ -68,7 +65,7 @@ public class LegRouteChoiceScorer extends AbstractLegScorer {
         List<GHPoint> first = dropFirstAndLast(getAsList(leg, 0), 1);
         List<GHPoint> second = dropFirstAndLast(getAsList(leg, 1), 1);
 
-        if( first.isEmpty() || second.isEmpty())
+        if (first.isEmpty() || second.isEmpty())
             return 0.0; // not a real choice
 
         var commonLen = getCommonRouteLength(first, second);

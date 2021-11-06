@@ -34,9 +34,9 @@ public class DistinctControlSiteScorer extends AbstractLegScorer {
     }
 
     @Override
-    public List<Double> score(List<GHResponse> routedLegs) {
+    public List<Double> apply(List<GHResponse> routedLegs) {
         return Stream.concat(CollectionHelpers.windowed(routedLegs, 2)
-                .map(this::evaluate), Stream.of(1.0))
+                        .map(this::evaluate), Stream.of(1.0))
                 .collect(Collectors.toList());
     }
 
@@ -55,7 +55,7 @@ public class DistinctControlSiteScorer extends AbstractLegScorer {
         else {
             GHPoint before = currPoints.get(currPoints.size() - 2);
             GHPoint after = nextPoints.get(1);//csf.getNextEdgePoint(before, location);
-            if(Objects.equals(before, after)) {
+            if (Objects.equals(before, after)) {
                 //dog leg - score the previous point
                 before = currPoints.get(currPoints.size() - 3);
                 location = currPoints.get(currPoints.size() - 2);

@@ -12,7 +12,7 @@ class ControlSiteSwapper extends UniformCrossover<AnyGene<ISeq<ControlSite>>, Do
 
     ControlSiteSwapper(@SuppressWarnings("SameParameterValue") double crossoverProbability) {
         super(crossoverProbability);
-     }
+    }
 
     @Override
     public int crossover(MSeq<AnyGene<ISeq<ControlSite>>> that, MSeq<AnyGene<ISeq<ControlSite>>> other) {

@@ -60,15 +60,10 @@ public class ControlSiteFinder {
     private final HashMap<List<GHPoint>, GHResponse> routedLegCache = new HashMap<>();
     private final Random rnd = RandomRegistry.random();
     private final double maxShare;
+    private final double maxFurnitureDistance;
     List<ControlSite> furniture;
     private int hit = 0;
     private int miss = 0;
-    private final double maxFurnitureDistance;
-
-    public enum ControlType {
-        FURNITURE, TOWER, PILLAR
-    }
-
 
     public ControlSiteFinder(GraphHopperOSM gh, StreetOPreferences preferences) {
         this.gh = gh;
@@ -86,7 +81,6 @@ public class ControlSiteFinder {
         routes.forEach(it -> it.getPoints().forEach(env::expandToInclude));
         return env;
     }
-
 
     public ControlSite findControlSiteNear(GHPoint point, double distance) {
         var node = findNearestControlSiteTo(getGHPointRelativeTo(point, randomBearing(), distance));
@@ -155,7 +149,7 @@ public class ControlSiteFinder {
         else {
             // have we got nearby furniture - if so always use that
             var f = findLocalStreetFurniture(loc.get());
-            if (f.isPresent()) return f.map( it -> new ControlSite(it.getLocation(), it.getDescription()));
+            if (f.isPresent()) return f.map(it -> new ControlSite(it.getLocation(), it.getDescription()));
             else {
                 var site = loc.get();
                 var isTower = gh.getLocationIndex().findClosest(site.lat, site.lon, filter).getSnappedPosition() == Snap.Position.TOWER;
@@ -165,8 +159,8 @@ public class ControlSiteFinder {
         }
     }
 
-  private Optional<ControlSite> findLocalStreetFurniture(GHPoint p) {
-         return furniture.stream().filter(it -> dist(it.getLocation(), p) < maxFurnitureDistance).findFirst();
+    private Optional<ControlSite> findLocalStreetFurniture(GHPoint p) {
+        return furniture.stream().filter(it -> dist(it.getLocation(), p) < maxFurnitureDistance).findFirst();
     }
 
     private Optional<? extends GHPoint> findClosestStreetLocation(GHPoint p) {
@@ -208,13 +202,15 @@ public class ControlSiteFinder {
 
         if (!qr.isValid())
             return null;
-        else if( findLocalStreetFurniture(p).isPresent()) {
+        else if (findLocalStreetFurniture(p).isPresent()) {
             return ControlType.FURNITURE;
-        }
-        else if (qr.getSnappedPosition() == Snap.Position.TOWER) {
+        } else if (qr.getSnappedPosition() == Snap.Position.TOWER) {
             return ControlType.TOWER;
-        }
-        else
+        } else
             return ControlType.PILLAR;
+    }
+
+    public enum ControlType {
+        FURNITURE, TOWER, PILLAR
     }
 }

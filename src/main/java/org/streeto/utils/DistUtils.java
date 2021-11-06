@@ -1,7 +1,6 @@
 package org.streeto.utils;
 
 import com.graphhopper.util.DistancePlaneProjection;
-import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint;
 
 import static java.lang.Math.*;

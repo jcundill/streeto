@@ -20,8 +20,9 @@ public class CollectionHelpers {
     public static <T> Stream<List<T>> windowed(Iterable<T> pl, int size) {
         return windowed(iterableAsStream(pl).collect(Collectors.toList()), size);
     }
+
     public static <T> Stream<List<T>> windowed(List<T> pl, int size) {
-        if( pl.size() < size)
+        if (pl.size() < size)
             return Stream.empty();
         else
             return IntStream.range(0, pl.size() - size + 1).mapToObj(idx -> pl.subList(idx, idx + size));
@@ -66,7 +67,7 @@ public class CollectionHelpers {
 
     public static <T> List<T> takeLast(Iterable<T> iterable, int i) {
         var ret = iterableAsStream(iterable).collect(Collectors.toList());
-        return ret.subList( ret.size() - i, ret.size());
+        return ret.subList(ret.size() - i, ret.size());
     }
 
     public static <T> List<T> dropLast(Iterable<T> list, int i) {

@@ -16,6 +16,7 @@ public class CourseImporter {
     public CourseImporter(ControlSiteFinder csf) {
         this.csf = csf;
     }
+
     public Course buildFromProperties(String filename) {
         var props = new Properties();
         try {
@@ -46,7 +47,7 @@ public class CourseImporter {
         return new Course(distance, numControls, points);
     }
 
-    public Course buildFromGPX(String filename) throws IOException{
+    public Course buildFromGPX(String filename) throws IOException {
         return GpxFacade.readCourse(filename);
     }
 
