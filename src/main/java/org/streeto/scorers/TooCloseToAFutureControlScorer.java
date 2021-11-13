@@ -43,7 +43,7 @@ public class TooCloseToAFutureControlScorer extends AbstractLegScorer {
 
     public TooCloseToAFutureControlScorer(StreetOPreferences preferences) {
         super(preferences.getComesTooCloseWeighting());
-        this.minLegLength = preferences.getMinLegLength();
+        this.minLegLength = preferences.getMinLegDistance();
     }
 
     /**

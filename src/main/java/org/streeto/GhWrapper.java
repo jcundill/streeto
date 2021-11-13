@@ -34,9 +34,9 @@ import com.graphhopper.routing.util.FlagEncoder;
 
 public class GhWrapper {
 
-    private final FlagEncoder oFlagEncoder = new StreetOFlagEncoder();
+    private static final FlagEncoder oFlagEncoder = new StreetOFlagEncoder();
 
-    public GraphHopperOSM initGH(String pbf, String osmDirectory) {
+    public static GraphHopperOSM initGH(String pbf, String osmDirectory) {
         var profile = new Profile("streeto").setVehicle("streeto").setWeighting("fastest").setTurnCosts(false);
         var gh = new GraphHopperOSM()
                 .setOSMFile(pbf)

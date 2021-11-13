@@ -58,7 +58,7 @@ public class StreetO {
     private StreetOPreferences preferences = new StreetOPreferences();
 
     public StreetO(String pbf, String osmDir) {
-        GraphHopperOSM gh = new GhWrapper().initGH(pbf, osmDir);
+        GraphHopperOSM gh = GhWrapper.initGH(pbf, osmDir);
         csf = new ControlSiteFinder(gh, preferences);
         splitter = new MapSplitter(csf, preferences.getPaperSize(), preferences.getMaxMapScale());
         courseImporter = new CourseImporter(csf);
@@ -71,8 +71,8 @@ public class StreetO {
         // initialize the engine
         var sniffer = new StreetOSniffer();
         var streeto = new StreetO(
-                "extracts/derbyshire-latest.osm.pbf",
-                "osm_data/grph_derbyshire-latest");
+                "extracts/greater-london-latest.osm.pbf",
+                "osm_data/grph_greater-london-latest");
         streeto.registerSniffer(sniffer);
 
         // set up the initial course to analyse
@@ -87,7 +87,8 @@ public class StreetO {
         preferences.setSplitForBetterScale(false);
         preferences.setPaperSize(PaperSize.A3);
         preferences.setMapStyle(MapStyle.STREETO);
-        preferences.setPrintA3OnA4(true);
+        preferences.setPrintA3OnA4(false);
+        preferences.setMaxMapScale(10000.0);
         streeto.setPreferences(preferences);
 
         //generate a good route based on a set of initial parameters

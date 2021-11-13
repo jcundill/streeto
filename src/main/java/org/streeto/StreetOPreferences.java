@@ -19,6 +19,7 @@ public class StreetOPreferences {
     private double maxFirstControlDistance = 500.0;
     private double maxLastLegLength = 500.0;
     private double minLegDistance = 50.0;
+    private double maxLegDistance = 1500.0;
     private double allowedCourseLengthDelta = 0.1;
     private double maxMapScale = 15000.0;
     private double minApproachToFinish = 150.0;
@@ -33,7 +34,7 @@ public class StreetOPreferences {
     private boolean splitForBetterScale = false;
     private MapStyle mapStyle = MapStyle.STREETO;
     private PaperSize paperSize = PaperSize.A4;
-    private boolean printA3OnA4 = true;
+    private boolean printA3OnA4 = false;
 
     public PaperSize getPaperSize() {
         return paperSize;
@@ -148,7 +149,7 @@ public class StreetOPreferences {
         this.maxLastLegLength = maxLastLegLength;
     }
 
-    public double getMinLegLength() {
+    public double getMinLegDistance() {
         return minLegDistance;
     }
 
@@ -275,5 +276,13 @@ public class StreetOPreferences {
 
     public void setPrintA3OnA4(boolean printA3OnA4) {
         this.printA3OnA4 = printA3OnA4;
+    }
+
+    public double getMaxLegDistance() {
+        return maxLegDistance;
+    }
+
+    public void setMaxLegDistance(double distance) {
+        this.maxLegDistance = distance;
     }
 }
