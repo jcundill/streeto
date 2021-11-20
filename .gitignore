@@ -31,8 +31,13 @@ hs_err_pid*
 /osm_data
 *.gpx
 streeto.properties
+/target/**/*
 
 *.iml
 *.kml
 *.pdf
 *.kmz
+/project/
+/.bsp/
+/doc/streeto/
+/.jqwik-database
