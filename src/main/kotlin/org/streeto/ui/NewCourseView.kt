@@ -32,7 +32,7 @@ class NewCourseView : View("New Course") {
                 }
             }
             button("Commit") {
-                action { println("Wrote to database!")}
+                action { println("Wrote to database!") }
             }
         }
     }

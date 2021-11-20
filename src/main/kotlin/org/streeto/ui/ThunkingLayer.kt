@@ -6,7 +6,7 @@ import java.util.stream.Collectors
 
 
 class ThunkingLayer(val browser: WebEngine) {
-     private fun evaluateJavascript(str: String): Any {
+    private fun evaluateJavascript(str: String): Any {
         return browser.executeScript(str)
     }
 
@@ -121,7 +121,7 @@ class ThunkingLayer(val browser: WebEngine) {
             val ret = ans as Array<*> // lon, lat
             val lat = ret[1] as Double
             val lon = ret[0] as Double
-            return Control("", "",lat, lon)
+            return Control("", "", lat, lon)
         }
 
     fun clearRoute() {

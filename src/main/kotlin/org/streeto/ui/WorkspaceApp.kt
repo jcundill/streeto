@@ -9,9 +9,6 @@ import jfxtras.styles.jmetro.Style
 import org.streeto.StreetO
 import tornadofx.*
 
-/**
- * Created by miguelius on 04/09/2017.
- */
 
 fun EventTarget.jfxMap(op: MapView.() -> Unit) = MapView().attachTo(this, op)
 
@@ -21,6 +18,7 @@ val streeto = StreetO(
 )
 
 class WorkspaceApp : App() {
+
     override val primaryView = StreetOWorkspace::class
     override fun onBeforeShow(view: UIComponent) {
         val scene = view.properties["tornadofx.scene"] as Scene
@@ -31,7 +29,7 @@ class WorkspaceApp : App() {
 
     init {
         importStylesheet(Styles::class)
-     }
+    }
 
 }
 

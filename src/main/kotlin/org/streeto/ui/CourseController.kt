@@ -2,7 +2,6 @@ package org.streeto.ui
 
 import com.graphhopper.ResponsePath
 import javafx.beans.property.SimpleObjectProperty
-import javafx.collections.ObservableList
 import org.streeto.ControlSite
 import org.streeto.utils.CollectionHelpers
 import org.streeto.utils.CollectionHelpers.first
@@ -13,45 +12,48 @@ import java.util.stream.Collectors
 import kotlin.streams.toList
 
 class CourseController : Controller() {
-    private var selected  = SimpleObjectProperty<Control?>()
+    private var selected = SimpleObjectProperty<Control?>()
     var selectedLeg = SimpleObjectProperty<RoutedLeg?>()
     private var controlList = SortedFilteredList<Control>()
     private var legList = SortedFilteredList<RoutedLeg>()
     private var controlSiteList = SortedFilteredList<ControlSite>()
 
     fun loadCourse(file: File) {
-        //task {
-            val course = if (file.extension == "gpx") {
-                streeto.importer.buildFromGPX(file.path)
-            } else {
-                streeto.importer.buildFromKml(file.inputStream())
-            }
-            controlSiteList.clear()
-            controlSiteList.addAll(course.controls)
-            val legs = CollectionHelpers.windowed(course.controls, 2).map{
-                val start = first(it)
-                val end = last(it)
-                val routeChoices = streeto.getLegRoutes(start, end)
-                val pointLists = routeChoices.map { path ->
-                    val points = path.points.map { p -> Point(p.lat, p.lon) }
-                    PointList(points)
-                }
-                val startControl = toControl(start)
-                val endControl =toControl(end)
-                RoutedLeg(startControl, endControl, pointLists)
-            }.toList()
-            legList.clear()
-            legList.addAll(legs)
-            //return@task course
-        //} ui {
-            getControls().clear()
+        val course = if (file.extension == "gpx") {
+            streeto.importer.buildFromGPX(file.path)
+        } else {
+            streeto.importer.buildFromKml(file.inputStream())
+        }
+        initialiseCourse(course.controls)
+    }
 
-            course.controls
-                .map { c -> toControl(c) }
-                .forEach {
-                    getControls().add(it)
-                    }
-               // }
+    private fun initialiseCourse(controls: MutableList<ControlSite>) {
+        controlSiteList.clear()
+        controlSiteList.addAll(controls)
+        val legs = CollectionHelpers.windowed(controls, 2).map {
+            val start = first(it)
+            val end = last(it)
+            val routeChoices = streeto.getLegRoutes(start, end)
+            val pointLists = routeChoices.map { path ->
+                val points = path.points.map { p -> Point(p.lat, p.lon) }
+                PointList(points)
+            }
+            val startControl = toControl(start)
+            val endControl = toControl(end)
+            RoutedLeg(startControl, endControl, pointLists)
+        }.toList()
+        legList.clear()
+        legList.addAll(legs)
+        //return@task course
+        //} ui {
+        getControls().clear()
+
+        controls
+            .map { c -> toControl(c) }
+            .forEach {
+                getControls().add(it)
+            }
+        // }
     }
 
     private fun toControl(start: ControlSite) =
@@ -62,11 +64,10 @@ class CourseController : Controller() {
     }
 
 
-
     fun getRoute(): List<Point> {
         val path: ResponsePath = streeto.routeControls(controlSiteList)
         return CollectionHelpers.iterableAsStream(path.points)
-            .map{ point -> Point(point.lat, point.lon) }
+            .map { point -> Point(point.lat, point.lon) }
             .collect(Collectors.toList())
     }
 
@@ -79,7 +80,7 @@ class CourseController : Controller() {
             val idx = controlList.indexOf(control)
             val leg = CourseLeg(controlList[idx - 1], control)
             selectedLeg.value = legList.first { it.start == leg.start && it.end == leg.end }
-         }
+        }
     }
 
     fun selectLegFrom(control: Control?) {
@@ -87,8 +88,21 @@ class CourseController : Controller() {
             val idx = controlList.indexOf(control)
             val leg = CourseLeg(control, controlList[idx + 1])
             selectedLeg.value = legList.first { it.start == leg.start && it.end == leg.end }
-       }
+        }
     }
+
+    fun generateFromControls() {
+        val initial = mutableListOf(first(controlSiteList), last(controlSiteList))
+        runAsync {
+            streeto.generateCourse(6000.0, 10, initial)
+        } ui { maybeCourse ->
+            if (maybeCourse.isPresent) {
+                initialiseCourse(maybeCourse.get())
+
+            }
+        }
+    }
+
 
     val selectedControl: SimpleObjectProperty<Control?>
         get() {

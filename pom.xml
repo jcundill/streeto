@@ -14,8 +14,15 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <javafx.platform>\%linux\%</javafx.platform>
             <kotlin.version>1.5.10</kotlin.version>
-            <tornadofx.version>1.7.20</tornadofx.version>
+            <tornadofx.version>2.0.0-SNAPSHOT</tornadofx.version>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>sonatype</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </repository>
+    </repositories>
 
     <build>
         <plugins>

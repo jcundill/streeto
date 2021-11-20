@@ -13,8 +13,9 @@ open class Point(lat: Double, lon: Double) {
     var lon by lonProperty
 
 }
+
 class PointList(var points: List<Point>)
-open class CourseLeg( start: Control, end: Control) {
+open class CourseLeg(start: Control, end: Control) {
     val startProperty = SimpleObjectProperty(start)
     val endProperty = SimpleObjectProperty(end)
 

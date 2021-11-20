@@ -4,7 +4,7 @@ import javafx.application.Platform
 import javafx.stage.FileChooser
 import tornadofx.*
 
-class StreetOWorkspace() : Workspace("Editor", NavigationMode.Tabs) {
+class StreetOWorkspace : Workspace("Editor", NavigationMode.Tabs) {
 
     private val courseController: CourseController by inject()
 
@@ -12,10 +12,11 @@ class StreetOWorkspace() : Workspace("Editor", NavigationMode.Tabs) {
         super.onBeforeShow()
         dock<OpenLayersMapView>()
     }
+
     override fun onDock() {
         super.onDock()
-        leftDrawer.item( find(ControlsView::class) )
-        rightDrawer.item(find(LegList::class))
+        leftDrawer.item(find(ControlsView::class))
+        rightDrawer.item(find(LegsView::class))
     }
 
     init {
@@ -30,7 +31,7 @@ class StreetOWorkspace() : Workspace("Editor", NavigationMode.Tabs) {
                     val courseFile = chooseFile("Open File", filters = arrayOf(kml, gpx), mode = FileChooserMode.Single)
                     courseFile.map {
                         courseController.loadCourse(it)
-                     }
+                    }
                 }
                 separator()
                 item("Save").action {
@@ -46,13 +47,17 @@ class StreetOWorkspace() : Workspace("Editor", NavigationMode.Tabs) {
                 item("Create MapRun Files")
                 item("Create Map PDF")
                 separator()
-                item("Quit", "Shortcut+Q"){
-                 }.action {
+                item("Quit", "Shortcut+Q") {
+                }.action {
                     Platform.exit()
                 }
             }
             menu("Course") {
-                item("Create From Controls")
+                item("Create From Controls") {
+                    action {
+                        courseController.generateFromControls()
+                    }
+                }
                 item("Score Controls")
             }
             menu("Map") {
@@ -70,7 +75,7 @@ class StreetOWorkspace() : Workspace("Editor", NavigationMode.Tabs) {
                 checkmenuitem("Route") {
                     selectedProperty().onChange {
                         fire(RouteVisibilityEvent(it))
-                     }
+                    }
                 }
                 checkmenuitem("Route Choice") {
                     selectedProperty().onChange {
@@ -79,7 +84,7 @@ class StreetOWorkspace() : Workspace("Editor", NavigationMode.Tabs) {
                 }
                 separator()
                 item("Preferences") {
- //        children.add(DemoView(preferencesFx, this))
+                    //        children.add(DemoView(preferencesFx, this))
                 }
             }
             menu("Help") {

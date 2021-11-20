@@ -8,16 +8,11 @@ import netscape.javascript.JSObject
 import tornadofx.*
 
 
-class OpenLayerMapController : Controller() {
-    val name: String = "Brian"
-}
-
 class OpenLayersMapView : View("Map") {
     private val controller: CourseController by inject()
-    private val legController: LegController by inject()
     private var showRouteChoice: Boolean = false
 
-    fun WebView.initialiseEngine() {
+    private fun WebView.initialiseEngine() {
         engine.load(resources.url("/index.html").toExternalForm())
         engine.loadWorker.stateProperty().addListener { _, _, newValue ->
             run {
@@ -43,66 +38,78 @@ class OpenLayersMapView : View("Map") {
     }
 
     override val root = vbox {
-
         webview {
+            contextmenu {
+                item("sdfsf")
+                item("sfsfdsdfsdfsdf")
+                isAutoHide = true
+            }
             vgrow = Priority.ALWAYS
             isContextMenuEnabled = false
             initialiseEngine()
-            val thunk = ThunkingLayer(engine)
-            subscribe<ResetRotationEvent> {
-                thunk.rotation = 0.0
-            }
-            subscribe<ZoomToFitCourseEvent> {
-                thunk.zoomToBestFit()
-            }
-            subscribe<ZoomToFitLegEvent> {
-                val leg = controller.selectedLeg.value
-                if (leg != null) {
-                    thunk.zoomToLeg(leg)
-                }
-            }
-            subscribe<RouteVisibilityEvent> {
-                val controls = controller.getControls()
-                if (it.visible && controls.size > 2) {
-                    thunk.drawRoute(controller.getRoute())
-                } else {
-                    thunk.clearRoute()
-                }
-            }
 
-            subscribe<RouteChoiceVisibilityEvent> {
-                showRouteChoice = it.visible
-                val leg = controller.selectedLeg.value
-                if( leg != null && showRouteChoice) {
-                    thunk.drawRouteChoice(leg.routeChoice)
-                } else {
-                    thunk.clearRouteChoice()
+            with(ThunkingLayer(engine)) {
+                subscribe<ResetRotationEvent> {
+                    rotation = 0.0
                 }
-            }
-            controller.getControls().addListener(ListChangeListener { _ ->
-                thunk.clearCourse()
-                thunk.drawCourse(controller.getControls())
-                thunk.zoomToBestFit()
-            })
 
-            controller.selectedControl.addListener { _, _, newValue ->
-                run {
-                    println("changed to $newValue")
-                    if (newValue != null) {
-                        thunk.zoomToControl(newValue)
-                    } else {
-                        thunk.zoomToBestFit()
+                subscribe<ZoomToFitCourseEvent> {
+                    zoomToBestFit()
+                }
+
+                subscribe<ZoomToFitLegEvent> {
+                    val leg = controller.selectedLeg.value
+                    if (leg != null) {
+                        zoomToLeg(leg)
                     }
                 }
-            }
 
-            controller.selectedLeg.addListener {_, _, newValue ->
-                run {
-                    thunk.clearRouteChoice()
-                    if( newValue != null) {
-                        thunk.zoomToLeg(newValue)
-                        if( showRouteChoice ) {
-                            thunk.drawRouteChoice(newValue.routeChoice)
+                subscribe<RouteVisibilityEvent> {
+                    val controls = controller.getControls()
+                    if (it.visible && controls.size > 2) {
+                        drawRoute(controller.getRoute())
+                    } else {
+                        clearRoute()
+                    }
+                }
+
+                subscribe<RouteChoiceVisibilityEvent> {
+                    showRouteChoice = it.visible
+                    val leg = controller.selectedLeg.value
+                    if (leg != null && showRouteChoice) {
+                        drawRouteChoice(leg.routeChoice)
+                    } else {
+                        clearRouteChoice()
+                    }
+                }
+
+                controller.getControls().addListener(ListChangeListener {
+                    clearCourse()
+                    if (controller.getControls().isNotEmpty()) {
+                        drawCourse(controller.getControls())
+                        zoomToBestFit()
+                    }
+                })
+
+                controller.selectedControl.addListener { _, _, newValue ->
+                    run {
+                        println("changed to $newValue")
+                        if (newValue != null) {
+                            zoomToControl(newValue)
+                        } else {
+                            zoomToBestFit()
+                        }
+                    }
+                }
+
+                controller.selectedLeg.addListener { _, _, newValue ->
+                    run {
+                        clearRouteChoice()
+                        if (newValue != null) {
+                            zoomToLeg(newValue)
+                            if (showRouteChoice) {
+                                drawRouteChoice(newValue.routeChoice)
+                            }
                         }
                     }
                 }
@@ -110,3 +117,5 @@ class OpenLayersMapView : View("Map") {
         }
     }
 }
+
+
