@@ -21,6 +21,7 @@ class StreetOWorkspace : Workspace("Editor", NavigationMode.Tabs) {
 
     init {
         menubar {
+            isUseSystemMenuBar = true
             menu("File") {
                 item("New").action {
                     find<NewCourseView>().openModal()

@@ -21,10 +21,18 @@ class WorkspaceApp : App() {
 
     override val primaryView = StreetOWorkspace::class
     override fun onBeforeShow(view: UIComponent) {
-        val scene = view.properties["tornadofx.scene"] as Scene
-        val jMetro = JMetro(Style.LIGHT)
-        jMetro.scene = scene
+        if( !isMac()) {
+            val scene = view.properties["tornadofx.scene"] as Scene
+            val jMetro = JMetro(Style.LIGHT)
+            jMetro.scene = scene
+        }
         super.onBeforeShow(view)
+    }
+
+    private fun isMac(): Boolean {
+        with(System.getProperty("os.name", "generic").lowercase()) {
+            return (indexOf("mac") >= 0) || (indexOf("darwin") >= 0)
+        }
     }
 
     init {
