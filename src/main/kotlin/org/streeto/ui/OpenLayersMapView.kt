@@ -1,41 +1,45 @@
 package org.streeto.ui
 
+import javafx.beans.value.ChangeListener
+import javafx.beans.value.ObservableValue
 import javafx.collections.ListChangeListener
+import javafx.concurrent.Worker
 import javafx.concurrent.WorkerStateEvent
+import javafx.event.EventHandler
 import javafx.scene.layout.Priority
 import javafx.scene.web.WebView
 import netscape.javascript.JSObject
 import tornadofx.*
 
 
+
+
 class OpenLayersMapView : View("Map") {
     private val controller: CourseController by inject()
     private var showRouteChoice: Boolean = false
+    val customFunction = JavaCallback(controller)
 
+    class JavaCallback(private val controller: CourseController)  {
+        fun controlMoved(num: String, lat: Double, lon: Double) {
+            println("Control $num Moved to [$lat, $lon]")
+            controller.moveControl(num, lat, lon)
+        }
+    }
     private fun WebView.initialiseEngine() {
-        engine.load(resources.url("/index.html").toExternalForm())
-        engine.loadWorker.stateProperty().addListener { _, _, newValue ->
+        engine.loadWorker.stateProperty().addListener { ov: ObservableValue<*>?, oldState: Worker.State?, newState: Worker.State ->
             run {
-                if (newValue == WorkerStateEvent.WORKER_STATE_SUCCEEDED) {
-                    // now initialize the mapView
+                println( " called $oldState, $newState")
+                if (newState === Worker.State.SUCCEEDED) {
                     val window: JSObject = engine.executeScript("window") as JSObject
                     window.setMember("theJavaFunction", customFunction)
-
+                    println("theJavaFunction is set ")
                 }
             }
         }
+        engine.load(resources.url("/index.html").toExternalForm())
     }
 
 
-    val customFunction = object {
-        fun function(data: Array<Any>): Any {
-            val type = data[0] as String
-            if (type == "CONTROL_MOVED") {
-                println("Control Moved")
-            }
-            return true
-        }
-    }
 
     override val root = vbox {
         webview {
@@ -49,6 +53,13 @@ class OpenLayersMapView : View("Map") {
             initialiseEngine()
 
             with(ThunkingLayer(engine)) {
+                onMouseClicked = EventHandler {
+                    val ctrl = controller.getControlAt(mouseCoordinates, resolution)
+                    if( ctrl != null) {
+                        println("Selected Control: $ctrl" )
+                    }
+                }
+
                 subscribe<ResetRotationEvent> {
                     rotation = 0.0
                 }

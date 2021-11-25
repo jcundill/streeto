@@ -1,8 +1,12 @@
 package org.streeto.ui
 
 import javafx.application.Platform
+import javafx.scene.control.Alert
+import javafx.scene.control.ToolBar
 import javafx.stage.FileChooser
 import tornadofx.*
+import java.lang.Exception
+import java.util.*
 
 class StreetOWorkspace : Workspace("Editor", NavigationMode.Tabs) {
 
@@ -23,9 +27,31 @@ class StreetOWorkspace : Workspace("Editor", NavigationMode.Tabs) {
         menubar {
             isUseSystemMenuBar = true
             menu("File") {
-                item("New").action {
-                    find<NewCourseView>().openModal()
+                menu("New") {
+                    item("NCourse").action {
+                        find<NewCourseView>().openModal()
+                    }
+                    item("From Properties") {
+                        action {
+                            val ext = FileChooser.ExtensionFilter("properties", "*.properties")
+                            val propsFiles = chooseFile("Open File", filters = arrayOf(ext), mode = FileChooserMode.Single)
+                            if(propsFiles.isNotEmpty()) {
+                                with(propsFiles[0]) {
+                                    runAsyncWithOverlay {
+                                        try {
+                                            val props = Properties()
+                                            props.load(propsFiles[0].inputStream())
+                                            courseController.initializeGH(props)
+                                        } catch (e: Exception) {
+                                            error(header = "Invalid File", content = e.message)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
+
                 item("Open").action {
                     val kml = FileChooser.ExtensionFilter("KML", "*.kml")
                     val gpx = FileChooser.ExtensionFilter("GPX", "*.gpx")
@@ -85,7 +111,9 @@ class StreetOWorkspace : Workspace("Editor", NavigationMode.Tabs) {
                 }
                 separator()
                 item("Preferences") {
-                    //        children.add(DemoView(preferencesFx, this))
+                    action {
+                        find<PreferencesView>().openModal()
+                    }
                 }
             }
             menu("Help") {

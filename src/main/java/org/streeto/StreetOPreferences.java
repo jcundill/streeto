@@ -121,7 +121,7 @@ public class StreetOPreferences {
         return controlSwapProbability;
     }
 
-    public void setControlSwapProbability(double controlSwapProbability) {
+    public void setSwapProbability(double controlSwapProbability) {
         this.controlSwapProbability = controlSwapProbability;
     }
 

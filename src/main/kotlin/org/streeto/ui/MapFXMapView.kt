@@ -35,6 +35,9 @@ class MapFXMapView : View("Course") {
             })
             addEventHandler(MapViewEvent.MAP_CLICKED) {
                 println(it.coordinate)
+                val m = Marker.createProvided(Marker.Provided.BLUE).setVisible(true)
+                m.setPosition(it.coordinate)
+                addMarker(m)
             }
             addEventHandler(MapViewEvent.MAP_RIGHTCLICKED) {
 

@@ -37,12 +37,8 @@ import org.streeto.kml.KmlWriter;
 import org.streeto.mapping.*;
 import org.streeto.scorers.*;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.io.*;
+import java.util.*;
 
 import static org.streeto.utils.CollectionHelpers.*;
 
@@ -66,17 +62,31 @@ public class StreetO {
     }
 
     public static void main(String[] args) {
-        System.out.println("Hello World!");
-
+        if(args.length != 1) {
+            System.out.println("Usage: StreetO <property file>");
+        }
+        var properties = new Properties();
+        try {
+            properties.load(new FileInputStream(args[0]));
+        } catch (InvalidPropertiesFormatException e) {
+            System.out.println("Not a valid properties file " + args[0]);
+            System.exit(-1);
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found " + args[0]);
+            System.exit(-1);
+        } catch (IOException e) {
+            System.out.println("Unable to read properties from " + args[0]);
+            System.exit(-1);
+        }
         // initialize the engine
         var sniffer = new StreetOSniffer();
         var streeto = new StreetO(
-                "extracts/greater-london-latest.osm.pbf",
-                "osm_data/grph_greater-london-latest");
+                properties.getProperty("pbfFile"),
+                properties.getProperty("graphDir"));
         streeto.registerSniffer(sniffer);
 
         // set up the initial course to analyse
-        var initialCourse = streeto.getImporter().buildFromProperties("./streeto.properties");
+        var initialCourse = streeto.getImporter().buildFromProperties(properties);
 
         // set up the preferences
         var preferences = new StreetOPreferences();

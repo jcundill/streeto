@@ -1,6 +1,7 @@
 package org.streeto.ui
 
 import javafx.scene.web.WebEngine
+import netscape.javascript.JSObject
 import java.util.function.Consumer
 import java.util.stream.Collectors
 
@@ -14,25 +15,25 @@ class ThunkingLayer(val browser: WebEngine) {
         return browser.executeScript(str)
     }
 
-    var resolution: String?
-        get() = evaluateJavascript("return document.streetoMap.getView().getResolution();").toString()
+    var resolution: Double
+        get() = evaluateJavascript("document.streetoMap.getView().getResolution();") as Double
         set(resolution) {
             val cmd = String.format("document.streetoMap.getView().setResolution(%s)", resolution)
             callJavascript(cmd)
         }
     var rotation: Double
-        get() = evaluateJavascript("return document.streetoMap.getView().getRotation();") as Double
+        get() = evaluateJavascript("document.streetoMap.getView().getRotation();") as Double
         set(value) {
             val cmd = String.format("document.streetoMap.getView().setRotation(%f)", value)
             callJavascript(cmd)
         }
-    var mapCenter: String?
+    var mapCenter: Point?
         get() {
-            val arr = evaluateJavascript("return document.streetoMap.getView().getCenter();") as Array<*>
-            return String.format("[%s, %s]", arr[0].toString(), arr[1].toString())
+            val cmd = "document.streetoMap.getView().getCenter();"
+            return evaluateAsPoint(cmd)
         }
         set(center) {
-            val cmd = String.format("document.streetoMap.getView().setCenter(%s)", center)
+            val cmd = String.format("document.streetoMap.getView().setCenter(%s)", center.toString())
             callJavascript(cmd)
         }
 
@@ -114,15 +115,19 @@ class ThunkingLayer(val browser: WebEngine) {
     }
 
     // lon, lat
-    val mouseCoordinates: Control
+    val mouseCoordinates: Point
         get() {
-            val cmd = "return document.streetoMap.getMouseCoords();"
-            val ans = evaluateJavascript(cmd)
-            val ret = ans as Array<*> // lon, lat
-            val lat = ret[1] as Double
-            val lon = ret[0] as Double
-            return Control("", "", lat, lon)
+            val cmd = "document.streetoMap.getMouseCoords();"
+            return evaluateAsPoint(cmd)
         }
+
+    private fun evaluateAsPoint(cmd: String): Point {
+        val ans = evaluateJavascript(cmd)
+        val ret = ans.toString().split(",") // lon, lat
+        val lat = ret[1].toDouble()
+        val lon = ret[0].toDouble()
+        return Point(lat, lon)
+    }
 
     fun clearRoute() {
         val cmd = "document.routeSource.clear();"
@@ -133,12 +138,6 @@ class ThunkingLayer(val browser: WebEngine) {
         val cmd = "document.routeChoiceSource.clear();"
         callJavascript(cmd)
     }
-
-    val controlNumberUnderMouse: String
-        get() {
-            val cmd = "return document.streetoMap.getControlUnderMouse();"
-            return evaluateJavascript(cmd) as String
-        }
 
     fun zoomToControl(control: Control) {
         val str = String.format("{lat:%f, lon:%f}", control.lat, control.lon)

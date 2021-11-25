@@ -3,7 +3,6 @@ package org.streeto;
 import org.streeto.gpx.GpxFacade;
 import org.streeto.kml.KmlWriter;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -17,13 +16,7 @@ public class CourseImporter {
         this.csf = csf;
     }
 
-    public Course buildFromProperties(String filename) {
-        var props = new Properties();
-        try {
-            props.load(new FileInputStream(filename));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public Course buildFromProperties(Properties props) {
         var waypoints = props.getProperty("controls", "");
         var distance = Double.parseDouble(props.getProperty("distance", "6000.0"));
         var numControls = Integer.parseInt(props.getProperty("numControls", "10"));

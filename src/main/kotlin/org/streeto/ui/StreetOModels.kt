@@ -12,6 +12,10 @@ open class Point(lat: Double, lon: Double) {
     val lonProperty = SimpleDoubleProperty(lon)
     var lon by lonProperty
 
+    override fun toString(): String {
+        return "[$lat, $lon]"
+    }
+
 }
 
 class PointList(var points: List<Point>)
@@ -52,6 +56,10 @@ class Control(number: String, description: String, lat: Double, lon: Double) : P
         var result = number?.hashCode() ?: 0
         result = 31 * result + (description?.hashCode() ?: 0)
         return result
+    }
+
+    override fun toString(): String {
+        return "number: $number, description: $description, position: ${super.toString()}"
     }
 }
 

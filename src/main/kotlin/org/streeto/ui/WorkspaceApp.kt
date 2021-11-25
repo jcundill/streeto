@@ -12,11 +12,6 @@ import tornadofx.*
 
 fun EventTarget.jfxMap(op: MapView.() -> Unit) = MapView().attachTo(this, op)
 
-val streeto = StreetO(
-    "/home/jon/code/streeto/extracts/greater-london-latest.osm.pbf",
-    "/home/jon/code/streeto/osm_data/grph_greater-london-latest"
-)
-
 class WorkspaceApp : App() {
 
     override val primaryView = StreetOWorkspace::class
