@@ -1,9 +1,5 @@
 package org.streeto.ui
 
-import javafx.collections.FXCollections
-import javafx.collections.FXCollections.observableArrayList
-import javafx.geometry.Orientation
-import org.streeto.mapping.MapBox
 import org.streeto.mapping.MapStyle
 import org.streeto.mapping.PaperSize
 import tornadofx.*
@@ -49,7 +45,7 @@ class PreferencesView : View("StreetO Preferences") {
                             textfield(prefs.maxFurnitureDistanceProperty)
                         }
                         field {
-                            label( "Min Turn Angle")
+                            label("Min Turn Angle")
                             textfield(prefs.minTurnAngleProperty)
                         }
                     }
@@ -123,11 +119,11 @@ class PreferencesView : View("StreetO Preferences") {
                         }
                         field {
                             label("Split Map for Better Scale")
-                            checkbox{ prefs.splitForBetterScaleProperty }
+                            checkbox { prefs.splitForBetterScaleProperty }
                         }
                         field {
                             label("Paper Size")
-                            combobox( prefs.paperSizeProperty, PaperSize.values().asList())
+                            combobox(prefs.paperSizeProperty, PaperSize.values().asList())
                         }
                         field {
                             label("Print A3 Maps on A4 Paper")
@@ -135,42 +131,42 @@ class PreferencesView : View("StreetO Preferences") {
                         }
                         field {
                             label("Maximum Scale Map")
-                            combobox( prefs.maxMapScaleProperty, listOf(5000.0, 7500.0, 10000.0, 12500.0, 15000.0) )
+                            combobox(prefs.maxMapScaleProperty, listOf(5000.0, 7500.0, 10000.0, 12500.0, 15000.0))
                         }
                     }
                 }
                 tab("Course Evolution") {
                     fieldset {
                         field {
-                            label( "Max Execution Time (s)")
+                            label("Max Execution Time (s)")
                             textfield(prefs.maxExecutionTimeProperty)
                         }
                         field {
-                            label( "Number of Generations")
+                            label("Number of Generations")
                             textfield(prefs.maxGenerationsProperty)
                         }
                         field {
-                            label(  "Fitness Stop level")
+                            label("Fitness Stop level")
                             textfield(prefs.stoppingFitnessProperty)
                         }
                         field {
-                            label( "Swap Probability")
+                            label("Swap Probability")
                             textfield(prefs.controlSwapProbabilityProperty)
                         }
                         field {
-                            label( "Mutation Probability")
+                            label("Mutation Probability")
                             textfield(prefs.mutateProbabilityProperty)
                         }
                         field {
-                            label( "Max Phenotype Age")
+                            label("Max Phenotype Age")
                             textfield(prefs.maxPhenotypeAgeProperty)
                         }
                         field {
-                            label( "Offspring Fraction")
+                            label("Offspring Fraction")
                             textfield(prefs.offspringFractionProperty)
                         }
                         field {
-                            label( "Population Size")
+                            label("Population Size")
                             textfield(prefs.populationSizeProperty)
                         }
 
@@ -180,9 +176,9 @@ class PreferencesView : View("StreetO Preferences") {
             button("Commit") {
                 action {
                     println(prefs.minLegDistanceProperty.value)
-                    println( prefs.dogLegWeightingProperty.value)
+                    println(prefs.dogLegWeightingProperty.value)
                     println(prefs.minLegDistance)
-                    println( prefs.dogLegWeighting)
+                    println(prefs.dogLegWeighting)
                     handler.flushPreferences(prefs)
                 }
             }

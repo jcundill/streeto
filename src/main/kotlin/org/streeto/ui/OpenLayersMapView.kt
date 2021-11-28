@@ -1,50 +1,64 @@
 package org.streeto.ui
 
-import javafx.beans.value.ChangeListener
-import javafx.beans.value.ObservableValue
+import javafx.beans.property.SimpleBooleanProperty
 import javafx.collections.ListChangeListener
 import javafx.concurrent.Worker
-import javafx.concurrent.WorkerStateEvent
 import javafx.event.EventHandler
 import javafx.scene.layout.Priority
 import javafx.scene.web.WebView
 import netscape.javascript.JSObject
 import tornadofx.*
-
-
+import java.io.File
+import java.util.*
 
 
 class OpenLayersMapView : View("Map") {
     private val controller: CourseController by inject()
     private var showRouteChoice: Boolean = false
-    val customFunction = JavaCallback(controller)
+    val controlModel: ControlViewModel by inject()
+    val legModel: ScoredLegModel by inject()
 
-    class JavaCallback(private val controller: CourseController)  {
+    val customFunction = JavaCallback(controller)
+    val clickedOnControl = SimpleBooleanProperty(false)
+
+    class JavaCallback(private val controller: CourseController) {
         fun controlMoved(num: String, lat: Double, lon: Double) {
             println("Control $num Moved to [$lat, $lon]")
             controller.moveControl(num, lat, lon)
         }
     }
+
     private fun WebView.initialiseEngine() {
-        engine.loadWorker.stateProperty().addListener { ov: ObservableValue<*>?, oldState: Worker.State?, newState: Worker.State ->
+        engine.loadWorker.stateProperty().addListener { _, _, newState: Worker.State ->
             run {
-                println( " called $oldState, $newState")
                 if (newState === Worker.State.SUCCEEDED) {
                     val window: JSObject = engine.executeScript("window") as JSObject
                     window.setMember("theJavaFunction", customFunction)
-                    println("theJavaFunction is set ")
+
+                    val args = app.parameters.named
+                    if (!args["props"].isNullOrEmpty()) {
+                        val props = Properties()
+                        props.load(File(args["props"]!!).inputStream())
+                        controller.initializeGH(props)
+                    }
+                    if (!args["course"].isNullOrEmpty()) {
+                        controller.loadCourse(File(args["course"]!!))
+                    }
                 }
             }
         }
         engine.load(resources.url("/index.html").toExternalForm())
     }
 
-
-
     override val root = vbox {
         webview {
             contextmenu {
-                item("sdfsf")
+                item("Details") {
+                    visibleWhen(clickedOnControl)
+                    action {
+                        workspace.openInternalWindow<ControlDetailView>(modal = false)
+                    }
+                }
                 item("sfsfdsdfsdfsdf")
                 isAutoHide = true
             }
@@ -53,11 +67,16 @@ class OpenLayersMapView : View("Map") {
             initialiseEngine()
 
             with(ThunkingLayer(engine)) {
+
+                controller.isReady.onChange { ready ->
+                    if (ready) {
+                        zoomToDataBounds(controller.dataBounds)
+                    }
+                }
                 onMouseClicked = EventHandler {
                     val ctrl = controller.getControlAt(mouseCoordinates, resolution)
-                    if( ctrl != null) {
-                        println("Selected Control: $ctrl" )
-                    }
+                    controlModel.item = ctrl
+                    clickedOnControl.value = ctrl != null
                 }
 
                 subscribe<ResetRotationEvent> {
@@ -69,14 +88,16 @@ class OpenLayersMapView : View("Map") {
                 }
 
                 subscribe<ZoomToFitLegEvent> {
-                    val leg = controller.selectedLeg.value
+                    val leg = legModel.item
                     if (leg != null) {
                         zoomToLeg(leg)
+                    } else {
+                        println("leg model is null")
                     }
                 }
 
                 subscribe<RouteVisibilityEvent> {
-                    val controls = controller.getControls()
+                    val controls = controller.controlList
                     if (it.visible && controls.size > 2) {
                         drawRoute(controller.getRoute())
                     } else {
@@ -86,7 +107,7 @@ class OpenLayersMapView : View("Map") {
 
                 subscribe<RouteChoiceVisibilityEvent> {
                     showRouteChoice = it.visible
-                    val leg = controller.selectedLeg.value
+                    val leg = legModel.item
                     if (leg != null && showRouteChoice) {
                         drawRouteChoice(leg.routeChoice)
                     } else {
@@ -94,32 +115,28 @@ class OpenLayersMapView : View("Map") {
                     }
                 }
 
-                controller.getControls().addListener(ListChangeListener {
+                controller.controlList.addListener(ListChangeListener {
                     clearCourse()
-                    if (controller.getControls().isNotEmpty()) {
-                        drawCourse(controller.getControls())
+                    if (controller.controlList.isNotEmpty()) {
+                        drawCourse(controller.controlList)
                         zoomToBestFit()
                     }
                 })
 
-                controller.selectedControl.addListener { _, _, newValue ->
-                    run {
-                        println("changed to $newValue")
-                        if (newValue != null) {
-                            zoomToControl(newValue)
-                        } else {
-                            zoomToBestFit()
-                        }
+                subscribe<ZoomToControlEvent> {
+                    println("zoom to ${it.control}")
+                    if (it.control != null) {
+                        zoomToControl(it.control)
                     }
                 }
 
-                controller.selectedLeg.addListener { _, _, newValue ->
+                legModel.start.addListener() { _, _, newValue ->
                     run {
                         clearRouteChoice()
                         if (newValue != null) {
-                            zoomToLeg(newValue)
+                            zoomToLeg(legModel.item)
                             if (showRouteChoice) {
-                                drawRouteChoice(newValue.routeChoice)
+                                drawRouteChoice(legModel.item.routeChoice)
                             }
                         }
                     }

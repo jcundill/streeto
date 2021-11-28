@@ -6,7 +6,6 @@ import javafx.event.EventTarget
 import javafx.scene.Scene
 import jfxtras.styles.jmetro.JMetro
 import jfxtras.styles.jmetro.Style
-import org.streeto.StreetO
 import tornadofx.*
 
 
@@ -16,7 +15,7 @@ class WorkspaceApp : App() {
 
     override val primaryView = StreetOWorkspace::class
     override fun onBeforeShow(view: UIComponent) {
-        if( !isMac()) {
+        if (!isMac()) {
             val scene = view.properties["tornadofx.scene"] as Scene
             val jMetro = JMetro(Style.LIGHT)
             jMetro.scene = scene

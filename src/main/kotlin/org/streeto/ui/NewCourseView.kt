@@ -1,38 +1,48 @@
 package org.streeto.ui
 
+import javafx.beans.property.SimpleDoubleProperty
+import javafx.beans.property.SimpleIntegerProperty
+import javafx.beans.property.SimpleStringProperty
+import javafx.geometry.Pos
 import tornadofx.*
 
+
 class NewCourseView : View("New Course") {
+    private val newCourse = object {
+        var name = SimpleStringProperty("StreetOCourse")
+        var requestedDistance = SimpleDoubleProperty(8000.0)
+        var numControls = SimpleIntegerProperty(15)
+    }
+    private val controller: CourseController by inject()
+
     override val root = vbox {
         form {
-            tabpane {
-                tab("Screen 1") {
-                    fieldset("Personal Info") {
-                        field("First Name") {
-                            textfield()
-                        }
-                        field("Last Name") {
-                            textfield()
-                        }
-                        field("Birthday") {
-                            datepicker()
-                        }
-                    }
+            fieldset {
+                field("Course Name") {
+                    textfield(newCourse.name)
                 }
-                tab("Screen 2") {
-                    fieldset("Contact") {
-                        field("Phone") {
-                            textfield()
-                        }
-                        field("Email") {
-                            textfield()
-                        }
-                    }
-
+                field("Course Length") {
+                    textfield(newCourse.requestedDistance)
+                }
+                field("Number Of Controls") {
+                    textfield(newCourse.numControls)
                 }
             }
-            button("Commit") {
-                action { println("Wrote to database!") }
+            hbox {
+                alignment = Pos.CENTER_RIGHT
+                button("Save") {
+                    action {
+                        controller.courseName.value = newCourse.name.value
+                        controller.requestedDistance.value = newCourse.requestedDistance.value
+                        controller.requestedNumControls.value = newCourse.numControls.value
+                        this@NewCourseView.close()
+                    }
+                }
+                button("Cancel") {
+                    action {
+                        this@NewCourseView.close()
+                    }
+                }
             }
         }
     }

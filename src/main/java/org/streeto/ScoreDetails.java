@@ -1,5 +1,7 @@
 package org.streeto;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -42,15 +44,21 @@ public class ScoreDetails {
 
     @Override
     public String toString() {
+        List<List<Double>> legDetails = getLegDetails();
         var titles = new ArrayList<>(featureScores.keySet());
-        var fScores = titles.stream().map(featureScores::get).collect(Collectors.toList());
         var header = titles.stream().map(title -> "\t" + formatName(title)).collect(Collectors.joining("", "Leg   Score     ", "\n"));
-        var legDetails = transpose(fScores);
-        var ret = new StringBuilder(header);
+         var ret = new StringBuilder(header);
         forEachIndexed(legScores, (idx, score) ->
                 ret.append(String.format("%2s:   %7f   %s\n", (idx + 1), score, legDetails.get(idx).stream().map(it -> String.format("  %7f      ", it)).collect(Collectors.joining("", "", "")))));
 
         return ret.toString();
+    }
+
+    @NotNull
+    public List<List<Double>> getLegDetails() {
+        var titles = new ArrayList<>(featureScores.keySet());
+        var fScores = titles.stream().map(featureScores::get).collect(Collectors.toList());
+        return transpose(fScores);
     }
 
 }

@@ -39,16 +39,16 @@ public class GhWrapper {
     public static GraphHopperOSM initGH(String pbf, String osmDirectory) {
         var profile = new Profile("streeto").setVehicle("streeto").setWeighting("fastest").setTurnCosts(false);
         var gh = new GraphHopperOSM()
-                .setOSMFile(pbf)
-                .forServer()
-                .setGraphHopperLocation(osmDirectory)
+//                //.setOSMFile(pbf)
+//                .forServer()
+//                .setGraphHopperLocation(osmDirectory)
                 .setProfiles(profile)
-                .setElevation(true)
-                .setElevationProvider(new SRTMProvider());
+                .setElevation(true);
+//                .setElevationProvider(new SRTMProvider());
         if (!oFlagEncoder.isRegistered()) {
             gh.setEncodingManager(EncodingManager.create(oFlagEncoder));
         }
-        gh.importOrLoad();
+        gh.load(osmDirectory);
         return (GraphHopperOSM) gh;
     }
 }

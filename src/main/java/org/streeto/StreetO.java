@@ -51,10 +51,13 @@ public class StreetO {
     private final List<Sniffer> sniffers = new ArrayList<>();
     private final CourseImporter courseImporter;
     private CourseScorer scorer;
-    private StreetOPreferences preferences = new StreetOPreferences();
+    private StreetOPreferences preferences;
+    private final BBox bounds;
 
-    public StreetO(String pbf, String osmDir) {
+    public StreetO(String pbf, String osmDir, StreetOPreferences prefs) {
         GraphHopperOSM gh = GhWrapper.initGH(pbf, osmDir);
+        preferences = prefs;
+        bounds = gh.getGraphHopperStorage().getBounds();
         csf = new ControlSiteFinder(gh, preferences);
         splitter = new MapSplitter(csf, preferences.getPaperSize(), preferences.getMaxMapScale());
         courseImporter = new CourseImporter(csf);
@@ -82,7 +85,8 @@ public class StreetO {
         var sniffer = new StreetOSniffer();
         var streeto = new StreetO(
                 properties.getProperty("pbfFile"),
-                properties.getProperty("graphDir"));
+                properties.getProperty("graphDir"),
+                new StreetOPreferences());
         streeto.registerSniffer(sniffer);
 
         // set up the initial course to analyse
@@ -241,6 +245,13 @@ public class StreetO {
     }
 
     public Optional<ControlSite> findNearestControlSiteTo(double lat, double lon) {
+        if( csf.furniture == null) {
+            findFurniture(new ControlSite(lat, lon , ""));
+        }
         return csf.findNearestControlSiteTo(new GHPoint(lat, lon));
+    }
+
+    public BBox getBounds() {
+        return bounds;
     }
 }

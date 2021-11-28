@@ -4,6 +4,7 @@ package org.streeto.kml;
 import org.junit.jupiter.api.Test;
 import org.streeto.ScoreDetails;
 import org.streeto.StreetO;
+import org.streeto.StreetOPreferences;
 
 import java.util.stream.Collectors;
 
@@ -37,7 +38,7 @@ class KmlWriterTest {
     @Test
     public void format() throws Exception {
         var fis = getClass().getClassLoader().getResourceAsStream("abc.kml");
-        var streeto = new StreetO("extracts/great-britain-latest.osm.pbf", "osm_data");
+        var streeto = new StreetO("extracts/great-britain-latest.osm.pbf", "osm_data", new StreetOPreferences());
         var course = streeto.getImporter().buildFromKml(fis);
         ScoreDetails scoreDetails = streeto.score(course.getControls());
         System.out.println(scoreDetails.toString());

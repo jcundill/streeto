@@ -5,20 +5,20 @@ import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import tornadofx.*
 
-open class Point(lat: Double, lon: Double) {
-    val latProperty = SimpleDoubleProperty(lat)
+open class Point(lat: Double?, lon: Double?) {
+    val latProperty = SimpleDoubleProperty(lat ?: 0.0)
     var lat by latProperty
 
-    val lonProperty = SimpleDoubleProperty(lon)
+    val lonProperty = SimpleDoubleProperty(lon ?: 0.0)
     var lon by lonProperty
 
     override fun toString(): String {
         return "[$lat, $lon]"
     }
-
 }
 
 class PointList(var points: List<Point>)
+
 open class CourseLeg(start: Control, end: Control) {
     val startProperty = SimpleObjectProperty(start)
     val endProperty = SimpleObjectProperty(end)
@@ -27,17 +27,75 @@ open class CourseLeg(start: Control, end: Control) {
     var end by endProperty
 }
 
-class RoutedLeg(start: Control, end: Control, routeChoice: List<PointList>) : CourseLeg(start, end) {
+class ScoredLeg(
+    start: Control, end: Control, length: Double,
+    routeChoice: List<PointList> = listOf(),
+    legScore: Double = 0.0,
+    scoreDetails: List<Double> = listOf(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+) : CourseLeg(start, end) {
+    private var details = scoreDetails
+    private var score = legScore
+
+    val overallScoreProperty = SimpleDoubleProperty(score)
+    val lengthScoreProperty = SimpleDoubleProperty(details[0])
+    val routeChoiceScoreProperty = SimpleDoubleProperty(details[4])
+    val complexityScoreProperty = SimpleDoubleProperty(details[1])
+    val beenHereBeforeScoreProperty = SimpleDoubleProperty(details[3])
+    val comesTooCloseScoreProperty = SimpleDoubleProperty(details[6])
+    val dogLegScoreProperty = SimpleDoubleProperty(details[5])
+    val placementScoreProperty = SimpleDoubleProperty(details[2])
     val routeChoiceProperty = SimpleObjectProperty(routeChoice)
+    val lengthProperty = SimpleDoubleProperty(length)
+
+    val overallScore by overallScoreProperty
+    val lengthScore by lengthScoreProperty
+    val routeChoiceScore by routeChoiceScoreProperty
+    val complexityScore by complexityScoreProperty
+    val beenHereBeforeScore by beenHereBeforeScoreProperty
+    val comesTooCloseScore by comesTooCloseScoreProperty
+    val dogLegScore by dogLegScoreProperty
+    val placementScore by placementScoreProperty
     val routeChoice by routeChoiceProperty
+    val length by lengthProperty
+
+    fun reScore(overall: Double, details: List<Double>) {
+        overallScoreProperty.value = overall
+        lengthScoreProperty.value = details[0]
+        routeChoiceScoreProperty.value = details[4]
+        complexityScoreProperty.value = details[1]
+        beenHereBeforeScoreProperty.value = details[3]
+        comesTooCloseScoreProperty.value = details[6]
+        dogLegScoreProperty.value = details[5]
+        placementScoreProperty.value = details[2]
+    }
 }
 
-class Control(number: String, description: String, lat: Double, lon: Double) : Point(lat, lon) {
+class ScoredLegModel : ItemViewModel<ScoredLeg>() {
+    val start = bind(ScoredLeg::startProperty)
+    val end = bind(ScoredLeg::endProperty)
+    val length = bind(ScoredLeg::lengthProperty)
+    val overallScore = bind(ScoredLeg::overallScoreProperty)
+    val lengthScore = bind(ScoredLeg::lengthScoreProperty)
+    val routeChoiceScore = bind(ScoredLeg::routeChoiceScoreProperty)
+    val complexityScore = bind(ScoredLeg::complexityScoreProperty)
+    val beeHereBeforeScore = bind(ScoredLeg::beenHereBeforeScoreProperty)
+    val comesTooCloseScore = bind(ScoredLeg::comesTooCloseScoreProperty)
+    val dogLegScore = bind(ScoredLeg::dogLegScoreProperty)
+    val placementScore = bind(ScoredLeg::placementScoreProperty)
+}
 
-    val numberProperty = SimpleStringProperty(number)
+class ControlViewModel : ItemViewModel<Control>() {
+    val number = bind(Control::numberProperty)
+    val description = bind(Control::descriptionProperty)
+    val lat = bind(Control::latProperty)
+    val lon = bind(Control::lonProperty)
+}
+
+class Control(number: String?, description: String?, lat: Double?, lon: Double?) : Point(lat, lon) {
+    val numberProperty = SimpleStringProperty(number ?: "")
     var number by numberProperty
 
-    val descriptionProperty = SimpleStringProperty(description)
+    val descriptionProperty = SimpleStringProperty(description ?: "")
     var description by descriptionProperty
 
     override fun equals(other: Any?): Boolean {

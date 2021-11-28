@@ -6,39 +6,46 @@ import tornadofx.*
 
 class ControlsView : View("Controls") {
     private val controller: CourseController by inject()
+    val model: ControlViewModel by inject()
 
     override val root = vbox {
-        tableview(controller.getControls()) {
+        tableview(controller.controlList) {
             vgrow = Priority.ALWAYS
             hgrow = Priority.ALWAYS
-            readonlyColumn("Control", Control::number).contentWidth(padding = 50.0)
-            readonlyColumn("Description", Control::description)
+            column("Control", Control::number).contentWidth(padding = 50.0)
+            column("Description", Control::description)
+            bindSelected(model)
 
-//            onSelectionChange {
-//                println("selection -> $it")
-//                controller.setSelected(it)
-//            }
+
+            onSelectionChange {
+                println("selection -> $it")
+                println(model.item)
+                println("${model.number}, ${model.description}, ${model.lat}, ${model.lon}")
+            }
+
             contextmenu {
+                item("Details") {
+                    action {
+                        workspace.openInternalWindow<ControlDetailView>(modal = false)
+                    }
+                }
                 item("Zoom To Control") {
                     action {
-                        controller.selectControl(selectedItem)
+                        fire(ZoomToControlEvent(selectedItem))
                     }
                 }
 
                 item("Zoom to Leg Before") {
-                    //disableWhen{ SimpleBooleanProperty(selectedItem == null || selectedItem!!.number == "S1")}
                     action {
                         controller.selectLegTo(selectedItem)
                     }
                 }
                 item("Zoom to Leg After") {
-                    //disableWhen{ SimpleBooleanProperty(selectedItem == null || selectedItem!!.number == "F1")}
                     action {
                         controller.selectLegFrom(selectedItem)
                     }
                 }
             }
-            //smartResize()
         }
     }
     override val closeable = SimpleBooleanProperty(false)

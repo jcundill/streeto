@@ -1,149 +1,103 @@
 package org.streeto.ui
 
+import com.graphhopper.util.shapes.BBox
 import javafx.scene.web.WebEngine
-import netscape.javascript.JSObject
-import java.util.function.Consumer
 import java.util.stream.Collectors
 
 
 class ThunkingLayer(val browser: WebEngine) {
-    private fun evaluateJavascript(str: String): Any {
-        return browser.executeScript(str)
-    }
-
-    private fun callJavascript(str: String): Any {
-        return browser.executeScript(str)
-    }
 
     var resolution: Double
-        get() = evaluateJavascript("document.streetoMap.getView().getResolution();") as Double
+        get() = callOLFunction("getResolution();") as Double
         set(resolution) {
-            val cmd = String.format("document.streetoMap.getView().setResolution(%s)", resolution)
-            callJavascript(cmd)
+            callOLFunction("setResolution($resolution)")
         }
     var rotation: Double
-        get() = evaluateJavascript("document.streetoMap.getView().getRotation();") as Double
+        get() = callOLFunction("getRotation();") as Double
         set(value) {
-            val cmd = String.format("document.streetoMap.getView().setRotation(%f)", value)
-            callJavascript(cmd)
+            callOLFunction("setRotation($value)")
         }
     var mapCenter: Point?
-        get() {
-            val cmd = "document.streetoMap.getView().getCenter();"
-            return evaluateAsPoint(cmd)
-        }
+        get() = asPoint(callOLFunction("getCenter();"))
         set(center) {
-            val cmd = String.format("document.streetoMap.getView().setCenter(%s)", center.toString())
-            callJavascript(cmd)
+            callOLFunction("setCenter(${center.toString()})")
         }
 
-    fun zoomToBestFit() {
-        val cmd = "document.streetoMap.zoomToFitCourse()"
-        callJavascript(cmd)
+    val mouseCoordinates: Point
+        get() = asPoint(callMapFunction("getMouseCoords();"))
+
+    fun zoomToDataBounds(bounds: BBox) {
+        println(bounds)
+        val a = Point(bounds.minLat, bounds.minLon)
+        val b = Point(bounds.maxLat, bounds.maxLon)
+        val ans = callMapFunction("zoomToFitBounds(${asLatLonObj(a)}, ${asLatLonObj(b)})")
+        println(ans)
     }
 
-    fun clearCourse() {
-        val cmd = "document.streetoMap.clearCourse()"
-        callJavascript(cmd)
-    }
+    fun zoomToBestFit() = callMapFunction("zoomToFitCourse()")
 
-    fun addControl(location: Control) {
-        val cmd = String.format("document.streetoMap.addControls(%f,%f)", location.lat, location.lon)
-        callJavascript(cmd)
-    }
+    fun clearCourse() = callMapFunction("clearCourse()")
 
-    fun addLine(start: Control, end: Control) {
-        val cmd = String.format(
-            "document.streetoMap.addLine(%f,%f, %f, %f)", start.lat, start.lon, end.lat,
-            end.lon
-        )
-        callJavascript(cmd)
-    }
+    fun addControl(location: Control) = callMapFunction("addControls(${asLatLon(location)})")
+
+    fun addLine(start: Control, end: Control) = callMapFunction("addLine(${asLatLon(start)}, ${asLatLon(end)})")
 
     fun drawCourse(controls: List<Control>) {
-        val str = controls.stream().map { ctrl: Control ->
-            String.format(
-                "{lat:%f, lon:%f, number:'%s'}",
-                ctrl.lat, ctrl.lon, ctrl.number
-            )
-        }
+        val str = controls.stream()
+            .map(this::asNumberedControl)
             .collect(Collectors.joining(",", "[", "]"))
-        val cmd = String.format("document.streetoMap.drawCourse(%s, document.courseSource);", str)
-        callJavascript(cmd)
+
+        callMapFunction("drawCourse($str, document.courseSource);")
     }
 
     fun drawRoute(route: List<Point>) {
         clearRoute()
-        val str = route.stream().map { ctrl ->
-            String.format(
-                "{lat:%f, lon:%f}",
-                ctrl.lat,
-                ctrl.lon
-            )
-        }.collect(Collectors.joining(",", "[", "]"))
-        val cmd = String.format("document.streetoMap.drawRoute(%s, document.routeSource);", str)
-        callJavascript(cmd)
+        callMapFunction("drawRoute(${asPointList(route)}, document.routeSource);")
     }
 
     fun drawRouteChoice(routes: List<PointList>) {
         clearRouteChoice()
-        routes.forEach(Consumer { route: PointList ->
-            val str = route.points.stream()
-                .map { ctrl: Point ->
-                    String.format(
-                        "{lat:%f, lon:%f}",
-                        ctrl.lat,
-                        ctrl.lon
-                    )
-                }
-                .collect(Collectors.joining(",", "[", "]"))
-            val cmd =
-                String.format("document.streetoMap.drawRoute(%s, document.routeChoiceSource);", str)
-            callJavascript(cmd)
-        })
+        routes.forEach { route: PointList ->
+            callMapFunction("drawRoute(${asPointList(route.points)}, document.routeChoiceSource);")
+        }
     }
 
     fun zoomToLeg(leg: CourseLeg) {
-        val str = listOf(leg.start, leg.end).stream().map { ctrl: Control ->
-            String.format(
-                "{lat:%f, lon:%f, number:'%s'}",
-                ctrl.lat, ctrl.lon, ctrl.number
-            )
-        }.collect(Collectors.joining(",", "[", "]"))
-        val cmd = String.format("document.streetoMap.zoomToFitLeg(%s);", str)
-        callJavascript(cmd)
+        val str = listOf(leg.start, leg.end).stream()
+            .map(this::asNumberedControl)
+            .collect(Collectors.joining(",", "[", "]"))
+
+        callMapFunction("zoomToFitLeg($str);")
     }
 
-    // lon, lat
-    val mouseCoordinates: Point
-        get() {
-            val cmd = "document.streetoMap.getMouseCoords();"
-            return evaluateAsPoint(cmd)
-        }
+    fun clearRoute() = callJavascript("document.routeSource.clear();")
 
-    private fun evaluateAsPoint(cmd: String): Point {
-        val ans = evaluateJavascript(cmd)
+    fun clearRouteChoice() = callJavascript("document.routeChoiceSource.clear();")
+
+    fun zoomToControl(control: Control, level: Int = 19) =
+        callMapFunction("zoomToLatLon(${asLatLonObj(control)}, $level);")
+
+    private fun callJavascript(str: String): Any = browser.executeScript(str)
+
+    private fun callMapFunction(str: String): Any = callJavascript("document.streetoMap.$str")
+
+    private fun callOLFunction(str: String): Any = callJavascript("document.streetoMap.getView().$str")
+
+    private fun asLatLon(location: Point) = "${location.lat},${location.lon}"
+
+    private fun asPointList(route: List<Point>) = route.stream()
+        .map(this::asLatLonObj)
+        .collect(Collectors.joining(",", "[", "]"))
+
+    private fun asLatLonObj(ctrl: Point) = "{lat:${ctrl.lat}, lon:${ctrl.lon}}"
+
+    private fun asNumberedControl(ctrl: Control) =
+        "{lat:${ctrl.lat}, lon:${ctrl.lon}, number:'${ctrl.number}'}"
+
+    private fun asPoint(ans: Any): Point {
         val ret = ans.toString().split(",") // lon, lat
         val lat = ret[1].toDouble()
         val lon = ret[0].toDouble()
         return Point(lat, lon)
     }
-
-    fun clearRoute() {
-        val cmd = "document.routeSource.clear();"
-        callJavascript(cmd)
-    }
-
-    fun clearRouteChoice() {
-        val cmd = "document.routeChoiceSource.clear();"
-        callJavascript(cmd)
-    }
-
-    fun zoomToControl(control: Control) {
-        val str = String.format("{lat:%f, lon:%f}", control.lat, control.lon)
-        val cmd = String.format("document.streetoMap.zoomToLatLon(%s);", str)
-        callJavascript(cmd)
-    }
-
-
 }
