@@ -61,7 +61,7 @@ public class StreetO {
         csf = new ControlSiteFinder(gh, preferences);
         splitter = new MapSplitter(csf, preferences.getPaperSize(), preferences.getMaxMapScale());
         courseImporter = new CourseImporter(csf);
-        initialiseScorer();
+        initialiseScorers();
     }
 
     public static void main(String[] args) {
@@ -135,7 +135,7 @@ public class StreetO {
         }
     }
 
-    private void initialiseScorer() {
+    private void initialiseScorers() {
         List<LegScorer> featureScorers = List.of(
                 new LegLengthScorer(preferences),
                 new LegRouteChoiceScorer(preferences),
@@ -150,7 +150,7 @@ public class StreetO {
 
     public void setPreferences(StreetOPreferences preferences) {
         this.preferences = preferences;
-        initialiseScorer();
+        initialiseScorers();
     }
 
     public void writeMapRunFiles(List<ControlSite> controls, String title, File path) throws IOException {

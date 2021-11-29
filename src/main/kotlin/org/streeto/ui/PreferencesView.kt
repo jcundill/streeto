@@ -1,52 +1,54 @@
 package org.streeto.ui
 
+import javafx.geometry.Pos
 import org.streeto.mapping.MapStyle
 import org.streeto.mapping.PaperSize
 import tornadofx.*
 
 class PreferencesView : View("StreetO Preferences") {
-    val handler = PreferencesHandler()
-    val prefs = handler.loadPreferences()
+    val controller: CourseController by inject()
+    val model: PreferencesViewModel by inject()//handler.loadPreferences()
+
     override val root = vbox {
         form {
             tabpane {
-                tab("Course Constraints") {
+                tab("Course Constraints" ) {
                     fieldset {
                         field {
                             label("Min Leg Distance")
-                            textfield(prefs.minLegDistanceProperty)
+                            textfield(model.minLegDistance)
                         }
                         field {
                             label("Max Leg Distance")
-                            textfield(prefs.maxLegDistanceProperty)
+                            textfield(model.maxLegDistance)
                         }
                         field {
                             label("Nearest Approach to Finish")
-                            textfield(prefs.minApproachToFinishProperty)
+                            textfield(model.minApproachToFinish)
                         }
                         field {
                             label("Max Allowed First Leg Length")
-                            textfield(prefs.maxFirstControlDistanceProperty)
+                            textfield(model.maxFirstControlDistance)
                         }
                         field {
                             label("Allowed Course Length Delta Factor")
-                            textfield(prefs.allowedCourseLengthDeltaProperty)
+                            textfield(model.allowedCourseLengthDelta)
                         }
                         field {
                             label("Allowed Mutation Radius")
-                            textfield(prefs.mutationRadiusProperty)
+                            textfield(model.mutationRadius)
                         }
                         field {
                             label("Max Shared on Route Choice")
-                            textfield(prefs.maxRouteShareProperty)
+                            textfield(model.maxRouteShare)
                         }
                         field {
                             label("Street Furniture Distance")
-                            textfield(prefs.maxFurnitureDistanceProperty)
+                            textfield(model.maxFurnitureDistance)
                         }
                         field {
                             label("Min Turn Angle")
-                            textfield(prefs.minTurnAngleProperty)
+                            textfield(model.minTurnAngle)
                         }
                     }
                 }
@@ -57,7 +59,7 @@ class PreferencesView : View("StreetO Preferences") {
                             slider {
                                 min = 0.0
                                 max = 1.0
-                                bind(prefs.dogLegWeightingProperty)
+                                bind(model.dogLegWeighting)
                             }
                         }
                         field {
@@ -65,7 +67,7 @@ class PreferencesView : View("StreetO Preferences") {
                             slider {
                                 min = 0.0
                                 max = 1.0
-                                bind(prefs.legComplexityWeightingProperty)
+                                bind(model.legComplexityWeighting)
                             }
                         }
                         field {
@@ -73,7 +75,7 @@ class PreferencesView : View("StreetO Preferences") {
                             slider {
                                 min = 0.0
                                 max = 1.0
-                                bind(prefs.legLengthWeightingProperty)
+                                bind(model.legLengthWeighting)
                             }
                         }
                         field {
@@ -81,7 +83,7 @@ class PreferencesView : View("StreetO Preferences") {
                             slider {
                                 min = 0.0
                                 max = 1.0
-                                bind(prefs.routeChoiceWeightingProperty)
+                                bind(model.routeChoiceWeighting)
                             }
                         }
                         field {
@@ -89,7 +91,7 @@ class PreferencesView : View("StreetO Preferences") {
                             slider {
                                 min = 0.0
                                 max = 1.0
-                                bind(prefs.beenHereBeforeWeightingProperty)
+                                bind(model.beenHereBeforeWeighting)
                             }
                         }
                         field {
@@ -97,7 +99,7 @@ class PreferencesView : View("StreetO Preferences") {
                             slider {
                                 min = 0.0
                                 max = 1.0
-                                bind(prefs.comesTooCloseWeightingProperty)
+                                bind(model.comesTooCloseWeighting)
                             }
                         }
                         field {
@@ -105,7 +107,7 @@ class PreferencesView : View("StreetO Preferences") {
                             slider {
                                 min = 0.0
                                 max = 1.0
-                                bind(prefs.distinctControlSiteWeightingProperty)
+                                bind(model.distinctControlSiteWeighting)
                             }
                         }
                     }
@@ -115,23 +117,23 @@ class PreferencesView : View("StreetO Preferences") {
                     fieldset {
                         field {
                             label("Map Appearance")
-                            combobox(prefs.mapStyleProperty, MapStyle.values().asList())
+                            combobox(model.mapStyle, MapStyle.values().asList())
                         }
                         field {
                             label("Split Map for Better Scale")
-                            checkbox { prefs.splitForBetterScaleProperty }
+                            checkbox { model.splitForBetterScale }
                         }
                         field {
                             label("Paper Size")
-                            combobox(prefs.paperSizeProperty, PaperSize.values().asList())
+                            combobox(model.paperSize, PaperSize.values().asList())
                         }
                         field {
                             label("Print A3 Maps on A4 Paper")
-                            checkbox { prefs.printA3OnA4Property }
+                            checkbox { model.printA3OnA4 }
                         }
                         field {
                             label("Maximum Scale Map")
-                            combobox(prefs.maxMapScaleProperty, listOf(5000.0, 7500.0, 10000.0, 12500.0, 15000.0))
+                            combobox(model.maxMapScale, listOf(5000.0, 7500.0, 10000.0, 12500.0, 15000.0))
                         }
                     }
                 }
@@ -139,47 +141,60 @@ class PreferencesView : View("StreetO Preferences") {
                     fieldset {
                         field {
                             label("Max Execution Time (s)")
-                            textfield(prefs.maxExecutionTimeProperty)
+                            textfield(model.maxExecutionTime)
                         }
                         field {
                             label("Number of Generations")
-                            textfield(prefs.maxGenerationsProperty)
+                            textfield(model.maxGenerations)
                         }
                         field {
                             label("Fitness Stop level")
-                            textfield(prefs.stoppingFitnessProperty)
+                            textfield(model.stoppingFitness)
                         }
                         field {
                             label("Swap Probability")
-                            textfield(prefs.controlSwapProbabilityProperty)
+                            textfield(model.controlSwapProbability)
                         }
                         field {
                             label("Mutation Probability")
-                            textfield(prefs.mutateProbabilityProperty)
+                            textfield(model.mutateProbability)
                         }
                         field {
                             label("Max Phenotype Age")
-                            textfield(prefs.maxPhenotypeAgeProperty)
+                            textfield(model.maxPhenotypeAge)
                         }
                         field {
                             label("Offspring Fraction")
-                            textfield(prefs.offspringFractionProperty)
+                            textfield(model.offspringFraction)
                         }
                         field {
                             label("Population Size")
-                            textfield(prefs.populationSizeProperty)
+                            textfield(model.populationSize)
                         }
 
                     }
                 }
             }
-            button("Commit") {
-                action {
-                    println(prefs.minLegDistanceProperty.value)
-                    println(prefs.dogLegWeightingProperty.value)
-                    println(prefs.minLegDistance)
-                    println(prefs.dogLegWeighting)
-                    handler.flushPreferences(prefs)
+            hbox {
+                alignment = Pos.CENTER_RIGHT
+                button("Save") {
+                    action {
+                        model.commit()
+                        controller.flushPreferences(model.item)
+                        close()
+                    }
+                }
+                button("Reset") {
+                    action {
+                        model.rollback()
+                        controller.flushPreferences(model.item)
+                    }
+                }
+                button("Cancel") {
+                    action {
+                        model.rollback()
+                        close()
+                    }
                 }
             }
         }

@@ -23,22 +23,28 @@ class CourseController : Controller() {
     var controlList = SortedFilteredList<Control>()
     var legList = SortedFilteredList<ScoredLeg>()
 
+    val preferencesController: PreferencesHandler by inject()
+    val preferencesViewModel: PreferencesViewModel by inject()
+
     private var controlSiteList = SortedFilteredList<ControlSite>()
     private lateinit var streetO: StreetO
+    val preferences = preferencesController.loadPreferences()
     var isReady = SimpleBooleanProperty(false)
     var courseName = SimpleStringProperty()
     var requestedNumControls = SimpleIntegerProperty()
     var requestedDistance = SimpleDoubleProperty()
-    private val preferencesHandler = PreferencesHandler()
 
     private val legViewModel: ScoredLegModel by inject()
-    private val controlViewModel: ControlViewModel by inject()
+
+    init {
+        preferencesViewModel.item = preferences
+    }
 
     fun initializeGH(properties: Properties) {
         streetO = StreetO(
             properties.getProperty("pbfFile"),
             properties.getProperty("graphDir"),
-            preferencesHandler.loadPreferences()
+            preferences
         )
         streetO.registerSniffer(CourseGenerationSniffer)
         isReady.value = true
@@ -113,7 +119,6 @@ class CourseController : Controller() {
     fun generateFromControls() {
         val initial = mutableListOf(first(controlSiteList), last(controlSiteList))
         runAsync {
-            streetO.setPreferences(preferencesHandler.loadPreferences())
             streetO.generateCourse(6000.0, 10, initial)
         } ui { maybeCourse ->
             if (maybeCourse.isPresent) {
@@ -153,5 +158,10 @@ class CourseController : Controller() {
                 println("$index, $score")
             }
         }
+    }
+
+    fun flushPreferences(preferences: ObservablePreferences) {
+        preferencesController.flushPreferences(preferences)
+        streetO.setPreferences(preferences)
     }
 }
