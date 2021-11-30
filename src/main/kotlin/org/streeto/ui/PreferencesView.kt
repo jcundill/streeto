@@ -47,8 +47,12 @@ class PreferencesView : View("StreetO Preferences") {
                             textfield(model.allowedCourseLengthDelta)
                         }
                         field {
-                            label("Allowed Mutation Radius")
-                            textfield(model.mutationRadius)
+                            label("Junction Control Placement Factor")
+                            textfield(model.junctionScoreFactor)
+                        }
+                        field {
+                            label("Bend Control Placement Factor")
+                            textfield(model.bendScoreFactor)
                         }
                         field {
                             label("Max Shared on Route Choice")
@@ -182,6 +186,10 @@ class PreferencesView : View("StreetO Preferences") {
                         field {
                             label("Population Size")
                             textfield(model.populationSize)
+                        }
+                        field {
+                            label("Allowed Mutation Radius")
+                            textfield(model.mutationRadius)
                         }
 
                     }

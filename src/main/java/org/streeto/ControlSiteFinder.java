@@ -34,6 +34,7 @@ import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.index.Snap;
 import com.graphhopper.util.FetchMode;
 import com.graphhopper.util.Parameters;
+import com.graphhopper.util.PointList;
 import com.graphhopper.util.shapes.GHPoint;
 import io.jenetics.util.RandomRegistry;
 import org.streeto.utils.Envelope;
@@ -178,6 +179,12 @@ public class ControlSiteFinder {
 
     }
 
+    public PointList getWayGeometry(GHPoint p) {
+        var qr = gh.getLocationIndex().findClosest(p.lat, p.lon, filter);
+        return qr.getClosestEdge().fetchWayGeometry(FetchMode.ALL);
+
+    }
+
     public GHPoint getGHPointRelativeTo(GHPoint loc, double bearing, double dist) {
         var radiusOfEarth = 6378.1 * 1000;//Radius of the Earth
 
@@ -198,16 +205,17 @@ public class ControlSiteFinder {
     }
 
     public ControlType getFeatureAtLocation(GHPoint p) {
-        var qr = gh.getLocationIndex().findClosest(p.lat, p.lon, filter);
-
-        if (!qr.isValid())
-            return null;
-        else if (findLocalStreetFurniture(p).isPresent()) {
+        if (findLocalStreetFurniture(p).isPresent()) { // if it's furniture, say so
             return ControlType.FURNITURE;
-        } else if (qr.getSnappedPosition() == Snap.Position.TOWER) {
-            return ControlType.TOWER;
-        } else
-            return ControlType.PILLAR;
+        } else { // or work out what map feature this is
+            var qr = gh.getLocationIndex().findClosest(p.lat, p.lon, filter);
+            if (!qr.isValid())
+                return null;
+            else if (qr.getSnappedPosition() == Snap.Position.TOWER) {
+                return ControlType.TOWER;
+            } else
+                return ControlType.PILLAR;
+        }
     }
 
     public enum ControlType {

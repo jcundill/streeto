@@ -86,7 +86,10 @@ class StreetOWorkspace : Workspace("Editor", NavigationMode.Tabs) {
                 item("Create From Controls") {
                     action {
                         CourseGenerationSniffer.reset()
-                        find<GenerationProgressView>().openModal()
+                        find<GenerationProgressView>() {
+                            closeableWhen { CourseGenerationSniffer.completedProperty }
+                            openModal()
+                        }
                         courseController.generateFromControls()
                     }
                 }

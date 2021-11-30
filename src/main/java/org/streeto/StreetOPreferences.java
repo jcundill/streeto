@@ -37,6 +37,7 @@ public class StreetOPreferences {
     private boolean printA3OnA4 = false;
     private double minControlSeparation = 5.0;
     private double turnDensity = 50.0;
+    private double bendScoreFactor = 0.75;
 
     public PaperSize getPaperSize() {
         return paperSize;
@@ -302,5 +303,13 @@ public class StreetOPreferences {
 
     public void setTurnDensity(double turnDensity) {
         this.turnDensity = turnDensity;
+    }
+
+    public double getBendScoreFactor() {
+        return bendScoreFactor;
+    }
+
+    public void setBendScoreFactor(double bendScoreFactor) {
+        this.bendScoreFactor = bendScoreFactor;
     }
 }

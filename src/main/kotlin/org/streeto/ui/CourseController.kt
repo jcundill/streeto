@@ -27,7 +27,7 @@ class CourseController : Controller() {
     private val preferencesViewModel: PreferencesViewModel by inject()
 
     private var controlSiteList = SortedFilteredList<ControlSite>()
-    private lateinit var streetO: StreetO
+    private var streetO: StreetO by singleAssign()
     val preferences = preferencesController.loadPreferences()
     var isReady = SimpleBooleanProperty(false)
     var courseName = SimpleStringProperty()
@@ -123,6 +123,7 @@ class CourseController : Controller() {
         } ui { maybeCourse ->
             if (maybeCourse.isPresent) {
                 initialiseCourse(maybeCourse.get())
+                scoreControls()
 
             }
         }

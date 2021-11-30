@@ -13,11 +13,13 @@ object CourseGenerationSniffer : StreetOSniffer() {
     val controller = find<CourseController>()
     val generationProperty = SimpleLongProperty(0L)
     val fitnessProperty = SimpleDoubleProperty(0.0)
+    val completedProperty = SimpleBooleanProperty(false)
 
     fun reset() {
         startedGAProperty.value = false
         generationProperty.value = 0L
         fitnessProperty.value = 0.0
+        completedProperty.value = false
     }
 
     override fun accept(generation: Long, fitness: Double, controls: MutableList<ControlSite>?) {
@@ -30,5 +32,6 @@ object CourseGenerationSniffer : StreetOSniffer() {
 
     override fun acceptStatistics(details: String?) {
         super.acceptStatistics(details)
+        completedProperty.value = true
     }
 }

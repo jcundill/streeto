@@ -32,6 +32,7 @@ class ObservablePreferences : StreetOPreferences() {
     val maxRouteShareProperty = SimpleDoubleProperty(super.getMaxRouteShare())
     val maxFurnitureDistanceProperty = SimpleDoubleProperty(super.getMaxFurnitureDistance())
     val junctionScoreFactorProperty = SimpleDoubleProperty(super.getJunctionScoreFactor())
+    val bendScoreFactorProperty = SimpleDoubleProperty(super.getBendScoreFactor())
     val minTurnAngleProperty = SimpleDoubleProperty(super.getMinTurnAngle())
     val splitForBetterScaleProperty = SimpleBooleanProperty(super.isSplitForBetterScale())
     val mapStyleProperty = SimpleObjectProperty(super.getMapStyle())
@@ -138,6 +139,10 @@ class ObservablePreferences : StreetOPreferences() {
 
     override fun getJunctionScoreFactor(): Double {
         return junctionScoreFactorProperty.value
+    }
+
+    override fun getBendScoreFactor(): Double {
+        return bendScoreFactorProperty.value
     }
 
     override fun getDistinctControlSiteWeighting(): Double {

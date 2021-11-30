@@ -32,6 +32,7 @@ class PreferencesViewModel : ItemViewModel<ObservablePreferences>() {
     val maxRouteShare = bind(ObservablePreferences::maxRouteShareProperty)
     val maxFurnitureDistance = bind(ObservablePreferences::maxFurnitureDistanceProperty)
     val junctionScoreFactor = bind(ObservablePreferences::junctionScoreFactorProperty)
+    val bendScoreFactor = bind(ObservablePreferences::bendScoreFactorProperty)
     val minTurnAngle = bind(ObservablePreferences::minTurnAngleProperty)
     val splitForBetterScale = bind(ObservablePreferences::splitForBetterScaleProperty)
     val mapStyle = bind(ObservablePreferences::mapStyleProperty)

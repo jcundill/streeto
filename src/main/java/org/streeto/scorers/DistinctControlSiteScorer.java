@@ -22,6 +22,7 @@ import static org.streeto.utils.CollectionHelpers.last;
 public class DistinctControlSiteScorer extends AbstractLegScorer {
 
     private final double junctionScoreFactor;
+    private final double bendScoreFactor;
     private final ControlSiteFinder csf;
     private final double minTurnAngle;
 
@@ -29,6 +30,7 @@ public class DistinctControlSiteScorer extends AbstractLegScorer {
     public DistinctControlSiteScorer(StreetOPreferences preferences, ControlSiteFinder csf) {
         super(preferences.getDistinctControlSiteWeighting());
         this.junctionScoreFactor = preferences.getJunctionScoreFactor();
+        this.bendScoreFactor = preferences.getBendScoreFactor();
         this.minTurnAngle = preferences.getMinTurnAngle();
         this.csf = csf;
     }
@@ -53,17 +55,20 @@ public class DistinctControlSiteScorer extends AbstractLegScorer {
         else if (controlType == ControlType.TOWER)
             return junctionScoreFactor;
         else {
-            GHPoint before = currPoints.get(currPoints.size() - 2);
-            GHPoint after = nextPoints.get(1);//csf.getNextEdgePoint(before, location);
-            if (Objects.equals(before, after)) {
-                //dog leg - score the previous point
-                before = currPoints.get(currPoints.size() - 3);
-                location = currPoints.get(currPoints.size() - 2);
-                after = currPoints.get(currPoints.size() - 1);
+            var pl = csf.getWayGeometry(location);
+            var size = pl.size();
+            for( int i = 1; i < size - 1; i++) { // can't be first or last element
+                var curr = pl.get(i);
+                if(curr.lat == location.lat && curr.lon == location.lon) {
+                    var prev = pl.get( i - 1 );
+                    var next = pl.get( i + 1 );
+                    var angle = turnAngle(prev, location, next );
+                    if( angle > minTurnAngle ) return bendScoreFactor;
+                    else return 0.0;
+                }
             }
-            var angle = turnAngle(before, location, after); // 0 straight line, 180 u turn
-            if (angle > minTurnAngle) return 1.0;
-            else return angle / 180.0;
+            // we did our best - reject it as we just don't understand this way geometry
+            return 0.0;
         }
     }
 

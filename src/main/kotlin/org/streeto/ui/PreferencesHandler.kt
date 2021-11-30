@@ -19,6 +19,9 @@ class PreferencesHandler : Controller() {
     private val STREETO_CONSTRAINTS_MINSEPARATION = "streeto.constraints.minseparation"
     private val STREETO_CONSTRAINTS_TURNDENSITY = "streeto.constraints.turndensity"
 
+    private val STREETO_PLACEMENT_JUNCTIONFACTOR = "streeto.placement.junctionfactor"
+    private val STREETO_PLACEMENT_BENDFACTOR = "streeto.placement.bendfactor"
+
     private val STREETO_WEIGHTS_ROUTECHOICE = "streeto.weights.routechoice"
     private val STREETO_WEIGHTS_LENGTH = "streeto.weights.length"
     private val STREETO_WEIGHTS_DOGLEG = "streeto.weights.dogleg"
@@ -61,6 +64,7 @@ class PreferencesHandler : Controller() {
                 getInt(STREETO_JENETICS_POPSIZE, prefs.populationSize)
             prefs.maxPhenotypeAgeProperty.value =
                 getLong(STREETO_JENETICS_MAXAGE, prefs.maxPhenotypeAge)
+
             prefs.paperSizeProperty.value =
                 PaperSize.valueOf(get(STREETO_MAP_USEA3, prefs.paperSize.name))
             prefs.splitForBetterScaleProperty.value =
@@ -70,6 +74,7 @@ class PreferencesHandler : Controller() {
             prefs.printA3OnA4Property.value =
                 getBoolean(STREETO_MAP_PRINT_A3_ON_A4, prefs.isPrintA3OnA4)
             prefs.mapStyle = MapStyle.valueOf(get(STREETO_MAP_STYLE, prefs.mapStyle.name))
+
             prefs.beenHereBeforeWeightingProperty.value = getDouble(
                 STREETO_WEIGHTS_BEENHEREBEFORE,
                 prefs.beenHereBeforeWeighting
@@ -94,6 +99,7 @@ class PreferencesHandler : Controller() {
                 STREETO_WEIGHTS_DISTINCTCONTROL,
                 prefs.distinctControlSiteWeighting
             )
+
             prefs.minLegDistanceProperty.value =
                 getDouble(STREETO_CONSTRAINTS_MINLEGLEN, prefs.minLegDistance)
             prefs.maxLegDistanceProperty.value =
@@ -119,6 +125,11 @@ class PreferencesHandler : Controller() {
             prefs.turnDensityProperty.value =
                 getDouble(STREETO_CONSTRAINTS_TURNDENSITY, prefs.turnDensity)
 
+            prefs.junctionScoreFactorProperty.value =
+                getDouble(STREETO_PLACEMENT_JUNCTIONFACTOR, prefs.junctionScoreFactor)
+            prefs.bendScoreFactorProperty.value =
+                getDouble(STREETO_PLACEMENT_BENDFACTOR, prefs.bendScoreFactor)
+
         }
         return prefs
     }
@@ -142,11 +153,13 @@ class PreferencesHandler : Controller() {
             )
             putInt(STREETO_JENETICS_POPSIZE, prefs.populationSizeProperty.value)
             putLong(STREETO_JENETICS_MAXAGE, prefs.maxPhenotypeAgeProperty.value)
+
             put(STREETO_MAP_USEA3, prefs.paperSizeProperty.value.name)
             putBoolean(STREETO_MAP_ALLOWSPLIT, prefs.splitForBetterScaleProperty.value)
             putDouble(STREETO_MAP_MAXSCALE, prefs.maxMapScaleProperty.value)
             putBoolean(STREETO_MAP_PRINT_A3_ON_A4, prefs.printA3OnA4Property.value)
             put(STREETO_MAP_STYLE, prefs.mapStyleProperty.value.name)
+
             putDouble(
                 STREETO_WEIGHTS_BEENHEREBEFORE,
                 prefs.beenHereBeforeWeightingProperty.value
@@ -169,6 +182,7 @@ class PreferencesHandler : Controller() {
                 STREETO_WEIGHTS_DISTINCTCONTROL,
                 prefs.distinctControlSiteWeightingProperty.value
             )
+
             putDouble(STREETO_CONSTRAINTS_MINLEGLEN, prefs.minLegDistanceProperty.value)
             putDouble(STREETO_CONSTRAINTS_MAXLEGLEN, prefs.maxLegDistanceProperty.value)
             putDouble(
@@ -193,6 +207,9 @@ class PreferencesHandler : Controller() {
             putDouble(STREETO_CONSTRAINTS_MINBENDANGLE, prefs.minTurnAngleProperty.value)
             putDouble(STREETO_CONSTRAINTS_MINSEPARATION, prefs.minControlSeparationProperty.value)
             putDouble(STREETO_CONSTRAINTS_TURNDENSITY, prefs.turnDensityProperty.value)
+
+            putDouble(STREETO_PLACEMENT_JUNCTIONFACTOR, prefs.junctionScoreFactorProperty.value)
+            putDouble(STREETO_PLACEMENT_BENDFACTOR, prefs.bendScoreFactorProperty.value)
         }
     }
 
