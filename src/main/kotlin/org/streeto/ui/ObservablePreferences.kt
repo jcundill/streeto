@@ -37,6 +37,8 @@ class ObservablePreferences : StreetOPreferences() {
     val mapStyleProperty = SimpleObjectProperty(super.getMapStyle())
     val paperSizeProperty = SimpleObjectProperty(super.getPaperSize())
     val printA3OnA4Property = SimpleBooleanProperty(super.isPrintA3OnA4())
+    val minControlSeparationProperty = SimpleDoubleProperty(super.getMinControlSeparation())
+    val turnDensityProperty = SimpleDoubleProperty(super.getTurnDensity())
 
     override fun getBeenHereBeforeWeighting(): Double {
         return beenHereBeforeWeightingProperty.value
@@ -160,5 +162,13 @@ class ObservablePreferences : StreetOPreferences() {
 
     override fun getMaxLegDistance(): Double {
         return maxLegDistanceProperty.value
+    }
+
+    override fun getMinControlSeparation(): Double {
+        return minControlSeparationProperty.value
+    }
+
+    override fun getTurnDensity(): Double {
+        return turnDensityProperty.value
     }
 }

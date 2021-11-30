@@ -24,7 +24,7 @@ class CourseController : Controller() {
     var legList = SortedFilteredList<ScoredLeg>()
 
     val preferencesController: PreferencesHandler by inject()
-    val preferencesViewModel: PreferencesViewModel by inject()
+    private val preferencesViewModel: PreferencesViewModel by inject()
 
     private var controlSiteList = SortedFilteredList<ControlSite>()
     private lateinit var streetO: StreetO
@@ -157,6 +157,7 @@ class CourseController : Controller() {
                 legList[index] = updated
                 println("$index, $score")
             }
+            println(details.toString())
         }
     }
 

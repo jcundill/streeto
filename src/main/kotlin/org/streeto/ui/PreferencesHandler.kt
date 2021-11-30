@@ -4,7 +4,6 @@ import org.streeto.mapping.MapStyle
 import org.streeto.mapping.PaperSize
 import tornadofx.*
 
-
 class PreferencesHandler : Controller() {
 
     private val STREETO_CONSTRAINTS_MAXFINISHLEN = "streeto.constraints.maxfinishlen"
@@ -17,6 +16,9 @@ class PreferencesHandler : Controller() {
     private val STREETO_CONSTRAINTS_MAXROUTESHARE = "streeto.constraints.maxrouteshare"
     private val STREETO_CONSTRAINTS_MAXFURNITUREDIST = "streeto.constraints.maxfurnituredist"
     private val STREETO_CONSTRAINTS_MINBENDANGLE = "streeto.constraints.minbendangle"
+    private val STREETO_CONSTRAINTS_MINSEPARATION = "streeto.constraints.minseparation"
+    private val STREETO_CONSTRAINTS_TURNDENSITY = "streeto.constraints.turndensity"
+
     private val STREETO_WEIGHTS_ROUTECHOICE = "streeto.weights.routechoice"
     private val STREETO_WEIGHTS_LENGTH = "streeto.weights.length"
     private val STREETO_WEIGHTS_DOGLEG = "streeto.weights.dogleg"
@@ -24,11 +26,13 @@ class PreferencesHandler : Controller() {
     private val STREETO_WEIGHTS_COMINGBACKHERE = "streeto.weights.comingbackhere"
     private val STREETO_WEIGHTS_BEENHEREBEFORE = "streeto.weights.beenherebefore"
     private val STREETO_WEIGHTS_DISTINCTCONTROL = "streeto.weights.distinctcontrol"
+
     private val STREETO_MAP_MAXSCALE = "streeto.map.maxscale"
     private val STREETO_MAP_ALLOWSPLIT = "streeto.map.allowsplit"
     private val STREETO_MAP_USEA3 = "streeto.map.usea3"
     private val STREETO_MAP_PRINT_A3_ON_A4 = "streeto.map.printa3ona4"
     private val STREETO_MAP_STYLE = "streeto.map.style"
+
     private val STREETO_JENETICS_SWAPPROBABILITY = "streeto.jenetics.swapprobability"
     private val STREETO_JENETICS_MUTATEPROBABILITY = "streeto.jenetics.mutateprobability"
     private val STREETO_JENETICS_MAXTIME = "streeto.jenetics.maxtime"
@@ -110,6 +114,10 @@ class PreferencesHandler : Controller() {
                 getDouble(STREETO_CONSTRAINTS_MAXFURNITUREDIST, prefs.maxFurnitureDistance)
             prefs.minTurnAngleProperty.value =
                 getDouble(STREETO_CONSTRAINTS_MINBENDANGLE, prefs.minTurnAngle)
+            prefs.minControlSeparationProperty.value =
+                getDouble(STREETO_CONSTRAINTS_MINSEPARATION, prefs.minControlSeparation)
+            prefs.turnDensityProperty.value =
+                getDouble(STREETO_CONSTRAINTS_TURNDENSITY, prefs.turnDensity)
 
         }
         return prefs
@@ -183,11 +191,8 @@ class PreferencesHandler : Controller() {
                 prefs.maxFurnitureDistanceProperty.value
             )
             putDouble(STREETO_CONSTRAINTS_MINBENDANGLE, prefs.minTurnAngleProperty.value)
-//            try {
-//                flush()
-//            } catch (e: BackingStoreException) {
-//                println(e)
-//            }
+            putDouble(STREETO_CONSTRAINTS_MINSEPARATION, prefs.minControlSeparationProperty.value)
+            putDouble(STREETO_CONSTRAINTS_TURNDENSITY, prefs.turnDensityProperty.value)
         }
     }
 

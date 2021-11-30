@@ -69,7 +69,7 @@ public class DogLegScorer extends AbstractLegScorer {
         var inBoth = dropLast(prevPoints, 1).stream().filter(nextTail::contains).collect(Collectors.toList());
         if (inBoth.size() == 0) return 1.0;
         else {
-            var distInBoth = dist(first(inBoth), last(inBoth));
+            var distInBoth = dist(first(nextPoints), first(inBoth));
             return 1.0 - distInBoth / this2next.getDistance();
         }
     }

@@ -31,6 +31,7 @@ import com.graphhopper.util.shapes.GHPoint3D;
 import org.jetbrains.annotations.NotNull;
 import org.streeto.StreetOPreferences;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -40,10 +41,13 @@ import static org.streeto.utils.DistUtils.dist;
 
 public class TooCloseToAFutureControlScorer extends AbstractLegScorer {
     private final double minLegLength;
+    private final double minControlSeparation;
 
     public TooCloseToAFutureControlScorer(StreetOPreferences preferences) {
         super(preferences.getComesTooCloseWeighting());
         this.minLegLength = preferences.getMinLegDistance();
+        minControlSeparation = preferences.getMinControlSeparation();
+
     }
 
     /**
@@ -70,9 +74,14 @@ public class TooCloseToAFutureControlScorer extends AbstractLegScorer {
             var remainingControls = futureLegs.stream()
                     .map(this::getLastPoint)
                     .collect(Collectors.toList());
-            if (iterableAsStream(thisLeg.getBest().getPoints())
-                    .anyMatch(it -> goesTooCloseToAFutureControl(remainingControls, it))) return 0.0;
-            else return 1.0;
+            var mins = thisLeg.getAll().stream().map(legRoute -> {
+                 var likelihood = legRoute.getDistance() < minControlSeparation ? 1.0 : thisLeg.getBest().getDistance() / legRoute.getDistance();
+                if (iterableAsStream(legRoute.getPoints())
+                        .anyMatch(it -> goesTooCloseToAFutureControl(remainingControls, it))) return 1.0 - likelihood;
+                else return 1.0;
+            }).collect(Collectors.toList());
+            return Collections.min(mins);
+
         }
     }
 

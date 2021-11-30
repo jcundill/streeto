@@ -1,13 +1,11 @@
 package org.streeto.ui
 
-import javafx.beans.property.*
-import org.streeto.StreetOPreferences
 import tornadofx.*
 
 class PreferencesViewModel : ItemViewModel<ObservablePreferences>() {
 
     val routeChoiceWeighting = bind(ObservablePreferences::routeChoiceWeightingProperty)
-    val legLengthWeighting = bind(ObservablePreferences::routeChoiceWeightingProperty)
+    val legLengthWeighting = bind(ObservablePreferences::legLengthWeightingProperty)
     val legComplexityWeighting = bind(ObservablePreferences::legComplexityWeightingProperty)
     val beenHereBeforeWeighting = bind(ObservablePreferences::beenHereBeforeWeightingProperty)
     val comesTooCloseWeighting = bind(ObservablePreferences::comesTooCloseWeightingProperty)
@@ -18,10 +16,12 @@ class PreferencesViewModel : ItemViewModel<ObservablePreferences>() {
     val stoppingFitness = bind(ObservablePreferences::stoppingFitnessProperty)
     val controlSwapProbability = bind(ObservablePreferences::controlSwapProbabilityProperty)
     val mutateProbability = bind(ObservablePreferences::mutateProbabilityProperty)
-    val maxFirstControlDistance = bind(ObservablePreferences::maxFirstControlDistanceProperty)
+    val maxFirstLegLength = bind(ObservablePreferences::maxFirstControlDistanceProperty)
     val maxLastLegLength = bind(ObservablePreferences::maxLastLegLengthProperty)
     val minLegDistance = bind(ObservablePreferences::minLegDistanceProperty)
     val maxLegDistance = bind(ObservablePreferences::maxLegDistanceProperty)
+    val minControlSeparation = bind(ObservablePreferences::minControlSeparationProperty)
+    val turnDensity = bind(ObservablePreferences::turnDensityProperty)
     val allowedCourseLengthDelta = bind(ObservablePreferences::allowedCourseLengthDeltaProperty)
     val maxMapScale = bind(ObservablePreferences::maxMapScaleProperty)
     val minApproachToFinish = bind(ObservablePreferences::minApproachToFinishProperty)

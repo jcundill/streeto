@@ -54,7 +54,7 @@ public class CourseScorer {
 
     public List<Double> scoreLegs(List<ControlSite> controls) {
         var featureScores = getFeatureScoresPerLeg(controls);
-        return featureScores != null ? getAveragedLegScores(featureScores) : scoreAsWorst(controls);
+        return featureScores != null ? getWeightedLegScores(featureScores) : scoreAsWorst(controls);
     }
 
     @NotNull
@@ -63,7 +63,7 @@ public class CourseScorer {
     }
 
     @NotNull
-    private List<Double> getAveragedLegScores(List<List<Double>> featureScores) {
+    private List<Double> getWeightedLegScores(List<List<Double>> featureScores) {
         var weightedFeatureScores = mapIndexed(featureScores, (idx, scores) -> {
             var scorerWeighting = legScorers.get(idx).getWeighting();
             return scores.stream().map(score -> score * scorerWeighting).collect(Collectors.toList());
@@ -90,7 +90,7 @@ public class CourseScorer {
     public ScoreDetails score(List<ControlSite> controls) {
         var featureScores = getFeatureScoresPerLeg(controls);
         if (featureScores != null) {
-            return new ScoreDetails(getAveragedLegScores(featureScores), getDetailedScores(featureScores));
+            return new ScoreDetails(getWeightedLegScores(featureScores), getDetailedScores(featureScores));
         } else
             return null;
     }

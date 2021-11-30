@@ -56,10 +56,21 @@ public class LegLengthScorer extends AbstractLegScorer {
     @NotNull
     @Override
     public List<Double> apply(List<GHResponse> routedLegs) {
-        return mapIndexed(routedLegs, (idx, leg) -> {
-            var maxLen = (idx == 0) ? maxFirstLegLength : ((idx == (routedLegs.size() - 1)) ? maxLastLegLength : maxLegLength);
-            return evaluate(leg, maxLen);
-        }).collect(Collectors.toList());
+        var numLegs = routedLegs.size() - 1;
+        return mapIndexed(routedLegs, (idx, leg) -> evaluate(leg, getMaxLenForLeg(numLegs, idx)))
+                .collect(Collectors.toList());
+    }
+
+    private double getMaxLenForLeg(int numLegs, int idx) {
+        double maxLen;
+        if (idx == 0) {
+            maxLen = maxFirstLegLength;
+        } else if (idx == numLegs) {
+            maxLen = maxLastLegLength;
+        } else {
+            maxLen = maxLegLength;
+        }
+        return maxLen;
     }
 
     private double evaluate(GHResponse leg, double maxLegLength) {

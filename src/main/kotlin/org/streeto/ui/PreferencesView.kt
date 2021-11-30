@@ -28,7 +28,19 @@ class PreferencesView : View("StreetO Preferences") {
                         }
                         field {
                             label("Max Allowed First Leg Length")
-                            textfield(model.maxFirstControlDistance)
+                            textfield(model.maxFirstLegLength)
+                        }
+                        field {
+                            label("Max Allowed Last Leg Length")
+                            textfield(model.maxLastLegLength)
+                        }
+                        field {
+                            label("Min Control Separation")
+                            textfield(model.minControlSeparation)
+                        }
+                        field {
+                            label("Min Average Distance between Junctions")
+                            textfield(model.turnDensity)
                         }
                         field {
                             label("Allowed Course Length Delta Factor")

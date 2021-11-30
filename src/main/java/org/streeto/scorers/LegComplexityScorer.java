@@ -8,17 +8,23 @@ import org.streeto.StreetOPreferences;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static java.lang.Math.*;
 import static org.streeto.utils.CollectionHelpers.first;
 import static org.streeto.utils.CollectionHelpers.last;
 import static org.streeto.utils.DistUtils.dist;
 
 public class LegComplexityScorer extends AbstractLegScorer {
+    private final double turnDensity;
 
     private static final List<Integer> turnInstructions = List.of(
             Instruction.TURN_LEFT,
             Instruction.TURN_RIGHT,
+            Instruction.TURN_SLIGHT_LEFT,
+            Instruction.TURN_SLIGHT_RIGHT,
             Instruction.TURN_SHARP_LEFT,
             Instruction.TURN_SHARP_RIGHT,
+            Instruction.KEEP_LEFT,
+            Instruction.KEEP_RIGHT,
             Instruction.U_TURN_LEFT,
             Instruction.U_TURN_RIGHT,
             Instruction.U_TURN_UNKNOWN,
@@ -27,9 +33,10 @@ public class LegComplexityScorer extends AbstractLegScorer {
 
     public LegComplexityScorer(StreetOPreferences preferences) {
         super(preferences.getLegComplexityWeighting());
+        this.turnDensity = preferences.getTurnDensity();
     }
 
-    private static double evaluate(GHResponse leg) {
+    private double evaluate(GHResponse leg) {
         var instructions = leg.getBest().getInstructions();
 
         var turns = instructions.stream()
@@ -38,8 +45,8 @@ public class LegComplexityScorer extends AbstractLegScorer {
         var points = leg.getBest().getPoints();
         if (leg.getBest().getDistance() == 0.0) return 0.0; //in the same place - not complex at all
         if (turns == 0.0) return 0.0; // no decisions - not complex at all
-        var straightness = 1.0 - dist(last(points), first(points)) / leg.getBest().getDistance();
-        return 1.0 - straightness / turns;
+        var legTurnDensity = turnDensity * turns / leg.getBest().getDistance();
+        return min(legTurnDensity, 1.0);
     }
 
     /**
@@ -50,7 +57,7 @@ public class LegComplexityScorer extends AbstractLegScorer {
     @Override
     public List<Double> apply(List<GHResponse> routedLegs) {
         return routedLegs.stream()
-                .map(LegComplexityScorer::evaluate)
+                .map(this::evaluate)
                 .collect(Collectors.toList());
     }
 }

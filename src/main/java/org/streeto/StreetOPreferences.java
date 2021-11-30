@@ -35,6 +35,8 @@ public class StreetOPreferences {
     private MapStyle mapStyle = MapStyle.STREETO;
     private PaperSize paperSize = PaperSize.A4;
     private boolean printA3OnA4 = false;
+    private double minControlSeparation = 5.0;
+    private double turnDensity = 50.0;
 
     public PaperSize getPaperSize() {
         return paperSize;
@@ -284,5 +286,21 @@ public class StreetOPreferences {
 
     public void setMaxLegDistance(double distance) {
         this.maxLegDistance = distance;
+    }
+
+    public double getMinControlSeparation() {
+        return minControlSeparation;
+    }
+
+    public void setMinControlSeparation(double minControlSeparation) {
+        this.minControlSeparation = minControlSeparation;
+    }
+
+    public double getTurnDensity() {
+        return turnDensity;
+    }
+
+    public void setTurnDensity(double turnDensity) {
+        this.turnDensity = turnDensity;
     }
 }

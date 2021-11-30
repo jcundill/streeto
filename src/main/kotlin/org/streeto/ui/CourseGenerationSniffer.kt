@@ -27,4 +27,8 @@ object CourseGenerationSniffer : StreetOSniffer() {
             fitnessProperty.value = fitness
         }
     }
+
+    override fun acceptStatistics(details: String?) {
+        super.acceptStatistics(details)
+    }
 }
