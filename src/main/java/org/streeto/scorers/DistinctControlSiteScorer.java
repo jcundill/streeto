@@ -5,12 +5,9 @@ import com.graphhopper.util.PointList;
 import com.graphhopper.util.shapes.GHPoint;
 import org.streeto.ControlSiteFinder;
 import org.streeto.StreetOPreferences;
-import org.streeto.utils.CollectionHelpers;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.graphhopper.util.AngleCalc.ANGLE_CALC;
 import static java.lang.Math.abs;
@@ -37,39 +34,41 @@ public class DistinctControlSiteScorer extends AbstractLegScorer {
 
     @Override
     public List<Double> apply(List<GHResponse> routedLegs) {
-        return Stream.concat(CollectionHelpers.windowed(routedLegs, 2)
-                        .map(this::evaluate), Stream.of(1.0))
-                .collect(Collectors.toList());
+        return routedLegs.stream().map(this::evaluate).collect(Collectors.toList());
     }
 
-    private double evaluate(List<GHResponse> currAndNext) {
-        PointList currPoints = first(currAndNext).getBest().getPoints();
-        PointList nextPoints = last(currAndNext).getBest().getPoints();
-        if (nextPoints.size() < 2 || currPoints.size() < 3)
-            return 0.0;
+    private double evaluate(GHResponse leg) {
+        PointList currPoints = leg.getBest().getPoints();
 
         GHPoint location = last(currPoints);
         ControlType controlType = csf.getFeatureAtLocation(location);
-        if (controlType == ControlType.FURNITURE)
+        if (controlType == ControlType.FURNITURE) {
             return 1.0;
-        else if (controlType == ControlType.TOWER)
+        } else if (controlType == ControlType.TOWER) {
             return junctionScoreFactor;
-        else {
-            var pl = csf.getWayGeometry(location);
-            var size = pl.size();
-            for( int i = 1; i < size - 1; i++) { // can't be first or last element
-                var curr = pl.get(i);
-                if(curr.lat == location.lat && curr.lon == location.lon) {
-                    var prev = pl.get( i - 1 );
-                    var next = pl.get( i + 1 );
-                    var angle = turnAngle(prev, location, next );
-                    if( angle > minTurnAngle ) return bendScoreFactor;
-                    else return 0.0;
-                }
-            }
-            // we did our best - reject it as we just don't understand this way geometry
+        } else if (controlType == ControlType.PILLAR){
+            return calculateTurnAngleAt(location);
+        } else {
+            // couldn't find the location
             return 0.0;
         }
+    }
+
+    private double calculateTurnAngleAt(GHPoint location) {
+        var pl = csf.getWayGeometry(location);
+        var size = pl.size();
+        for( int i = 1; i < size - 1; i++) { // can't be first or last element
+            var curr = pl.get(i);
+            if(curr.lat == location.lat && curr.lon == location.lon) {
+                var prev = pl.get( i - 1 );
+                var next = pl.get( i + 1 );
+                var angle = turnAngle(prev, location, next );
+                if( angle > minTurnAngle ) return bendScoreFactor;
+                else return 0.0;
+            }
+        }
+        // we did our best - reject it as we just don't understand this way geometry
+        return 0.0;
     }
 
     private double turnAngle(GHPoint prev, GHPoint curr, GHPoint next) {
