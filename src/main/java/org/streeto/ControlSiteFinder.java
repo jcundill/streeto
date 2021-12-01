@@ -150,12 +150,12 @@ public class ControlSiteFinder {
         else {
             // have we got nearby furniture - if so always use that
             var f = findLocalStreetFurniture(loc.get());
-            if (f.isPresent()) return f.map(it -> new ControlSite(it.getLocation(), it.getDescription()));
+            if (f.isPresent()) return f;
             else {
                 var site = loc.get();
                 var isTower = gh.getLocationIndex().findClosest(site.lat, site.lon, filter).getSnappedPosition() == Snap.Position.TOWER;
                 var desc = isTower ? "junction" : "bend";
-                return Optional.of(new ControlSite(site, desc));
+                return Optional.of(new ControlSite(site, desc, isTower ? ControlType.TOWER : ControlType.PILLAR));
             }
         }
     }
@@ -169,7 +169,7 @@ public class ControlSiteFinder {
 
         if (!qr.isValid()) return Optional.empty();
         else if (qr.getSnappedPosition() == Snap.Position.EDGE) {
-            var pl = qr.getClosestEdge().fetchWayGeometry(FetchMode.PILLAR_AND_ADJ);
+            var pl = qr.getClosestEdge().fetchWayGeometry(FetchMode.ALL);
             return iterableAsStream(pl).filter(pt -> {
                         var loc = gh.getLocationIndex().findClosest(pt.lat, pt.lon, filter).getSnappedPosition();
                         return loc == Snap.Position.TOWER || loc == Snap.Position.PILLAR;
@@ -192,7 +192,7 @@ public class ControlSiteFinder {
         var lon1 = toRadians(loc.lon);
 
         var lat2 = asin(sin(lat1) * cos(dist / radiusOfEarth) +
-                        cos(lat1) * sin(dist / radiusOfEarth) * Math.cos(bearing));
+                cos(lat1) * sin(dist / radiusOfEarth) * Math.cos(bearing));
 
         var lon2 = lon1 + atan2(Math.sin(bearing) * sin(dist / radiusOfEarth) * cos(lat1),
                 cos(dist / radiusOfEarth) - sin(lat1) * sin(lat2));
@@ -202,23 +202,5 @@ public class ControlSiteFinder {
 
     public double randomBearing() {
         return 2 * PI * rnd.nextDouble();
-    }
-
-    public ControlType getFeatureAtLocation(GHPoint p) {
-        if (findLocalStreetFurniture(p).isPresent()) { // if it's furniture, say so
-            return ControlType.FURNITURE;
-        } else { // or work out what map feature this is
-            var qr = gh.getLocationIndex().findClosest(p.lat, p.lon, filter);
-            if (!qr.isValid())
-                return null;
-            else if (qr.getSnappedPosition() == Snap.Position.TOWER) {
-                return ControlType.TOWER;
-            } else
-                return ControlType.PILLAR;
-        }
-    }
-
-    public enum ControlType {
-        FURNITURE, TOWER, PILLAR
     }
 }

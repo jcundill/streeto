@@ -1,5 +1,6 @@
 package org.streeto;
 
+import com.graphhopper.util.shapes.GHPoint;
 import org.streeto.gpx.GpxFacade;
 import org.streeto.kml.KmlWriter;
 
@@ -25,7 +26,8 @@ public class CourseImporter {
         if (!waypoints.equals("")) {
             for (String it : waypoints.split("\\|")) {
                 var latlon = it.split(",");
-                var site = new ControlSite(Double.parseDouble(latlon[0]), Double.parseDouble(latlon[1]), "_initial_");
+                var loc = new GHPoint(Double.parseDouble(latlon[0]), Double.parseDouble(latlon[1]));
+                var site = new ControlSite(loc, "_initial_");
                 initials.add(site);
             }
 

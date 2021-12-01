@@ -25,6 +25,7 @@
 
 package org.streeto.kml;
 
+import com.graphhopper.util.shapes.GHPoint;
 import org.jetbrains.annotations.NotNull;
 import org.streeto.ControlSite;
 import org.w3c.dom.Element;
@@ -49,15 +50,15 @@ public class KmlWriter {
 
     private String getKML(ControlSite control) {
         return "<Placemark>" +
-               String.format("        <name>%s</name>", control.getNumber()) +
-               String.format("        <description>%s</description>", control.getDescription()) +
-               "        <styleUrl>#startfinish</styleUrl>" +
-               "        <Point>" +
-               "            <gx:drawOrder>1</gx:drawOrder>" +
-               String.format("            <coordinates>%f,%f,0</coordinates>",
-                       control.getLocation().lon, control.getLocation().lat) +
-               "        </Point>" +
-               "</Placemark>";
+                String.format("        <name>%s</name>", control.getNumber()) +
+                String.format("        <description>%s</description>", control.getDescription()) +
+                "        <styleUrl>#startfinish</styleUrl>" +
+                "        <Point>" +
+                "            <gx:drawOrder>1</gx:drawOrder>" +
+                String.format("            <coordinates>%f,%f,0</coordinates>",
+                        control.getLocation().lon, control.getLocation().lat) +
+                "        </Point>" +
+                "</Placemark>";
     }
 
 
@@ -79,7 +80,8 @@ public class KmlWriter {
                     var point = (Element) node.getElementsByTagName("Point").item(0);
                     var coords = point.getElementsByTagName("coordinates").item(0).getTextContent();
                     var x = coords.split(",");
-                    var ret = new ControlSite(Double.parseDouble(x[1]), Double.parseDouble(x[0]), description);
+                    var loc = new GHPoint(Double.parseDouble(x[1]), Double.parseDouble(x[0]));
+                    var ret = new ControlSite(loc, description);
                     ret.setNumber(name);
                     return ret;
                 });
@@ -95,9 +97,9 @@ public class KmlWriter {
         var kml = new StringBuilder();
 
         var kmlintro = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<kml xmlns=\"http://www.opengis.net/kml/2.2\" xmlns:gx=\"http://www.google.com/kml/ext/2.2\" xmlns:kml=\"http://www.opengis.net/kml/2.2\" xmlns:atom=\"http://www.w3.org/2005/Atom\">\n" +
-                       "<Document>\n<name>oom_" + mapID + "_controls</name>\n<open>1</open>\n" +
-                       "<Style id=\"startfinish\"><IconStyle><color>ffff00ff</color><scale>1.8</scale><Icon><href>http://maps.google.com/mapfiles/kml/paddle/wht-stars.png</href></Icon><hotSpot x=\"0.5\" y=\"0\" xunits=\"fraction\" yunits=\"fraction\"/></IconStyle><LabelStyle><color>ffff00ff</color></LabelStyle><BalloonStyle></BalloonStyle><ListStyle></ListStyle></Style>\n" +
-                       "<Style id=\"control\"><IconStyle><color>ffff00ff</color><scale>1.0</scale><Icon><href>http://maps.google.com/mapfiles/kml/paddle/wht-blank.png</href></Icon><hotSpot x=\"0.5\" y=\"0\" xunits=\"fraction\" yunits=\"fraction\"/></IconStyle><LabelStyle><color>ffff00ff</color><scale>1.0</scale></LabelStyle><BalloonStyle></BalloonStyle><ListStyle></ListStyle></Style>\n";
+                "<Document>\n<name>oom_" + mapID + "_controls</name>\n<open>1</open>\n" +
+                "<Style id=\"startfinish\"><IconStyle><color>ffff00ff</color><scale>1.8</scale><Icon><href>http://maps.google.com/mapfiles/kml/paddle/wht-stars.png</href></Icon><hotSpot x=\"0.5\" y=\"0\" xunits=\"fraction\" yunits=\"fraction\"/></IconStyle><LabelStyle><color>ffff00ff</color></LabelStyle><BalloonStyle></BalloonStyle><ListStyle></ListStyle></Style>\n" +
+                "<Style id=\"control\"><IconStyle><color>ffff00ff</color><scale>1.0</scale><Icon><href>http://maps.google.com/mapfiles/kml/paddle/wht-blank.png</href></Icon><hotSpot x=\"0.5\" y=\"0\" xunits=\"fraction\" yunits=\"fraction\"/></IconStyle><LabelStyle><color>ffff00ff</color><scale>1.0</scale></LabelStyle><BalloonStyle></BalloonStyle><ListStyle></ListStyle></Style>\n";
         var kmlheader = "<Folder>\n<name>Controls</name>\n<open>1</open>\n\n";
         var kmlfooter = "</Folder>\n</Document>\n</kml>";
 

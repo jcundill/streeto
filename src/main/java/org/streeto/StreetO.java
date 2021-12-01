@@ -50,9 +50,9 @@ public class StreetO {
     private final MapSplitter splitter;
     private final List<Sniffer> sniffers = new ArrayList<>();
     private final CourseImporter courseImporter;
+    private final BBox bounds;
     private CourseScorer scorer;
     private StreetOPreferences preferences;
-    private final BBox bounds;
 
     public StreetO(String pbf, String osmDir, StreetOPreferences prefs) {
         GraphHopperOSM gh = GhWrapper.initGH(pbf, osmDir);
@@ -65,7 +65,7 @@ public class StreetO {
     }
 
     public static void main(String[] args) {
-        if(args.length != 1) {
+        if (args.length != 1) {
             System.out.println("Usage: StreetO <property file>");
         }
         var properties = new Properties();
@@ -173,7 +173,7 @@ public class StreetO {
 
     public Optional<List<ControlSite>> generateCourse(double distance, int numControls, List<ControlSite> initialControls) {
         if (csf.furniture == null) {
-            findFurniture(first(initialControls));
+            findFurniture(first(initialControls).getLocation());
         }
         var lastMondayRunner = new CourseFinderRunner(scorer::scoreLegs, csf, sniffers, preferences);
         var maybeBest = lastMondayRunner.run(distance, numControls, initialControls);
@@ -187,15 +187,15 @@ public class StreetO {
 
     public ScoreDetails score(List<ControlSite> controls) {
         if (csf.furniture == null) {
-            findFurniture(first(controls));
+            findFurniture(first(controls).getLocation());
         }
         return scorer.score(controls);
     }
 
-    private void findFurniture(ControlSite start) {
+    private void findFurniture(GHPoint start) {
         var scaleFactor = 5000.0;
-        var max = csf.getGHPointRelativeTo(start.getLocation(), Math.PI * 0.25, scaleFactor);
-        var min = csf.getGHPointRelativeTo(start.getLocation(), Math.PI * 1.25, scaleFactor);
+        var max = csf.getGHPointRelativeTo(start, Math.PI * 0.25, scaleFactor);
+        var min = csf.getGHPointRelativeTo(start, Math.PI * 1.25, scaleFactor);
         var bbox = new BBox(min.lon, max.lon, min.lat, max.lat);
         csf.setFurniture(finder.findForBoundingBox(bbox));
     }
@@ -245,10 +245,11 @@ public class StreetO {
     }
 
     public Optional<ControlSite> findNearestControlSiteTo(double lat, double lon) {
-        if( csf.furniture == null) {
-            findFurniture(new ControlSite(lat, lon , ""));
+        var point = new GHPoint(lat, lon);
+        if (csf.furniture == null) {
+            findFurniture(new ControlSite(point, "").getLocation());
         }
-        return csf.findNearestControlSiteTo(new GHPoint(lat, lon));
+        return csf.findNearestControlSiteTo(point);
     }
 
     public BBox getBounds() {

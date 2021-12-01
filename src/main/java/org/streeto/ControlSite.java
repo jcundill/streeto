@@ -34,23 +34,18 @@ public class ControlSite {
     private final String description;
     private String number;
 
+    private ControlType type;
+
     public ControlSite(GHPoint p, String description) {
+        this(p, description, ControlType.UNCHECKED);
+    }
+
+    public ControlSite(GHPoint p, String description, ControlType type) {
         this.location = p;
         this.description = description;
+        this.type = type;
     }
 
-    public ControlSite(GHPoint p) {
-        this(p, "");
-    }
-
-    public ControlSite(double lat, double lon, String description) {
-        this(new GHPoint(lat, lon), description);
-    }
-
-    public ControlSite(double lat, double lon, String number, String description) {
-        this(lat, lon, description);
-        this.number = number;
-    }
 
     public String getDescription() {
         return description;
@@ -67,6 +62,15 @@ public class ControlSite {
     public void setNumber(String number) {
         this.number = number;
     }
+
+    public ControlType getType() {
+        return type;
+    }
+
+    public void setType(ControlType type) {
+        this.type = type;
+    }
+
 
     @Override
     public int hashCode() {
@@ -92,9 +96,9 @@ public class ControlSite {
     @Override
     public String toString() {
         return "ControlSite{" +
-               "location=" + location +
-               ", description='" + description + '\'' +
-               ", number='" + number + '\'' +
-               '}';
+                "location=" + location +
+                ", description='" + description + '\'' +
+                ", number='" + number + '\'' +
+                '}';
     }
 }

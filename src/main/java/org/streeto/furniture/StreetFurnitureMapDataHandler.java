@@ -25,10 +25,12 @@
 
 package org.streeto.furniture;
 
+import com.graphhopper.util.shapes.GHPoint;
 import de.westnordost.osmapi.map.data.*;
 import de.westnordost.osmapi.overpass.MapDataWithGeometryHandler;
 import org.jetbrains.annotations.NotNull;
 import org.streeto.ControlSite;
+import org.streeto.ControlType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,11 +45,12 @@ class StreetFurnitureMapDataHandler implements MapDataWithGeometryHandler {
     }
 
     private ControlSite parsePointFeature(Node node) {
-        var lat = node.getPosition().getLatitude();
-        var lon = node.getPosition().getLongitude();
-        var description = getDescription(node);
+        return toControlSite(node.getPosition().getLatitude(), node.getPosition().getLongitude(), getDescription(node));
+    }
 
-        return new ControlSite(lat, lon, description);
+    @NotNull
+    private ControlSite toControlSite(double lat, double lon, String description) {
+        return new ControlSite(new GHPoint(lat, lon), description, ControlType.FURNITURE);
     }
 
     private String getDescription(Node node) {
@@ -62,10 +65,7 @@ class StreetFurnitureMapDataHandler implements MapDataWithGeometryHandler {
     }
 
     private ControlSite parseLinearFeature(Way way, LatLon loc) {
-        var lat = loc.getLatitude();
-        var lon = loc.getLongitude();
-        var description = getWayDescription(way);
-        return new ControlSite(lat, lon, description);
+        return toControlSite(loc.getLatitude(), loc.getLongitude(), getWayDescription(way));
     }
 
     private String getWayDescription(Way way) {

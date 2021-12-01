@@ -37,10 +37,11 @@ public class GpxFacade {
     }
 
     private static ControlSite toControlSite(WayPoint wayPoint) {
-        return new ControlSite(wayPoint.getLatitude().doubleValue(),
-                wayPoint.getLongitude().doubleValue(),
-                wayPoint.getName().orElse(""),
-                wayPoint.getDescription().orElse(""));
+        var loc = new GHPoint(wayPoint.getLatitude().doubleValue(),
+                wayPoint.getLongitude().doubleValue());
+        var site = new ControlSite(loc, wayPoint.getDescription().orElse(""));
+        site.setNumber(wayPoint.getName().orElse(""));
+        return site;
     }
 
     public static void writeCourse(File filename, ResponsePath pathWrapper, List<ControlSite> controls) throws IOException {
