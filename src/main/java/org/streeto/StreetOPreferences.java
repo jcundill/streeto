@@ -38,6 +38,7 @@ public class StreetOPreferences {
     private double minControlSeparation = 5.0;
     private double turnDensity = 50.0;
     private double bendScoreFactor = 0.75;
+    private double avgLegDistance = 500.0;
 
     public PaperSize getPaperSize() {
         return paperSize;
@@ -311,5 +312,13 @@ public class StreetOPreferences {
 
     public void setBendScoreFactor(double bendScoreFactor) {
         this.bendScoreFactor = bendScoreFactor;
+    }
+
+    public double getAvgLegDistance() {
+        return avgLegDistance;
+    }
+
+    public void setAvgLegDistance(double avgLegDistance) {
+        this.avgLegDistance = avgLegDistance;
     }
 }

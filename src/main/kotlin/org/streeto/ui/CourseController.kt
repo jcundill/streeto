@@ -59,6 +59,8 @@ class CourseController : Controller() {
         } else {
             streetO.importer.buildFromKml(file.inputStream())
         }
+        requestedDistance.value = course.requestedDistance
+        requestedNumControls.value = course.requestedNumControls
         initialiseCourse(course.controls)
         scoreControls()
     }
@@ -119,7 +121,7 @@ class CourseController : Controller() {
     fun generateFromControls() {
         val initial = mutableListOf(first(controlSiteList), last(controlSiteList))
         runAsync {
-            streetO.generateCourse(6000.0, 10, initial)
+            streetO.generateCourse(requestedDistance.value, requestedNumControls.value, initial)
         } ui { maybeCourse ->
             if (maybeCourse.isPresent) {
                 initialiseCourse(maybeCourse.get())

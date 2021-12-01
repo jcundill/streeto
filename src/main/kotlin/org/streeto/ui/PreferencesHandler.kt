@@ -9,6 +9,7 @@ class PreferencesHandler : Controller() {
     private val STREETO_CONSTRAINTS_MAXFINISHLEN = "streeto.constraints.maxfinishlen"
     private val STREETO_CONSTRAINTS_MAXFIRSTLEN = "streeto.constraints.maxfirstlen"
     private val STREETO_CONSTRAINTS_MINAPPROACHFINISH = "streeto.constraints.minapproachfinish"
+    private val STREETO_CONSTRAINTS_AVGLEGLEN = "streeto.constraints.avgleglen"
     private val STREETO_CONSTRAINTS_MINLEGLEN = "streeto.constraints.minleglen"
     private val STREETO_CONSTRAINTS_MAXLEGLEN = "streeto.constraints.maxleglen"
     private val STREETO_CONSTRAINTS_MAXLENDELTA = "streeto.constraints.maxlendelta"
@@ -100,6 +101,8 @@ class PreferencesHandler : Controller() {
                 prefs.distinctControlSiteWeighting
             )
 
+            prefs.avgLegDistanceProperty.value =
+                getDouble(STREETO_CONSTRAINTS_AVGLEGLEN, prefs.avgLegDistance)
             prefs.minLegDistanceProperty.value =
                 getDouble(STREETO_CONSTRAINTS_MINLEGLEN, prefs.minLegDistance)
             prefs.maxLegDistanceProperty.value =
@@ -183,6 +186,7 @@ class PreferencesHandler : Controller() {
                 prefs.distinctControlSiteWeightingProperty.value
             )
 
+            putDouble(STREETO_CONSTRAINTS_AVGLEGLEN, prefs.avgLegDistanceProperty.value)
             putDouble(STREETO_CONSTRAINTS_MINLEGLEN, prefs.minLegDistanceProperty.value)
             putDouble(STREETO_CONSTRAINTS_MAXLEGLEN, prefs.maxLegDistanceProperty.value)
             putDouble(

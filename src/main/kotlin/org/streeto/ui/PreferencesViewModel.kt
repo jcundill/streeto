@@ -38,4 +38,5 @@ class PreferencesViewModel : ItemViewModel<ObservablePreferences>() {
     val mapStyle = bind(ObservablePreferences::mapStyleProperty)
     val paperSize = bind(ObservablePreferences::paperSizeProperty)
     val printA3OnA4 = bind(ObservablePreferences::printA3OnA4Property)
+    val avgLegDistance = bind(ObservablePreferences::avgLegDistanceProperty)
 }

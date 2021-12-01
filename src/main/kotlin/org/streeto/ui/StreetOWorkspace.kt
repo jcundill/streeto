@@ -124,7 +124,7 @@ class StreetOWorkspace : Workspace("Editor", NavigationMode.Tabs) {
                 separator()
                 item("Preferences") {
                     action {
-                        find<PreferencesView>().openModal()
+                        workspace.openInternalWindow<PreferencesView>()
                     }
                 }
             }
