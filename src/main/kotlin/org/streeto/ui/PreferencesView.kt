@@ -1,6 +1,7 @@
 package org.streeto.ui
 
 import javafx.geometry.Pos
+import javafx.scene.control.TabPane
 import org.streeto.mapping.MapStyle
 import org.streeto.mapping.PaperSize
 import tornadofx.*
@@ -10,133 +11,117 @@ class PreferencesView : View("StreetO Preferences") {
     val model: PreferencesViewModel by inject()//handler.loadPreferences()
 
     override val root = vbox {
-        form {
-            tabpane {
-                tab("Leg Length Constraints") {
+        tabpane {
+            tabClosingPolicy = TabPane.TabClosingPolicy.UNAVAILABLE
+            tab("Leg Length Constraints") {
+                form {
                     fieldset {
-                        field {
-                            label("Desired Average Leg Length")
+                        field("Desired Average Leg Length") {
                             textfield(model.avgLegDistance)
                         }
-                        field {
-                            label("Min Leg Distance")
+                        field("Min Leg Distance") {
                             textfield(model.minLegDistance)
                         }
-                        field {
-                            label("Max Leg Distance")
+                        field("Max Leg Distance") {
                             textfield(model.maxLegDistance)
                         }
-                        field {
-                            label("Nearest Approach to Finish")
+                        field("Nearest Approach to Finish") {
                             textfield(model.minApproachToFinish)
                         }
-                        field {
-                            label("Max Allowed First Leg Length")
+                        field("Max Allowed First Leg Length") {
                             textfield(model.maxFirstLegLength)
                         }
-                        field {
-                            label("Max Allowed Last Leg Length")
+                        field("Max Allowed Last Leg Length") {
                             textfield(model.maxLastLegLength)
                         }
-                        field {
-                            label("Allowed Course Length Delta Factor")
-                            textfield(model.allowedCourseLengthDelta)
+                        field("Allowed Course Length Delta") {
+                             textfield(model.allowedCourseLengthDelta)
                         }
-                        field {
-                            label("Max Shared on Route Choice")
+                        field("Max Shared on Route Choice") {
                             textfield(model.maxRouteShare)
                         }
                     }
                 }
-                tab("Control Placement") {
+            }
+            tab("Control Placement") {
+                form {
                     fieldset {
                         fieldset("Control Separation Factors") {
-                            field {
-                                label("Min Control Separation")
+                            field("Min Control Separation") {
                                 textfield(model.minControlSeparation)
                             }
                         }
                         fieldset("Junction Score Factors") {
-                            field {
-                                label("Min Average Distance between Junctions")
+                            field("Min Average Distance between Junctions") {
                                 textfield(model.turnDensity)
                             }
-                            field {
-                                label("Junction Control Placement Factor")
+                            field("Junction Control Placement Score") {
                                 textfield(model.junctionScoreFactor)
                             }
                         }
                         fieldset("Bend Score Factors") {
-                            field {
-                                label("Bend Control Placement Factor")
-                                textfield(model.bendScoreFactor)
-                            }
-                            field {
-                                label("Min Bend Angle")
+                            field("Min Bend Angle") {
                                 textfield(model.minTurnAngle)
+                            }
+                            field("Bend Control Placement Score") {
+                                textfield(model.bendScoreFactor)
                             }
                         }
                         fieldset("Street Furniture Factors") {
-                            field {
-                                label("Street Furniture Distance")
+                            field("Street Furniture Distance") {
                                 textfield(model.maxFurnitureDistance)
                             }
                         }
                     }
                 }
-                tab("Course Scorers") {
+            }
+            tab("Course Scorers") {
+                form {
                     fieldset {
                         fieldset {
-                            field {
-                                label("Dog Leg Weighting")
+                            field("Dog Leg Weighting") {
                                 slider {
                                     min = 0.0
                                     max = 1.0
                                     bind(model.dogLegWeighting)
                                 }
                             }
-                            field {
-                                label("Leg Complexity Weighting")
+                            field("Leg Complexity Weighting") {
                                 slider {
                                     min = 0.0
                                     max = 1.0
                                     bind(model.legComplexityWeighting)
                                 }
                             }
-                            field {
-                                label("Leg Length Weighting")
+                            field("Leg Length Weighting") {
                                 slider {
                                     min = 0.0
                                     max = 1.0
                                     bind(model.legLengthWeighting)
                                 }
                             }
-                            field {
-                                label("Leg Route Choice Weighting")
-                                slider {
+                            field("Leg Route Choice Weighting") {
+                                 slider {
                                     min = 0.0
                                     max = 1.0
                                     bind(model.routeChoiceWeighting)
                                 }
                             }
-                            field {
-                                label("Avoid Route Repetition Weighting")
+                            field("Avoid Route Repetition Weighting") {
                                 slider {
                                     min = 0.0
                                     max = 1.0
                                     bind(model.beenHereBeforeWeighting)
                                 }
                             }
-                            field {
-                                label("Avoid Future Controls Weighting")
+                            field("Avoid Future Controls Weighting") {
                                 slider {
                                     min = 0.0
                                     max = 1.0
                                     bind(model.comesTooCloseWeighting)
                                 }
                             }
-                            field {
-                                label("Control Site Placement Weighting")
+                            field("Control Site Placement Weighting") {
                                 slider {
                                     min = 0.0
                                     max = 1.0
@@ -146,101 +131,91 @@ class PreferencesView : View("StreetO Preferences") {
                         }
                     }
                 }
-                tab("Mapping Options") {
+            }
+            tab("Mapping Options") {
+                form {
                     fieldset {
                         fieldset("Map Type") {
-                            field {
-                                label("Map Appearance")
+                            field("Map Appearance") {
                                 combobox(model.mapStyle, MapStyle.values().asList())
                             }
-                            field {
-                                label("Maximum Scale Map")
+                            field("Maximum Map Scale") {
                                 combobox(model.maxMapScale, listOf(5000.0, 7500.0, 10000.0, 12500.0, 15000.0))
                             }
                         }
                         fieldset("Map Printing Options") {
-                            field {
-                                label("Paper Size")
+                            field("Paper Size") {
                                 combobox(model.paperSize, PaperSize.values().asList())
                             }
-                            field {
-                                label("Print A3 Maps on A4 Paper")
+                            field("Print A3 Maps on A4 Paper") {
                                 checkbox { model.printA3OnA4 }
                             }
-                            field {
-                                label("Split Map for Better Scale")
-                                checkbox { model.splitForBetterScale }
+                            field("Split Map for Better Scale") {
+                                 checkbox { model.splitForBetterScale }
                             }
                         }
                     }
                 }
-                tab("Course Evolution") {
+            }
+            tab("Course Evolution") {
+                form {
                     fieldset {
                         fieldset("Stopping Criteria") {
-                            field {
-                                label("Max Execution Time (s)")
+                            field("Max Execution Time (s)") {
                                 textfield(model.maxExecutionTime)
                             }
-                            field {
-                                label("Number of Generations")
+                            field("Max Number of Generations") {
                                 textfield(model.maxGenerations)
                             }
-                            field {
-                                label("Fitness Stop level")
+                            field("Fitness Stop level") {
                                 textfield(model.stoppingFitness)
                             }
                         }
                         fieldset("GA Parameters") {
-                            field {
-                                label("Swap Probability")
+                            field("Swap Probability") {
                                 textfield(model.controlSwapProbability)
                             }
-                            field {
-                                label("Mutation Probability")
+                            field("Mutation Probability") {
                                 textfield(model.mutateProbability)
                             }
-                            field {
-                                label("Max Phenotype Age")
-                                textfield(model.maxPhenotypeAge)
+                            field("Max Phenotype Age") {
+                                 textfield(model.maxPhenotypeAge)
                             }
-                            field {
-                                label("Offspring Fraction")
+                            field("Offspring Fraction") {
                                 textfield(model.offspringFraction)
                             }
-                            field {
-                                label("Population Size")
+                            field("Population Size") {
                                 textfield(model.populationSize)
                             }
                         }
                         fieldset("Control Replacement Factors") {
-                            field {
-                                label("Allowed Mutation Radius")
+                            field("Allowed Mutation Radius") {
                                 textfield(model.mutationRadius)
                             }
                         }
                     }
                 }
             }
-            hbox {
-                alignment = Pos.CENTER_RIGHT
-                button("Save") {
-                    action {
-                        model.commit()
-                        controller.flushPreferences(model.item)
-                        close()
-                    }
+        }
+        hbox {
+            alignment = Pos.CENTER_RIGHT
+            button("Save") {
+                action {
+                    model.commit()
+                    controller.flushPreferences(model.item)
+                    close()
                 }
-                button("Reset") {
-                    action {
-                        model.rollback()
-                        controller.flushPreferences(model.item)
-                    }
+            }
+            button("Reset") {
+                action {
+                    model.rollback()
+                    controller.flushPreferences(model.item)
                 }
-                button("Cancel") {
-                    action {
-                        model.rollback()
-                        close()
-                    }
+            }
+            button("Cancel") {
+                action {
+                    model.rollback()
+                    close()
                 }
             }
         }
