@@ -70,8 +70,11 @@ class StreetOWorkspace : Workspace("Editor", NavigationMode.Tabs) {
                 item("Save As").action {
                     val kml = FileChooser.ExtensionFilter("KML", "*.kml")
                     val gpx = FileChooser.ExtensionFilter("GPX", "*.gpx")
-                    val courseFile = chooseFile("Open File", filters = arrayOf(kml, gpx), mode = FileChooserMode.Save)
-                    println(courseFile)
+                    val courseFiles = chooseFile("Open File", filters = arrayOf(kml, gpx), mode = FileChooserMode.Save)
+                    if (courseFiles.isNotEmpty()) {
+                        courseController.saveAs(courseFiles[0])
+                    }
+
                 }
                 separator()
                 item("Create MapRun Files")
@@ -85,9 +88,9 @@ class StreetOWorkspace : Workspace("Editor", NavigationMode.Tabs) {
             menu("Course") {
                 item("Create From Controls") {
                     action {
-                        CourseGenerationSniffer.reset()
-                        find<GenerationProgressView>() {
-                            closeableWhen { CourseGenerationSniffer.completedProperty }
+                        courseController.sniffer.reset()
+                        find<GenerationProgressView> {
+                            closeableWhen { courseController.sniffer.completedProperty }
                             openModal()
                         }
                         courseController.generateFromControls()

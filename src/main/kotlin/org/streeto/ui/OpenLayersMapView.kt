@@ -130,7 +130,7 @@ class OpenLayersMapView : View("Map") {
                     }
                 }
 
-                legModel.start.addListener() { _, _, newValue ->
+                legModel.start.addListener { _, _, newValue ->
                     run {
                         clearRouteChoice()
                         if (newValue != null) {

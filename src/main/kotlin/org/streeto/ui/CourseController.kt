@@ -2,12 +2,15 @@ package org.streeto.ui
 
 import com.graphhopper.ResponsePath
 import com.graphhopper.util.shapes.BBox
+import com.graphhopper.util.shapes.GHPoint
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleStringProperty
 import org.streeto.ControlSite
 import org.streeto.StreetO
+import org.streeto.gpx.GpxFacade
+import org.streeto.kml.KmlWriter
 import org.streeto.utils.CollectionHelpers
 import org.streeto.utils.CollectionHelpers.first
 import org.streeto.utils.CollectionHelpers.last
@@ -25,6 +28,8 @@ class CourseController : Controller() {
 
     val preferencesController: PreferencesHandler by inject()
     private val preferencesViewModel: PreferencesViewModel by inject()
+    private val progressViewModel: GenerationProgressViewModel by inject()
+    val sniffer = CourseGenerationSniffer()
 
     private var controlSiteList = SortedFilteredList<ControlSite>()
     private var streetO: StreetO by singleAssign()
@@ -38,6 +43,7 @@ class CourseController : Controller() {
 
     init {
         preferencesViewModel.item = preferences
+        progressViewModel.item = sniffer
     }
 
     fun initializeGH(properties: Properties) {
@@ -46,7 +52,7 @@ class CourseController : Controller() {
             properties.getProperty("graphDir"),
             preferences
         )
-        streetO.registerSniffer(CourseGenerationSniffer)
+        streetO.registerSniffer(sniffer)
         isReady.value = true
     }
 
@@ -167,5 +173,16 @@ class CourseController : Controller() {
     fun flushPreferences(preferences: ObservablePreferences) {
         preferencesController.flushPreferences(preferences)
         streetO.setPreferences(preferences)
+    }
+
+    fun saveAs(file: File) {
+        val sites = controlList.map { ControlSite(GHPoint(it.lat, it.lon), it.description) }
+        val path = streetO.routeControls(sites)
+        if (file.extension == "gpx") {
+            GpxFacade.writeCourse(file, path, sites)
+        } else {
+            file.writeText(KmlWriter().generate(sites, courseName.value))
+        }
+
     }
 }

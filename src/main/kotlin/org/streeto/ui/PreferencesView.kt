@@ -1,5 +1,6 @@
 package org.streeto.ui
 
+import javafx.beans.property.SimpleDoubleProperty
 import javafx.geometry.Pos
 import javafx.scene.control.TabPane
 import org.streeto.mapping.MapStyle
@@ -35,7 +36,7 @@ class PreferencesView : View("StreetO Preferences") {
                             textfield(model.maxLastLegLength)
                         }
                         field("Allowed Course Length Delta") {
-                             textfield(model.allowedCourseLengthDelta)
+                            textfield(model.allowedCourseLengthDelta)
                         }
                         field("Max Shared on Route Choice") {
                             textfield(model.maxRouteShare)
@@ -79,55 +80,13 @@ class PreferencesView : View("StreetO Preferences") {
                 form {
                     fieldset {
                         fieldset {
-                            field("Dog Leg Weighting") {
-                                slider {
-                                    min = 0.0
-                                    max = 1.0
-                                    bind(model.dogLegWeighting)
-                                }
-                            }
-                            field("Leg Complexity Weighting") {
-                                slider {
-                                    min = 0.0
-                                    max = 1.0
-                                    bind(model.legComplexityWeighting)
-                                }
-                            }
-                            field("Leg Length Weighting") {
-                                slider {
-                                    min = 0.0
-                                    max = 1.0
-                                    bind(model.legLengthWeighting)
-                                }
-                            }
-                            field("Leg Route Choice Weighting") {
-                                 slider {
-                                    min = 0.0
-                                    max = 1.0
-                                    bind(model.routeChoiceWeighting)
-                                }
-                            }
-                            field("Avoid Route Repetition Weighting") {
-                                slider {
-                                    min = 0.0
-                                    max = 1.0
-                                    bind(model.beenHereBeforeWeighting)
-                                }
-                            }
-                            field("Avoid Future Controls Weighting") {
-                                slider {
-                                    min = 0.0
-                                    max = 1.0
-                                    bind(model.comesTooCloseWeighting)
-                                }
-                            }
-                            field("Control Site Placement Weighting") {
-                                slider {
-                                    min = 0.0
-                                    max = 1.0
-                                    bind(model.distinctControlSiteWeighting)
-                                }
-                            }
+                            add(scorerSlider("Dog Leg Weighting", model.dogLegWeighting))
+                            add(scorerSlider("Leg Complexity Weighting", model.legComplexityWeighting))
+                            add(scorerSlider("Leg Length Weighting", model.legLengthWeighting))
+                            add(scorerSlider("Leg Route Choice Weighting", model.routeChoiceWeighting))
+                            add(scorerSlider("Avoid Route Repetition Weighting", model.beenHereBeforeWeighting))
+                            add(scorerSlider("Avoid Future Controls Weighting", model.comesTooCloseWeighting))
+                            add(scorerSlider("Control Site Placement Weighting", model.distinctControlSiteWeighting))
                         }
                     }
                 }
@@ -151,7 +110,7 @@ class PreferencesView : View("StreetO Preferences") {
                                 checkbox { model.printA3OnA4 }
                             }
                             field("Split Map for Better Scale") {
-                                 checkbox { model.splitForBetterScale }
+                                checkbox { model.splitForBetterScale }
                             }
                         }
                     }
@@ -179,7 +138,7 @@ class PreferencesView : View("StreetO Preferences") {
                                 textfield(model.mutateProbability)
                             }
                             field("Max Phenotype Age") {
-                                 textfield(model.maxPhenotypeAge)
+                                textfield(model.maxPhenotypeAge)
                             }
                             field("Offspring Fraction") {
                                 textfield(model.offspringFraction)
@@ -217,6 +176,19 @@ class PreferencesView : View("StreetO Preferences") {
                     model.rollback()
                     close()
                 }
+            }
+        }
+    }
+
+    private fun scorerSlider(label: String, property: SimpleDoubleProperty): Field {
+        return field(label) {
+            slider {
+                min = 0.0
+                max = 1.0
+                majorTickUnit = 0.1
+                isShowTickMarks = true
+                isShowTickLabels = true
+                bind(property)
             }
         }
     }

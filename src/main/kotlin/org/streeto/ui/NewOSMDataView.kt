@@ -13,7 +13,6 @@ class NewOSMDataView : View("New OSM Data Import") {
         var pbfFile = SimpleObjectProperty<File>()
         var graphDir = SimpleObjectProperty<File>()
     }
-    private val controller: CourseController by inject()
 
     override val root = vbox {
         form {
@@ -37,7 +36,7 @@ class NewOSMDataView : View("New OSM Data Import") {
                 alignment = Pos.CENTER_RIGHT
                 button("Save") {
                     action {
-                         this@NewOSMDataView.close()
+                        this@NewOSMDataView.close()
                     }
                 }
                 button("Cancel") {
