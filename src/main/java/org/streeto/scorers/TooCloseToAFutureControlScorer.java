@@ -26,6 +26,7 @@
 package org.streeto.scorers;
 
 import com.graphhopper.GHResponse;
+import com.graphhopper.ResponsePath;
 import com.graphhopper.util.shapes.GHPoint;
 import com.graphhopper.util.shapes.GHPoint3D;
 import org.jetbrains.annotations.NotNull;
@@ -69,20 +70,26 @@ public class TooCloseToAFutureControlScorer extends AbstractLegScorer {
     }
 
     private double evaluate(List<GHResponse> futureLegs, GHResponse thisLeg) {
-        if (futureLegs.size() < 2) return 1.0; // no further legs
-        else {
+        var score = 0.0;
+        if (futureLegs.size() < 2) {
+            score = 1.0; // no further legs
+        } else {
             var remainingControls = futureLegs.stream()
                     .map(this::getLastPoint)
                     .collect(Collectors.toList());
-            var mins = thisLeg.getAll().stream().map(legRoute -> {
-                 var likelihood = legRoute.getDistance() < minControlSeparation ? 1.0 : thisLeg.getBest().getDistance() / legRoute.getDistance();
-                if (iterableAsStream(legRoute.getPoints())
-                        .anyMatch(it -> goesTooCloseToAFutureControl(remainingControls, it))) return 1.0 - likelihood;
-                else return 1.0;
-            }).collect(Collectors.toList());
-            return Collections.min(mins);
-
+            var mins = thisLeg.getAll().stream()
+                    .map(legRoute -> scoreRoute(thisLeg.getBest().getDistance(), remainingControls, legRoute))
+                    .collect(Collectors.toList());
+            score = Collections.min(mins);
         }
+        return scoreFunction(score);
+    }
+
+    private Double scoreRoute(double bestDistance, List<GHPoint3D> remainingControls, ResponsePath legRoute) {
+        var likelihood = legRoute.getDistance() < minControlSeparation ? 1.0 : bestDistance / legRoute.getDistance();
+        if (iterableAsStream(legRoute.getPoints())
+                .anyMatch(it -> goesTooCloseToAFutureControl(remainingControls, it))) return 1.0 - likelihood;
+        else return 1.0;
     }
 
     private GHPoint3D getLastPoint(GHResponse it) {

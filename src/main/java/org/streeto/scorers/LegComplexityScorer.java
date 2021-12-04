@@ -8,10 +8,7 @@ import org.streeto.StreetOPreferences;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static java.lang.Math.*;
-import static org.streeto.utils.CollectionHelpers.first;
-import static org.streeto.utils.CollectionHelpers.last;
-import static org.streeto.utils.DistUtils.dist;
+import static java.lang.Math.min;
 
 public class LegComplexityScorer extends AbstractLegScorer {
     private final double turnDensity;
@@ -37,16 +34,22 @@ public class LegComplexityScorer extends AbstractLegScorer {
     }
 
     private double evaluate(GHResponse leg) {
+        var score = 0.0;
         var instructions = leg.getBest().getInstructions();
 
         var turns = instructions.stream()
                 .filter(it -> turnInstructions.contains(it.getSign()))
                 .count();
-        var points = leg.getBest().getPoints();
-        if (leg.getBest().getDistance() == 0.0) return 0.0; //in the same place - not complex at all
-        if (turns == 0.0) return 0.0; // no decisions - not complex at all
-        var legTurnDensity = turnDensity * turns / leg.getBest().getDistance();
-        return min(legTurnDensity, 1.0);
+
+        if (leg.getBest().getDistance() == 0.0) {
+            score = 0.0; //in the same place - not complex at all
+        } else if (turns == 0L) {
+            score = 0.0; // no decisions - not complex at all
+        } else {
+            var legTurnDensity = turnDensity * turns / leg.getBest().getDistance();
+            score = min(legTurnDensity, 1.0);
+        }
+        return scoreFunction(score);
     }
 
     /**

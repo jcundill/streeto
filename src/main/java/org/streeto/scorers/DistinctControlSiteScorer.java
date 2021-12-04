@@ -11,10 +11,12 @@ import org.streeto.StreetOPreferences;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.graphhopper.util.AngleCalc.ANGLE_CALC;
 import static java.lang.Math.abs;
 import static java.lang.Math.toDegrees;
+import static org.streeto.utils.CollectionHelpers.dropLast;
 import static org.streeto.utils.CollectionHelpers.last;
 
 public class DistinctControlSiteScorer extends AbstractLegScorer {
@@ -35,24 +37,26 @@ public class DistinctControlSiteScorer extends AbstractLegScorer {
 
     @Override
     public List<Double> apply(List<GHResponse> routedLegs) {
-        return routedLegs.stream().map(this::evaluate).collect(Collectors.toList());
+        // drop the last - the finish is where we said we wanted it - so scores 1.0
+        return Stream.concat(dropLast(routedLegs, 1).stream().map(this::evaluate), Stream.of(1.0)).collect(Collectors.toList());
     }
 
     private double evaluate(GHResponse leg) {
         PointList currPoints = leg.getBest().getPoints();
         GHPoint location = last(currPoints);
         Optional<ControlSite> maybeSite = csf.findNearestControlSiteTo(location);
+        double score = 0.0;
         if (maybeSite.isPresent()) {
             var site = maybeSite.get();
             if (site.getType() == ControlType.FURNITURE) {
-                return 1.0;
+                score = 1.0;
             } else if (site.getType() == ControlType.TOWER) {
-                return junctionScoreFactor;
+                score = junctionScoreFactor;
             } else if (site.getType() == ControlType.PILLAR) {
-                return calculateTurnAngleAt(location);
+                score = calculateTurnAngleAt(location);
             }
         }
-        return 0.0;
+        return scoreFunction(score);
     }
 
     private double calculateTurnAngleAt(GHPoint location) {

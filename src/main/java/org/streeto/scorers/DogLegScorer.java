@@ -60,18 +60,24 @@ public class DogLegScorer extends AbstractLegScorer {
     }
 
     private Double dogLegScore(List<ResponsePath> previous2this2next) {
+        var score = 0.0;
         var prev2this = previous2this2next.get(0);
         var this2next = previous2this2next.get(1);
         var prevPoints = prev2this.getPoints();
         var nextPoints = this2next.getPoints();
-        if (prevPoints.size() < 2 || nextPoints.size() < 2) return 0.0; //controls are in the same place
-        List<GHPoint3D> nextTail = drop(nextPoints, 1);
-        var inBoth = dropLast(prevPoints, 1).stream().filter(nextTail::contains).collect(Collectors.toList());
-        if (inBoth.size() == 0) return 1.0;
-        else {
-            var distInBoth = dist(first(nextPoints), first(inBoth));
-            return 1.0 - distInBoth / this2next.getDistance();
+        if (prevPoints.size() < 2 || nextPoints.size() < 2) {
+            score = 0.0; //controls are in the same place
+        } else {
+            List<GHPoint3D> nextTail = drop(nextPoints, 1);
+            var inBoth = dropLast(prevPoints, 1).stream().filter(nextTail::contains).collect(Collectors.toList());
+            if (inBoth.size() == 0) {
+                score = 1.0;
+            } else {
+                var distInBoth = dist(first(nextPoints), first(inBoth));
+                score = 1.0 - distInBoth / this2next.getDistance();
+            }
         }
+        return scoreFunction(score);
     }
 }
 

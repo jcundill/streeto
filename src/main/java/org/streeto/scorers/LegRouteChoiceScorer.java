@@ -52,26 +52,30 @@ public class LegRouteChoiceScorer extends AbstractLegScorer {
         return routedLegs.stream().map(this::evaluate).collect(Collectors.toList());
     }
 
-    private Double evaluate(GHResponse leg) {
-        if (leg.hasAlternatives()) return evalAlts(leg);
-        else return 0.0;
+    private double evaluate(GHResponse leg) {
+        var score = 0.0;
+        if (leg.hasAlternatives()) {
+            score = evalAlts(leg);
+        } else {
+            score = 0.0;
+        }
+        return scoreFunction(score);
     }
 
-    private Double evalAlts(GHResponse leg) {
+    private double evalAlts(GHResponse leg) {
         var sortedDistances = leg.getAll().stream().map(ResponsePath::getDistance).sorted().collect(Collectors.toList());
         // work out the delta between the length of the best and the length of the next best
-        var ratio = (sortedDistances.get(1) - sortedDistances.get(0)) / sortedDistances.get(0);
+        var ratio = sortedDistances.get(0) / sortedDistances.get(1);
         //work out how much these two routes have in common
-        List<GHPoint> first = dropFirstAndLast(getAsList(leg, 0), 1);
-        List<GHPoint> second = dropFirstAndLast(getAsList(leg, 1), 1);
+        List<GHPoint> first = dropFirstAndLast(getRouteChoiceOptionAsList(leg, 0), 1);
+        List<GHPoint> second = dropFirstAndLast(getRouteChoiceOptionAsList(leg, 1), 1);
 
         if (first.isEmpty() || second.isEmpty())
             return 0.0; // not a real choice
 
         var commonLen = getCommonRouteLength(first, second);
-        var shortest = (first.size() < second.size()) ? leg.getAll().get(0).getDistance() : leg.getAll().get(1).getDistance();
-        var commonRatio = commonLen / shortest;
-        return 1.0 - (ratio + commonRatio);
+        var commonRatio = commonLen / sortedDistances.get(0);
+        return ratio - commonRatio;
     }
 
 }

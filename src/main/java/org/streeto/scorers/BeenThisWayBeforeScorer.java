@@ -38,14 +38,18 @@ public class BeenThisWayBeforeScorer extends AbstractLegScorer {
     }
 
     private double compareLegs(GHResponse a, GHResponse b) {
+        var score = 0.0;
         var pointsA = dropFirstAndLast(getBestAsList(a), 1);
         var pointsB = dropFirstAndLast(getBestAsList(b), 1);
-        if (pointsA.isEmpty() || pointsB.isEmpty()) return 1.0;
-        else {
+        if (pointsA.isEmpty() || pointsB.isEmpty()) {
+            score = 1.0;
+        } else {
             var commonLen = getCommonRouteLength(pointsA, pointsB);
             // only care about the amount of repetition on this leg
             var commonRatio = commonLen / b.getBest().getDistance();
-            return 1.0 - commonRatio;
+            score = 1.0 - commonRatio;
         }
+        return scoreFunction(score);
     }
+
 }
