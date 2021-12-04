@@ -1,6 +1,7 @@
 package org.streeto.ui
 
 
+import javafx.geometry.Pos
 import javafx.scene.chart.NumberAxis
 import javafx.scene.chart.XYChart
 import javafx.util.StringConverter
@@ -39,14 +40,21 @@ class GenerationProgressView : View("Course Evolution Progress") {
     }
 
     override val root = vbox {
-        label("Generating Initial Population ...") {
-            hiddenWhen(model.started)
+        hbox {
+            vbox {
+                label("Generating Initial Population ...") {
+                    hiddenWhen(model.started)
+                }
+                label(model.fitness, converter = ProgressConverter()) {
+                    visibleWhen(model.started)
+                }
+            }
+            button("Stop Now") {
+                action { model.finished.value = true }
+                enableWhen(model.started)
+                alignment = Pos.CENTER_RIGHT
+            }
         }
-        textfield(model.fitness, converter = ProgressConverter()) {
-            visibleWhen(model.started)
-            hiddenWhen(model.finished)
-        }
-
         label("Generation Complete") {
             visibleWhen(model.finished)
         }

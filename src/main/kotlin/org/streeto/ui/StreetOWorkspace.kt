@@ -90,6 +90,7 @@ class StreetOWorkspace : Workspace("Editor", NavigationMode.Tabs) {
                     action {
                         courseController.sniffer.reset()
                         find<GenerationProgressView> {
+                            model.finished.value = false
                             closeableWhen { courseController.sniffer.completedProperty }
                             openModal()
                         }

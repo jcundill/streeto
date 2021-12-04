@@ -13,6 +13,7 @@ class CourseGenerationSniffer : StreetOSniffer() {
     val fitnessProperty = SimpleObjectProperty(Progress(0, 0.0))
     val completedProperty = SimpleBooleanProperty(false)
 
+
     fun reset() {
         startedGAProperty.value = false
         fitnessProperty.value = Progress(0, 0.0)

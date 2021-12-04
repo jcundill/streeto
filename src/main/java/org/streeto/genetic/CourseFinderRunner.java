@@ -37,6 +37,7 @@ public class CourseFinderRunner {
     }
 
     public Optional<List<ControlSite>> run(double requestedDistance, int requestedNumControls, List<ControlSite> initialControls) {
+
         final Engine<AnyGene<ISeq<ControlSite>>, Double> engine = Engine
                 .builder(new CourseFinderProblem(legScorer, csf, requestedDistance, requestedNumControls, initialControls, preferences))
                 .alterers(myAlterer)
@@ -49,6 +50,7 @@ public class CourseFinderRunner {
                 .limit(Limits.byFitnessThreshold(preferences.getStoppingFitness()))
                 .limit(Limits.byExecutionTime(Duration.ofSeconds(preferences.getMaxExecutionTime())))
                 .limit(Limits.byFixedGeneration(preferences.getMaxGenerations()))
+                .limit(StopOnFlagLimit.instance())
                 .peek(statistics)
                 .peek(this::callEveryoneBack)
                 .collect(EvolutionResult.toBestPhenotype());
@@ -59,6 +61,7 @@ public class CourseFinderRunner {
             return Optional.empty();
         }
     }
+
 
     private void callEveryoneBack(EvolutionResult<AnyGene<ISeq<ControlSite>>, Double> evolutionResult) {
         callbacks.forEach(it -> it.accept(evolutionResult));

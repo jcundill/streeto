@@ -5,7 +5,6 @@ import com.graphhopper.util.shapes.BBox
 import com.graphhopper.util.shapes.GHPoint
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleDoubleProperty
-import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleStringProperty
 import org.streeto.ControlSite
 import org.streeto.StreetO
@@ -19,6 +18,7 @@ import java.io.File
 import java.util.*
 import java.util.stream.Collectors
 import kotlin.math.abs
+import kotlin.math.roundToInt
 import kotlin.streams.toList
 
 
@@ -36,7 +36,6 @@ class CourseController : Controller() {
     val preferences = preferencesController.loadPreferences()
     var isReady = SimpleBooleanProperty(false)
     var courseName = SimpleStringProperty()
-    var requestedNumControls = SimpleIntegerProperty()
     var requestedDistance = SimpleDoubleProperty()
 
     private val legViewModel: ScoredLegModel by inject()
@@ -66,7 +65,6 @@ class CourseController : Controller() {
             streetO.importer.buildFromKml(file.inputStream())
         }
         requestedDistance.value = course.requestedDistance
-        requestedNumControls.value = course.requestedNumControls
         initialiseCourse(course.controls)
         scoreControls()
     }
@@ -127,7 +125,7 @@ class CourseController : Controller() {
     fun generateFromControls() {
         val initial = mutableListOf(first(controlSiteList), last(controlSiteList))
         runAsync {
-            streetO.generateCourse(requestedDistance.value, requestedNumControls.value, initial)
+            streetO.generateCourse(requestedDistance.value, getNumberOfControls(), initial)
         } ui { maybeCourse ->
             if (maybeCourse.isPresent) {
                 initialiseCourse(maybeCourse.get())
@@ -135,6 +133,10 @@ class CourseController : Controller() {
 
             }
         }
+    }
+
+    private fun getNumberOfControls(): Int {
+        return (requestedDistance.value / preferencesViewModel.avgLegDistance.value).roundToInt()
     }
 
     fun getControlAt(point: Point, res: Double): Control? {
