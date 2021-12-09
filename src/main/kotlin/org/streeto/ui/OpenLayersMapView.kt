@@ -1,7 +1,7 @@
 package org.streeto.ui
 
 import javafx.beans.property.SimpleBooleanProperty
-import javafx.collections.ListChangeListener
+import javafx.beans.property.SimpleObjectProperty
 import javafx.concurrent.Worker
 import javafx.event.EventHandler
 import javafx.scene.layout.Priority
@@ -13,18 +13,25 @@ import java.util.*
 
 
 class OpenLayersMapView : View("Map") {
+
     private val controller: CourseController by inject()
-    private var showRouteChoice: Boolean = false
-    val controlModel: ControlViewModel by inject()
-    val legModel: ScoredLegModel by inject()
+    private val controlModel: ControlViewModel by inject()
+    private val legModel: ScoredLegModel by inject()
 
-    val customFunction = JavaCallback(controller)
-    val clickedOnControl = SimpleBooleanProperty(false)
+    val customFunction = JavaCallback(controller, this)
+    private val isClickedOnControl = SimpleBooleanProperty(false)
+    private val clickPosition = SimpleObjectProperty<Point>()
+    private var showRouteOnMap: Boolean = false
+    private var showRouteChoiceOnMap: Boolean = false
 
-    class JavaCallback(private val controller: CourseController) {
+    override fun onBeforeShow() {
+        this.deletableWhen { never }
+    }
+
+    class JavaCallback(private val controller: CourseController, private val view: View) {
         fun controlMoved(num: String, lat: Double, lon: Double) {
-            println("Control $num Moved to [$lat, $lon]")
             controller.moveControl(num, lat, lon)
+            view.fire(CourseUpdatedEvent)
         }
     }
 
@@ -50,23 +57,71 @@ class OpenLayersMapView : View("Map") {
         engine.load(resources.url("/index.html").toExternalForm())
     }
 
+
     override val root = vbox {
         webview {
-            contextmenu {
-                item("Details") {
-                    visibleWhen(clickedOnControl)
-                    action {
-                        workspace.openInternalWindow<ControlDetailView>(modal = false)
-                    }
-                }
-                item("sfsfdsdfsdfsdf")
-                isAutoHide = true
-            }
             vgrow = Priority.ALWAYS
             isContextMenuEnabled = false
             initialiseEngine()
 
+            contextmenu {
+                item("Details") {
+                    visibleWhen(isClickedOnControl)
+                    action {
+                        find<ControlDetailView>().openModal()
+                    }
+                }
+                item("Place Start Here") {
+                    action {
+                        controller.setStartAt(clickPosition.value)
+                        fire(CourseUpdatedEvent)
+                    }
+                }
+                item("Place Finish Here") {
+                    action {
+                        controller.setFinishAt(clickPosition.value)
+                        fire(CourseUpdatedEvent)
+                    }
+                }
+                item("Split Leg After") {
+                    action {
+                        controller.splitLegAfterSelected()
+                        fire(CourseUpdatedEvent)
+                    }
+                }
+                item("Split Leg Before") {
+                    action {
+                        controller.splitLegBeforeSelected()
+                        fire(CourseUpdatedEvent)
+                    }
+                }
+                item("Remove Control") {
+                    action {
+                        controller.removeSelectedControl()
+                        fire(CourseUpdatedEvent)
+                    }
+                }
+                isAutoHide = true
+            }
+
             with(ThunkingLayer(engine)) {
+
+                fun drawOverlays() {
+                    clearRoute()
+                    if (showRouteOnMap) {
+                        val controls = controller.controlList
+                        if (controls.size > 2) {
+                            drawRoute(controller.getRoute())
+                        }
+                    }
+                    clearRouteChoice()
+                    if (showRouteChoiceOnMap) {
+                        val leg = legModel.item
+                        if (leg != null) {
+                            drawRouteChoice(leg.routeChoice)
+                        }
+                    }
+                }
 
                 controller.isReady.onChange { ready ->
                     if (ready) {
@@ -74,9 +129,11 @@ class OpenLayersMapView : View("Map") {
                     }
                 }
                 onMouseClicked = EventHandler {
-                    val ctrl = controller.getControlAt(mouseCoordinates, resolution)
+                    val coords = mouseCoordinates
+                    val ctrl = controller.getControlAt(coords, resolution)
                     controlModel.item = ctrl
-                    clickedOnControl.value = ctrl != null
+                    isClickedOnControl.value = ctrl != null
+                    clickPosition.value = coords
                 }
 
                 subscribe<ResetRotationEvent> {
@@ -97,31 +154,21 @@ class OpenLayersMapView : View("Map") {
                 }
 
                 subscribe<RouteVisibilityEvent> {
-                    val controls = controller.controlList
-                    if (it.visible && controls.size > 2) {
-                        drawRoute(controller.getRoute())
-                    } else {
-                        clearRoute()
-                    }
+                    showRouteOnMap = it.visible
+                    drawOverlays()
                 }
 
                 subscribe<RouteChoiceVisibilityEvent> {
-                    showRouteChoice = it.visible
-                    val leg = legModel.item
-                    if (leg != null && showRouteChoice) {
-                        drawRouteChoice(leg.routeChoice)
-                    } else {
-                        clearRouteChoice()
-                    }
+                    showRouteChoiceOnMap = it.visible
+                    drawOverlays()
                 }
 
-                controller.controlList.addListener(ListChangeListener {
-                    clearCourse()
+                subscribe<CourseUpdatedEvent> {
                     if (controller.controlList.isNotEmpty()) {
                         drawCourse(controller.controlList)
-                        zoomToBestFit()
+                        drawOverlays()
                     }
-                })
+                }
 
                 subscribe<ZoomToControlEvent> {
                     println("zoom to ${it.control}")
@@ -134,8 +181,10 @@ class OpenLayersMapView : View("Map") {
                     run {
                         clearRouteChoice()
                         if (newValue != null) {
-                            zoomToLeg(legModel.item)
-                            if (showRouteChoice) {
+                            if (legModel.item.start.number != newValue.number) {
+                                zoomToLeg(legModel.item)
+                            }
+                            if (showRouteChoiceOnMap) {
                                 drawRouteChoice(legModel.item.routeChoice)
                             }
                         }

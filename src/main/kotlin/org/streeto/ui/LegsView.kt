@@ -1,6 +1,8 @@
 package org.streeto.ui
 
 import javafx.beans.property.SimpleBooleanProperty
+import javafx.scene.control.ContextMenu
+import javafx.scene.control.TableView
 import javafx.scene.layout.Priority
 import tornadofx.*
 
@@ -12,35 +14,42 @@ class LegsView : View("Legs") {
         tableview(controller.legList) {
             vgrow = Priority.ALWAYS
             hgrow = Priority.ALWAYS
+            columnResizePolicy = TableView.CONSTRAINED_RESIZE_POLICY
+            bindSelected(model)
 
-            readonlyColumn("Leg", ScoredLeg::startProperty).cellFormat {
-                text = it.value.number
+            contextmenu(legViewMenu())
+            readonlyColumn("Leg", ScoredLeg::startProperty) {
+                cellFormat {
+                    text = it.value.number
+                }
+                isSortable = false
             }
-            readonlyColumn("Score", ScoredLeg::overallScoreProperty)
-                .remainingWidth()
-                .cellFormat {
+            readonlyColumn("Score", ScoredLeg::overallScoreProperty) {
+                remainingWidth()
+                cellFormat {
                     text = it.value.toString()
                 }
-
-            onSelectionChange {
-                println("selection -> ${it?.overallScoreProperty?.value}")
+                isSortable = false
             }
-            contextmenu {
-                item("Details") {
-                    action {
-                        workspace.openInternalWindow<LegDetailsView>(modal = false)
-                    }
-                }
-                item("Zoom to Leg") {
-                    action {
-                        if (selectedItem != null) {
-                            controller.selectLegFrom(selectedItem?.start)
-                        }
-                    }
-                }
-            }
-            bindSelected(model)
         }
     }
+
+    private fun TableView<ScoredLeg>.legViewMenu(): ContextMenu.() -> Unit =
+        {
+            item("Details") {
+                action {
+                    workspace.openInternalWindow<LegDetailsView>(modal = false)
+                }
+            }
+            item("Zoom to Leg") {
+                action {
+                    if (selectedItem != null) {
+                        controller.selectLegFrom(selectedItem?.start)
+                        fire(ZoomToFitLegEvent)
+                    }
+                }
+            }
+        }
+
     override val closeable = SimpleBooleanProperty(false)
 }

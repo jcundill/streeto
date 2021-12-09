@@ -1,9 +1,15 @@
 package org.streeto.ui
 
+import com.graphhopper.util.shapes.GHPoint
+import javafx.beans.binding.BooleanExpression
 import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
+import org.streeto.ControlSite
 import tornadofx.*
+
+val never get() = BooleanExpression.booleanExpression(false.toProperty())
+
 
 open class Point(lat: Double?, lon: Double?) {
     val latProperty = SimpleDoubleProperty(lat ?: 0.0)
@@ -91,12 +97,22 @@ class ControlViewModel : ItemViewModel<Control>() {
     val lon = bind(Control::lonProperty)
 }
 
+fun ControlSite.toControl(): Control {
+    return Control(this.number, this.description, this.location.lat, this.location.lon)
+}
+
 class Control(number: String?, description: String?, lat: Double?, lon: Double?) : Point(lat, lon) {
     val numberProperty = SimpleStringProperty(number ?: "")
     var number by numberProperty
 
     val descriptionProperty = SimpleStringProperty(description ?: "")
     var description by descriptionProperty
+
+    fun toControlSite(): ControlSite {
+        val site = ControlSite(GHPoint(lat, lon), description)
+        site.number = number
+        return site
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

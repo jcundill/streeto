@@ -225,6 +225,11 @@ public class StreetO {
         return csf.findRoutes(a.getLocation(), b.getLocation()).getAll();
     }
 
+    public MapBox getMapBoxFor(List<ControlSite> controls, PaperSize paperSize) {
+        var envelopeToMap = csf.getEnvelopeForProbableRoutes(controls);
+        return MapFitter.getForEnvelope(envelopeToMap, paperSize, MapFitter.landscape20000.getScale()).orElse(null);
+    }
+
     public void writeMap(List<ControlSite> controls, String mapTitle, File path) throws IOException {
 
         File file = new File(path.getAbsoluteFile(), mapTitle + ".pdf");

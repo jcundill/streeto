@@ -37,7 +37,6 @@ public class ScoreDetails {
         if (a.length() > 15) {
             a = a.substring(0, 15);
         }
-
         return String.format("%-12s", a);
 
     }

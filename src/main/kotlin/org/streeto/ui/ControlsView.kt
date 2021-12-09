@@ -12,8 +12,14 @@ class ControlsView : View("Controls") {
         tableview(controller.controlList) {
             vgrow = Priority.ALWAYS
             hgrow = Priority.ALWAYS
-            column("Control", Control::number).contentWidth(padding = 50.0)
-            column("Description", Control::description)
+            column("Control", Control::number) {
+                contentWidth(padding = 50.0)
+                isSortable = false
+            }
+            column("Description", Control::description) {
+                isSortable = false
+            }
+
             bindSelected(model)
 
 
@@ -38,11 +44,13 @@ class ControlsView : View("Controls") {
                 item("Zoom to Leg Before") {
                     action {
                         controller.selectLegTo(selectedItem)
+                        fire(ZoomToFitLegEvent)
                     }
                 }
                 item("Zoom to Leg After") {
                     action {
                         controller.selectLegFrom(selectedItem)
+                        fire(ZoomToFitLegEvent)
                     }
                 }
             }
