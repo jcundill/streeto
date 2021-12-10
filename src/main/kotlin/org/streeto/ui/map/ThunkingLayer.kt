@@ -1,7 +1,11 @@
-package org.streeto.ui
+package org.streeto.ui.map
 
 import com.graphhopper.util.shapes.BBox
 import javafx.scene.web.WebEngine
+import org.streeto.ui.Control
+import org.streeto.ui.CourseLeg
+import org.streeto.ui.Point
+import org.streeto.ui.PointList
 import java.util.stream.Collectors
 
 

@@ -1,10 +1,11 @@
-package org.streeto.ui
+package org.streeto.ui.preferences
 
 import javafx.beans.property.SimpleDoubleProperty
 import javafx.geometry.Pos
 import javafx.scene.control.TabPane
 import org.streeto.mapping.MapStyle
 import org.streeto.mapping.PaperSize
+import org.streeto.ui.CourseController
 import tornadofx.*
 
 class PreferencesView : View("StreetO Preferences") {

@@ -1,4 +1,4 @@
-package org.streeto.ui
+package org.streeto.ui.coursedetails
 
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleDoubleProperty

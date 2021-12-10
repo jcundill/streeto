@@ -1,7 +1,8 @@
-package org.streeto.ui
+package org.streeto.ui.controls
 
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.scene.layout.Priority
+import org.streeto.ui.*
 import tornadofx.*
 
 class ControlsView : View("Controls") {

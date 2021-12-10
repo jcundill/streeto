@@ -1,15 +1,11 @@
 package org.streeto.ui
 
-import com.sothawo.mapjfx.MapView
 import javafx.application.Application
-import javafx.event.EventTarget
 import javafx.scene.Scene
 import jfxtras.styles.jmetro.JMetro
 import jfxtras.styles.jmetro.Style
 import tornadofx.*
 
-
-fun EventTarget.jfxMap(op: MapView.() -> Unit) = MapView().attachTo(this, op)
 
 class WorkspaceApp : App() {
 

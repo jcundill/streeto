@@ -1,5 +1,6 @@
-package org.streeto.ui
+package org.streeto.ui.controls
 
+import org.streeto.ui.ControlViewModel
 import tornadofx.*
 
 class ControlDetailView : View() {

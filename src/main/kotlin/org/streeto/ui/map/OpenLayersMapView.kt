@@ -1,4 +1,4 @@
-package org.streeto.ui
+package org.streeto.ui.map
 
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleObjectProperty
@@ -7,6 +7,8 @@ import javafx.event.EventHandler
 import javafx.scene.layout.Priority
 import javafx.scene.web.WebView
 import netscape.javascript.JSObject
+import org.streeto.ui.*
+import org.streeto.ui.controls.ControlDetailView
 import tornadofx.*
 import java.io.File
 import java.util.*
@@ -167,6 +169,8 @@ class OpenLayersMapView : View("Map") {
                     if (controller.controlList.isNotEmpty()) {
                         drawCourse(controller.controlList)
                         drawOverlays()
+                    } else {
+                        clearCourse()
                     }
                 }
 

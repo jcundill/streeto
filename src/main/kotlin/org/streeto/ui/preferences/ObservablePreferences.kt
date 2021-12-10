@@ -1,4 +1,4 @@
-package org.streeto.ui
+package org.streeto.ui.preferences
 
 import javafx.beans.property.*
 import org.streeto.StreetOPreferences

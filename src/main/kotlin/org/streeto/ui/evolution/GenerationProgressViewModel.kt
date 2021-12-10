@@ -1,4 +1,4 @@
-package org.streeto.ui
+package org.streeto.ui.evolution
 
 import org.streeto.genetic.StopOnFlagLimit
 import tornadofx.*

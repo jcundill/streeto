@@ -1,10 +1,11 @@
-package org.streeto.ui
+package org.streeto.ui.evolution
 
 
 import javafx.geometry.Pos
 import javafx.scene.chart.NumberAxis
 import javafx.scene.chart.XYChart
 import javafx.util.StringConverter
+import org.streeto.ui.preferences.PreferencesViewModel
 import tornadofx.*
 import java.util.*
 import kotlin.math.max

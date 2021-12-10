@@ -1,6 +1,8 @@
-package org.streeto.ui
+package org.streeto.ui.legs
 
 import javafx.util.StringConverter
+import org.streeto.ui.Control
+import org.streeto.ui.ScoredLegModel
 import tornadofx.*
 
 class LegDetailsView : View("Leg Details") {

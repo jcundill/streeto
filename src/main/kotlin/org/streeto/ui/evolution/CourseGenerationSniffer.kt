@@ -1,4 +1,4 @@
-package org.streeto.ui
+package org.streeto.ui.evolution
 
 import javafx.application.Platform
 import javafx.beans.property.SimpleBooleanProperty

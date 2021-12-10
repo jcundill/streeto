@@ -1,4 +1,4 @@
-package org.streeto.ui
+package org.streeto.ui.preferences
 
 import org.streeto.mapping.MapStyle
 import org.streeto.mapping.PaperSize

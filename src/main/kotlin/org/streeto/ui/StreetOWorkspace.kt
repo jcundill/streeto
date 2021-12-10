@@ -1,9 +1,16 @@
 package org.streeto.ui
 
 import javafx.application.Platform
+import javafx.beans.property.SimpleBooleanProperty
 import javafx.scene.control.MenuBar
 import javafx.scene.control.TabPane
 import javafx.stage.FileChooser
+import org.streeto.ui.controls.ControlsView
+import org.streeto.ui.coursedetails.CourseDetailsView
+import org.streeto.ui.evolution.GenerationProgressView
+import org.streeto.ui.legs.LegsView
+import org.streeto.ui.map.OpenLayersMapView
+import org.streeto.ui.preferences.PreferencesView
 import tornadofx.*
 import java.util.*
 
@@ -11,6 +18,17 @@ class StreetOWorkspace : Workspace("Editor", NavigationMode.Tabs) {
 
     private val courseController: CourseController by inject()
     private val mapView: OpenLayersMapView by inject()
+
+    private val haveControls = SimpleBooleanProperty(false)
+
+    init {
+        courseController.controlList.onChange { newValue ->
+            haveControls.value = newValue.list.size > 0
+
+        }
+    }
+
+
 
     override fun onBeforeShow() {
         super.onBeforeShow()
@@ -185,14 +203,14 @@ class StreetOWorkspace : Workspace("Editor", NavigationMode.Tabs) {
     private fun MenuBar.courseMenu() {
         menu("Course") {
             item("Clear Numbered Controls") {
-                //enableWhen { courseController.controlList.isNotEmpty().toProperty() }
+                enableWhen(haveControls)
                 action {
                     courseController.removeNumberedControls()
                     fire(CourseUpdatedEvent)
                 }
             }
             item("Clear All") {
-                //enableWhen { courseController.controlList.isNotEmpty().toProperty() }
+                enableWhen(haveControls)
                 action {
                     courseController.removeAllControls()
                     fire(CourseUpdatedEvent)
@@ -200,6 +218,7 @@ class StreetOWorkspace : Workspace("Editor", NavigationMode.Tabs) {
             }
             separator()
             item("Improve Existing Controls") {
+                enableWhen(haveControls)
                 action {
                     if (courseController.controlList.size > 2) {//need at least one numbered control
                         courseController.sniffer.reset()
@@ -218,6 +237,7 @@ class StreetOWorkspace : Workspace("Editor", NavigationMode.Tabs) {
                 }
             }
             item("Seed from Existing Controls") {
+                enableWhen(haveControls)
                 action {
                     courseController.sniffer.reset()
                     find<GenerationProgressView> {
@@ -235,6 +255,7 @@ class StreetOWorkspace : Workspace("Editor", NavigationMode.Tabs) {
             }
             separator()
             item("Reverse Course Direction") {
+                enableWhen(haveControls)
                 action {
                     runAsync {
                         courseController.reverseCourse()
@@ -245,6 +266,7 @@ class StreetOWorkspace : Workspace("Editor", NavigationMode.Tabs) {
             }
             separator()
             item("Re Score Controls") {
+                enableWhen(haveControls)
                 action {
                     runAsync {
                         courseController.scoreControls()

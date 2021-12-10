@@ -1,9 +1,13 @@
-package org.streeto.ui
+package org.streeto.ui.legs
 
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.scene.control.ContextMenu
 import javafx.scene.control.TableView
 import javafx.scene.layout.Priority
+import org.streeto.ui.CourseController
+import org.streeto.ui.ScoredLeg
+import org.streeto.ui.ScoredLegModel
+import org.streeto.ui.ZoomToFitLegEvent
 import tornadofx.*
 
 class LegsView : View("Legs") {

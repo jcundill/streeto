@@ -1,7 +1,9 @@
-package org.streeto.ui
+package org.streeto.ui.coursedetails
 
 import javafx.util.StringConverter
 import org.streeto.mapping.PaperSize
+import org.streeto.ui.preferences.PreferencesViewModel
+import org.streeto.ui.never
 import tornadofx.*
 
 class CourseDetailsView : View("Course Details") {

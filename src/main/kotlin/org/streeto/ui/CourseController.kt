@@ -11,6 +11,12 @@ import org.streeto.StreetO
 import org.streeto.gpx.GpxFacade
 import org.streeto.kml.KmlWriter
 import org.streeto.mapping.PaperSize
+import org.streeto.ui.coursedetails.CourseDetailsViewModel
+import org.streeto.ui.evolution.CourseGenerationSniffer
+import org.streeto.ui.evolution.GenerationProgressViewModel
+import org.streeto.ui.preferences.ObservablePreferences
+import org.streeto.ui.preferences.PreferencesHandler
+import org.streeto.ui.preferences.PreferencesViewModel
 import org.streeto.utils.CollectionHelpers.*
 import org.streeto.utils.DistUtils.dist
 import tornadofx.*
