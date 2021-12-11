@@ -127,7 +127,13 @@ class OpenLayersMapView : View("Map") {
 
                 controller.isReady.onChange { ready ->
                     if (ready) {
-                        zoomToDataBounds(controller.dataBounds)
+                        val lastCenter = controller.getLastLocation()
+                        if (lastCenter != Point(0.0, 0.0)) {
+                            mapCenter = lastCenter
+                            resolution = controller.getLastResolution()
+                        } else {
+                            zoomToDataBounds(controller.dataBounds)
+                        }
                     }
                 }
                 onMouseClicked = EventHandler {
@@ -144,6 +150,12 @@ class OpenLayersMapView : View("Map") {
 
                 subscribe<ZoomToFitCourseEvent> {
                     zoomToBestFit()
+                }
+
+                subscribe<CourseUpdatedEvent> {
+                    if (mapCenter != null) {
+                        controller.saveLastLocation(mapCenter!!, resolution)
+                    }
                 }
 
                 subscribe<ZoomToFitLegEvent> {

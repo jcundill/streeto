@@ -2,7 +2,8 @@ package org.streeto.ui.preferences
 
 import org.streeto.mapping.MapStyle
 import org.streeto.mapping.PaperSize
-import tornadofx.*
+import org.streeto.ui.Point
+import tornadofx.Controller
 
 class PreferencesHandler : Controller() {
 
@@ -45,6 +46,10 @@ class PreferencesHandler : Controller() {
     private val STREETO_JENETICS_OFFSPRINGFRACTION = "streeto.jenetics.offspringfraction"
     private val STREETO_JENETICS_POPSIZE = "streeto.jenetics.popsize"
     private val STREETO_JENETICS_MAXAGE = "streeto.jenetics.maxage"
+
+    private val STREETO_LAST_LOCATION_LAT = "streeto.last.location.lat"
+    private val STREETO_LAST_LOCATION_LON = "streeto.last.location.lon"
+    private val STREETO_LAST_RESOLUTION = "streeto.last.resolution"
 
     fun loadPreferences(): ObservablePreferences {
         val prefs = ObservablePreferences()
@@ -135,6 +140,38 @@ class PreferencesHandler : Controller() {
 
         }
         return prefs
+    }
+
+    fun setLastResolution(resolution: Double) {
+        preferences("StreetO") {
+            putDouble(STREETO_LAST_RESOLUTION, resolution)
+        }
+    }
+
+    fun getLastResolution(): Double {
+        var resolution = 0.0
+        preferences("StreetO") {
+            resolution = getDouble(STREETO_LAST_RESOLUTION, 0.0)
+        }
+        return resolution
+    }
+
+    fun setLastLocation(centre: Point) {
+        preferences("StreetO") {
+            putDouble(STREETO_LAST_LOCATION_LAT, centre.lat)
+            putDouble(STREETO_LAST_LOCATION_LON, centre.lon)
+        }
+    }
+
+    fun getLastLocation(): Point {
+        val point = Point(0.0, 0.0)
+        preferences("StreetO") {
+            val lat = getDouble(STREETO_LAST_LOCATION_LAT, 0.0)
+            val lon = getDouble(STREETO_LAST_LOCATION_LON, 0.0)
+            point.lat = lat
+            point.lon = lon
+        }
+        return point
     }
 
     fun flushPreferences(prefs: ObservablePreferences) {

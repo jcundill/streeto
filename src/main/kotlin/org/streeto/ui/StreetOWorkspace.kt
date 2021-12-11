@@ -24,7 +24,6 @@ class StreetOWorkspace : Workspace("Editor", NavigationMode.Tabs) {
     init {
         courseController.controlList.onChange { newValue ->
             haveControls.value = newValue.list.size > 0
-
         }
     }
 

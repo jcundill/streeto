@@ -23,32 +23,46 @@
  *
  */
 
-package org.streeto;
+package org.streeto.osmdata;
 
 import com.graphhopper.config.Profile;
 import com.graphhopper.reader.dem.SRTMProvider;
 import com.graphhopper.reader.osm.GraphHopperOSM;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
+import org.streeto.StreetOFlagEncoder;
 
 
 public class GhWrapper {
 
     private static final FlagEncoder oFlagEncoder = new StreetOFlagEncoder();
+    private static final EncodingManager encodingManager = EncodingManager.create(oFlagEncoder);
 
-    public static GraphHopperOSM initGH(String pbf, String osmDirectory) {
+    private final GraphHopperOSM gh = null;
+
+    public GhWrapper() {
+    }
+
+    public GraphHopperOSM loadGH(String osmDirectory) {
         var profile = new Profile("streeto").setVehicle("streeto").setWeighting("fastest").setTurnCosts(false);
         var gh = new GraphHopperOSM()
-//                //.setOSMFile(pbf)
-//                .forServer()
-//                .setGraphHopperLocation(osmDirectory)
                 .setProfiles(profile)
                 .setElevation(true);
-//                .setElevationProvider(new SRTMProvider());
-        if (!oFlagEncoder.isRegistered()) {
-            gh.setEncodingManager(EncodingManager.create(oFlagEncoder));
-        }
+        gh.setEncodingManager(encodingManager);
         gh.load(osmDirectory);
         return (GraphHopperOSM) gh;
+    }
+
+    public void initGH(String pbf, String osmDirectory) {
+        var profile = new Profile("streeto").setVehicle("streeto").setWeighting("fastest").setTurnCosts(false);
+        var gh = new GraphHopperOSM()
+                .setOSMFile(pbf)
+                .forServer()
+                .setGraphHopperLocation(osmDirectory)
+                .setProfiles(profile)
+                .setElevation(true)
+                .setElevationProvider(new SRTMProvider());
+        gh.setEncodingManager(encodingManager);
+        gh.importAndClose();
     }
 }

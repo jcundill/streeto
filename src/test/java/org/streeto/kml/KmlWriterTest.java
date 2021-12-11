@@ -38,7 +38,7 @@ class KmlWriterTest {
     @Test
     public void format() throws Exception {
         var fis = getClass().getClassLoader().getResourceAsStream("abc.kml");
-        var streeto = new StreetO("extracts/great-britain-latest.osm.pbf", "osm_data", new StreetOPreferences());
+        var streeto = new StreetO("osm_data", new StreetOPreferences(), "jc_test");
         var course = streeto.getImporter().buildFromKml(fis);
         ScoreDetails scoreDetails = streeto.score(course.getControls());
         System.out.println(scoreDetails.toString());

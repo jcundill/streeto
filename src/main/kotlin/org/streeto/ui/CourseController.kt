@@ -19,7 +19,10 @@ import org.streeto.ui.preferences.PreferencesHandler
 import org.streeto.ui.preferences.PreferencesViewModel
 import org.streeto.utils.CollectionHelpers.*
 import org.streeto.utils.DistUtils.dist
-import tornadofx.*
+import tornadofx.Controller
+import tornadofx.SortedFilteredList
+import tornadofx.reverse
+import tornadofx.singleAssign
 import java.io.File
 import java.util.*
 import java.util.stream.Collectors
@@ -53,11 +56,7 @@ class CourseController : Controller() {
     }
 
     fun initializeGH(properties: Properties) {
-        streetO = StreetO(
-            properties.getProperty("pbfFile"),
-            properties.getProperty("graphDir"),
-            preferences
-        )
+        streetO = StreetO(properties.getProperty("osmDir"), preferences, properties.getProperty("graph"))
         streetO.registerSniffer(sniffer)
         isReady.value = true
     }
@@ -338,5 +337,18 @@ class CourseController : Controller() {
         last(controlList).number = "F1"
         renumberControls()
         analyseCourse()
+    }
+
+    fun saveLastLocation(mapCenter: Point, resolution: Double) {
+        preferencesController.setLastLocation(mapCenter)
+        preferencesController.setLastResolution(resolution)
+    }
+
+    fun getLastLocation(): Point {
+        return preferencesController.getLastLocation()
+    }
+
+    fun getLastResolution(): Double {
+        return preferencesController.getLastResolution()
     }
 }

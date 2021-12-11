@@ -24,18 +24,16 @@ class ThunkingLayer(val browser: WebEngine) {
     var mapCenter: Point?
         get() = asPoint(callOLFunction("getCenter();"))
         set(center) {
-            callOLFunction("setCenter(${center.toString()})")
+            callOLFunction("setCenter([${center?.lon}, ${center?.lat}])")
         }
 
     val mouseCoordinates: Point
         get() = asPoint(callMapFunction("getMouseCoords();"))
 
     fun zoomToDataBounds(bounds: BBox) {
-        println(bounds)
         val a = Point(bounds.minLat, bounds.minLon)
         val b = Point(bounds.maxLat, bounds.maxLon)
-        val ans = callMapFunction("zoomToFitBounds(${asLatLonObj(a)}, ${asLatLonObj(b)})")
-        println(ans)
+        callMapFunction("zoomToFitBounds(${asLatLonObj(a)}, ${asLatLonObj(b)})")
     }
 
     fun zoomToBestFit() = callMapFunction("zoomToFitCourse()")

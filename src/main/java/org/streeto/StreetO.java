@@ -26,7 +26,6 @@
 package org.streeto;
 
 import com.graphhopper.ResponsePath;
-import com.graphhopper.reader.osm.GraphHopperOSM;
 import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint;
 import org.streeto.furniture.StreetFurnitureFinder;
@@ -35,6 +34,7 @@ import org.streeto.genetic.Sniffer;
 import org.streeto.gpx.GpxFacade;
 import org.streeto.kml.KmlWriter;
 import org.streeto.mapping.*;
+import org.streeto.osmdata.MapDataRepository;
 import org.streeto.scorers.*;
 
 import java.io.*;
@@ -54,14 +54,20 @@ public class StreetO {
     private CourseScorer scorer;
     private StreetOPreferences preferences;
 
-    public StreetO(String pbf, String osmDir, StreetOPreferences prefs) {
-        GraphHopperOSM gh = GhWrapper.initGH(pbf, osmDir);
-        preferences = prefs;
-        bounds = gh.getGraphHopperStorage().getBounds();
-        csf = new ControlSiteFinder(gh, preferences);
-        splitter = new MapSplitter(csf, preferences.getPaperSize(), preferences.getMaxMapScale());
-        courseImporter = new CourseImporter(csf);
-        initialiseScorers();
+    public StreetO(String osmDir, StreetOPreferences prefs, String graphDir) {
+        MapDataRepository mapDataRepository = new MapDataRepository(osmDir);
+        var maybeGh = mapDataRepository.getMapDataFrom(graphDir);
+        if (maybeGh.isEmpty()) {
+            throw new IllegalArgumentException("No map data found in " + osmDir);
+        } else {
+            var gh = maybeGh.get();
+            preferences = prefs;
+            bounds = gh.getGraphHopperStorage().getBounds();
+            csf = new ControlSiteFinder(gh, preferences);
+            splitter = new MapSplitter(csf, preferences.getPaperSize(), preferences.getMaxMapScale());
+            courseImporter = new CourseImporter(csf);
+            initialiseScorers();
+        }
     }
 
     public static void main(String[] args) {
@@ -83,10 +89,7 @@ public class StreetO {
         }
         // initialize the engine
         var sniffer = new StreetOSniffer();
-        var streeto = new StreetO(
-                properties.getProperty("pbfFile"),
-                properties.getProperty("graphDir"),
-                new StreetOPreferences());
+        var streeto = new StreetO(properties.getProperty("graphDir"), new StreetOPreferences(), properties.getProperty("graph"));
         streeto.registerSniffer(sniffer);
 
         // set up the initial course to analyse
