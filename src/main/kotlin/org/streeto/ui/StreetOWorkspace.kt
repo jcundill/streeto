@@ -8,13 +8,13 @@ import javafx.stage.FileChooser
 import org.streeto.ui.controls.ControlsView
 import org.streeto.ui.coursedetails.CourseDetailsView
 import org.streeto.ui.evolution.GenerationProgressView
+import org.streeto.ui.legs.LegDetailsView
 import org.streeto.ui.legs.LegsView
 import org.streeto.ui.map.OpenLayersMapView
 import org.streeto.ui.preferences.PreferencesView
 import tornadofx.*
-import java.util.*
 
-class StreetOWorkspace : Workspace("Editor", NavigationMode.Tabs) {
+class StreetOWorkspace : Workspace("StreetO") {
 
     private val courseController: CourseController by inject()
     private val mapView: OpenLayersMapView by inject()
@@ -22,6 +22,7 @@ class StreetOWorkspace : Workspace("Editor", NavigationMode.Tabs) {
     private val haveControls = SimpleBooleanProperty(false)
 
     init {
+        header.items.clear()
         courseController.controlList.onChange { newValue ->
             haveControls.value = newValue.list.size > 0
         }
@@ -33,12 +34,14 @@ class StreetOWorkspace : Workspace("Editor", NavigationMode.Tabs) {
         super.onBeforeShow()
         dock<OpenLayersMapView>()
         workspace.tabContainer.tabClosingPolicy = TabPane.TabClosingPolicy.UNAVAILABLE
+        workspace.title = "StreetO"
     }
 
     override fun onDock() {
         super.onDock()
         leftDrawer.item(find(CourseDetailsView::class))
         leftDrawer.item(find(ControlsView::class))
+        leftDrawer.item(find(LegDetailsView::class))
         rightDrawer.item(find(LegsView::class))
     }
 
@@ -56,20 +59,14 @@ class StreetOWorkspace : Workspace("Editor", NavigationMode.Tabs) {
     private fun MenuBar.helpMenu() {
         menu("Help") {
             item("About").action {
-                workspace.openInternalWindow<AboutView>()
+                workspace.openInternalWindow<AboutView>(closeButton = true)
             }
         }
     }
 
     private fun MenuBar.fileMenu() {
-        menu("File") {
-            menu("New") {
-                item("OSM Data") {
-                    action {
-                        find<NewOSMDataView>().openModal()
-                    }
-                }
-                item("Course") {
+        menu("_File") {
+            item("_New") {
                     enableWhen(courseController.isReady)
                     action {
                         find<NewCourseView>().openModal()
@@ -77,29 +74,8 @@ class StreetOWorkspace : Workspace("Editor", NavigationMode.Tabs) {
                         fire(CourseUpdatedEvent)
                     }
                 }
-                item("From Properties") {
-                    enableWhen(courseController.isReady)
-                    action {
-                        val ext = FileChooser.ExtensionFilter("properties", "*.properties")
-                        val propsFiles =
-                            chooseFile("Open File", filters = arrayOf(ext), mode = FileChooserMode.Single)
-                        if (propsFiles.isNotEmpty()) {
-                            with(propsFiles[0]) {
-                                runAsyncWithOverlay {
-                                    try {
-                                        val props = Properties()
-                                        props.load(inputStream())
-                                    } catch (e: Exception) {
-                                        error(header = "Invalid File", content = e.message)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
 
-            item("Open") {
+            item("_Open") {
                 enableWhen(courseController.isReady)
                 action {
                     val all = FileChooser.ExtensionFilter("Any", "*.*")
@@ -119,10 +95,10 @@ class StreetOWorkspace : Workspace("Editor", NavigationMode.Tabs) {
             }
 
             separator()
-            item("Save") {
+            item("_Save") {
 
             }
-            item("Save As") {
+            item("Save _As") {
                 action {
                     val all = FileChooser.ExtensionFilter("Any", "*.*")
                     val kml = FileChooser.ExtensionFilter("KML", "*.kml")
@@ -135,7 +111,7 @@ class StreetOWorkspace : Workspace("Editor", NavigationMode.Tabs) {
                 }
             }
             separator()
-            item("Create MapRun Files") {
+            item("Create _MapRun Files") {
                 action {
                     val directory = chooseDirectory(title = "KML+KMZ Save Location")
                     if (directory != null) {
@@ -145,7 +121,7 @@ class StreetOWorkspace : Workspace("Editor", NavigationMode.Tabs) {
                     }
                 }
             }
-            item("Create Map PDF") {
+            item("Create Map _PDF") {
                 action {
                     val directory = chooseDirectory(title = "PDF Save Location")
                     if (directory != null) {
@@ -156,7 +132,7 @@ class StreetOWorkspace : Workspace("Editor", NavigationMode.Tabs) {
                 }
             }
             separator()
-            item("Quit", "Shortcut+Q") {
+            item("E_xit", "Shortcut+Q") {
                 action {
                     Platform.exit()
                 }
@@ -165,19 +141,21 @@ class StreetOWorkspace : Workspace("Editor", NavigationMode.Tabs) {
     }
 
     private fun MenuBar.showMenu() {
-        menu("Show") {
-            checkmenuitem("Route") {
+        menu("_Show") {
+            checkmenuitem("_Route", "shortcut+R") {
+                enableWhen(haveControls)
                 selectedProperty().onChange {
                     fire(RouteVisibilityEvent(it))
                 }
             }
-            checkmenuitem("Route Choice") {
+            checkmenuitem("Route _Choice", "shortcut+C") {
+                enableWhen(haveControls)
                 selectedProperty().onChange {
                     fire(RouteChoiceVisibilityEvent(it))
                 }
             }
             separator()
-            item("Preferences") {
+            item("_Preferences") {
                 action {
                     workspace.openInternalWindow<PreferencesView>()
                 }
@@ -186,29 +164,36 @@ class StreetOWorkspace : Workspace("Editor", NavigationMode.Tabs) {
     }
 
     private fun MenuBar.mapMenu() {
-        menu("Map") {
-            item("Reset Rotation").action {
+        menu("_Map") {
+            item("_Reset Rotation").action {
                 fire(ResetRotationEvent)
             }
-            item("Zoom To Fit Course").action {
-                fire(ZoomToFitCourseEvent)
+            item("Zoom To Fit _Course") {
+                enableWhen(haveControls)
+                action {
+                    fire(ZoomToFitCourseEvent)
+                }
             }
-            item("Zoom To Current Leg").action {
-                fire(ZoomToFitLegEvent)
+            item("Zoom To Current _Leg") {
+                enableWhen(haveControls)
+                action {
+                    fire(ZoomToFitLegEvent)
+                }
             }
         }
     }
 
+
     private fun MenuBar.courseMenu() {
-        menu("Course") {
-            item("Clear Numbered Controls") {
+        menu("_Course") {
+            item("Clear _Numbered Controls") {
                 enableWhen(haveControls)
                 action {
                     courseController.removeNumberedControls()
                     fire(CourseUpdatedEvent)
                 }
             }
-            item("Clear All") {
+            item("Clear _All") {
                 enableWhen(haveControls)
                 action {
                     courseController.removeAllControls()
@@ -216,7 +201,7 @@ class StreetOWorkspace : Workspace("Editor", NavigationMode.Tabs) {
                 }
             }
             separator()
-            item("Improve Existing Controls") {
+            item("_Improve Existing Controls") {
                 enableWhen(haveControls)
                 action {
                     if (courseController.controlList.size > 2) {//need at least one numbered control
@@ -235,7 +220,7 @@ class StreetOWorkspace : Workspace("Editor", NavigationMode.Tabs) {
                     }
                 }
             }
-            item("Seed from Existing Controls") {
+            item("_Seed from Existing Controls") {
                 enableWhen(haveControls)
                 action {
                     courseController.sniffer.reset()
@@ -253,7 +238,7 @@ class StreetOWorkspace : Workspace("Editor", NavigationMode.Tabs) {
                 }
             }
             separator()
-            item("Reverse Course Direction") {
+            item("_Reverse Course Direction") {
                 enableWhen(haveControls)
                 action {
                     runAsync {
@@ -264,7 +249,7 @@ class StreetOWorkspace : Workspace("Editor", NavigationMode.Tabs) {
                 }
             }
             separator()
-            item("Re Score Controls") {
+            item("Re S_core Controls") {
                 enableWhen(haveControls)
                 action {
                     runAsync {

@@ -4,6 +4,8 @@ import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.concurrent.Worker
 import javafx.event.EventHandler
+import javafx.scene.control.Alert
+import javafx.scene.control.ContextMenu
 import javafx.scene.layout.Priority
 import javafx.scene.web.WebView
 import netscape.javascript.JSObject
@@ -66,45 +68,7 @@ class OpenLayersMapView : View("Map") {
             isContextMenuEnabled = false
             initialiseEngine()
 
-            contextmenu {
-                item("Details") {
-                    visibleWhen(isClickedOnControl)
-                    action {
-                        find<ControlDetailView>().openModal()
-                    }
-                }
-                item("Place Start Here") {
-                    action {
-                        controller.setStartAt(clickPosition.value)
-                        fire(CourseUpdatedEvent)
-                    }
-                }
-                item("Place Finish Here") {
-                    action {
-                        controller.setFinishAt(clickPosition.value)
-                        fire(CourseUpdatedEvent)
-                    }
-                }
-                item("Split Leg After") {
-                    action {
-                        controller.splitLegAfterSelected()
-                        fire(CourseUpdatedEvent)
-                    }
-                }
-                item("Split Leg Before") {
-                    action {
-                        controller.splitLegBeforeSelected()
-                        fire(CourseUpdatedEvent)
-                    }
-                }
-                item("Remove Control") {
-                    action {
-                        controller.removeSelectedControl()
-                        fire(CourseUpdatedEvent)
-                    }
-                }
-                isAutoHide = true
-            }
+            contextmenu(contextMenu())
 
             with(ThunkingLayer(engine)) {
 
@@ -209,6 +173,69 @@ class OpenLayersMapView : View("Map") {
             }
         }
     }
+
+    private fun contextMenu(): ContextMenu.() -> Unit = {
+        item("Details") {
+            visibleWhen(isClickedOnControl)
+            action {
+                find<ControlDetailView>().openModal()
+            }
+        }
+        item("Place Start Here") {
+            visibleWhen(isClickedOnControl.not())
+            action {
+                if (controller.loadMapDataAt(clickPosition.value)) {
+                    if (controller.setStartAt(clickPosition.value)) {
+                        fire(CourseUpdatedEvent)
+                    } else {
+                        alert(Alert.AlertType.ERROR, "Error", "Start position is not valid")
+                    }
+                } else {
+                    alert(Alert.AlertType.ERROR, "Error", "No Map Data for this position")
+                }
+            }
+        }
+        item("Place Finish Here") {
+            visibleWhen(isClickedOnControl.not())
+            action {
+                controller.setFinishAt(clickPosition.value)
+                fire(CourseUpdatedEvent)
+            }
+        }
+        item("Split Leg After") {
+            visibleWhen(isClickedOnControl)
+            action {
+                controller.splitLegAfterSelected()
+                fire(CourseUpdatedEvent)
+            }
+        }
+        item("Split Leg Before") {
+            visibleWhen(isClickedOnControl)
+            action {
+                controller.splitLegBeforeSelected()
+                fire(CourseUpdatedEvent)
+            }
+        }
+        item("Remove Control") {
+            visibleWhen(isClickedOnControl)
+            action {
+                controller.removeSelectedControl()
+                fire(CourseUpdatedEvent)
+            }
+        }
+        isAutoHide = true
+    }
+
+//    private fun loadMapDataFor(position: Point): Boolean {
+//        if( controller.switchToMapDataFor(position)) {
+//            return true
+//        } else {
+//            confirm("No map data found for this position", "Load it now? This will take a few minutes") {
+//                return controller.loadMapDataFor(position)
+//            }
+//            return false
+//        }
+//    }
 }
 
 

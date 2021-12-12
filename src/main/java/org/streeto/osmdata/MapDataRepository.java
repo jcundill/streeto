@@ -15,12 +15,12 @@ public class MapDataRepository {
 
     private final PbfFinder pbfFinder;
     private final GhWrapper ghWrapper;
-    private final String graphsDir;
+    private final String osmDir;
     private final List<MapData> mapDataList;
     Preferences prefs = Preferences.userNodeForPackage(MapDataRepository.class);
 
-    public MapDataRepository(String graphsDir) {
-        this.graphsDir = graphsDir;
+    public MapDataRepository(String osmDir) {
+        this.osmDir = osmDir;
         this.mapDataList = loadMapData();
         this.pbfFinder = new PbfFinder();
         this.ghWrapper = new GhWrapper();
@@ -28,7 +28,7 @@ public class MapDataRepository {
 
     void saveMapData(MapData mapData) {
         mapDataList.add(mapData);
-        prefs.put(mapData.getPath(), mapData.getBbox().toString());
+        prefs.put(mapData.getName(), mapData.getBbox().toString());
         try {
             prefs.flush();
         } catch (BackingStoreException e) {
@@ -36,13 +36,13 @@ public class MapDataRepository {
         }
     }
 
-    public Optional<GraphHopperOSM> getMapDataFrom(String graphDir) {
-        if (mapDataList.stream().anyMatch(mapData -> mapData.getPath().equals(graphDir))) {
-            var gh = ghWrapper.loadGH(getOsmDirectory(graphDir));
-            return Optional.of(gh);
-        }
-        return Optional.empty();
-    }
+//    public Optional<GraphHopperOSM> getMapDataFrom(String graphDir) {
+//        if (mapDataList.stream().anyMatch(mapData -> mapData.getPath().equals(graphDir))) {
+//            var gh = ghWrapper.loadGH(getOsmDirectory(graphDir));
+//            return Optional.of(gh);
+//        }
+//        return Optional.empty();
+//    }
 
     public boolean hasMapDataFor(GHPoint point) {
         for (MapData mapData : mapDataList) {
@@ -59,13 +59,12 @@ public class MapDataRepository {
             return Optional.empty();
         } else {
             var mapData = maybeMapData.get();
-            var gh = ghWrapper.loadGH(getOsmDirectory(mapData.getPath()));
+            var gh = ghWrapper.loadGH(osmDir + "/" + mapData.getName());
             return Optional.of(gh);
         }
     }
 
-    public Optional<GraphHopperOSM> installMapDataFor(GHPoint point, String graphDir) {
-        var osmDir = getOsmDirectory(graphDir);
+    public Optional<GraphHopperOSM> installMapDataFor(GHPoint point) {
         var maybePbfUrl = pbfFinder.findPbfFor(point);
         if (maybePbfUrl.isEmpty()) {
             return Optional.empty();
@@ -76,10 +75,11 @@ public class MapDataRepository {
                 return Optional.empty();
             } else {
                 var downloadedFile = maybeDownloadedFile.get();
-                ghWrapper.initGH(downloadedFile.getAbsolutePath(), osmDir);
-                GraphHopperOSM gh = ghWrapper.loadGH(osmDir);
+                var name = getExtractName(pbfUrl);
+                ghWrapper.initGH(downloadedFile.getAbsolutePath(), osmDir + "/" + name);
+                GraphHopperOSM gh = ghWrapper.loadGH(osmDir + "/" + name);
                 BBox bbox = gh.getGraphHopperStorage().getBounds();
-                MapData mapData = new MapData(graphDir, bbox);
+                MapData mapData = new MapData(name, bbox);
                 saveMapData(mapData);
                 return Optional.of(gh);
             }
@@ -87,8 +87,9 @@ public class MapDataRepository {
     }
 
     @NotNull
-    private String getOsmDirectory(String graphDir) {
-        return graphsDir + "/" + graphDir;
+    private String getExtractName(String pbfUrl) {
+        var name = pbfUrl.substring(pbfUrl.lastIndexOf('/') + 1);
+        return name.substring(0, name.indexOf('.'));
     }
 
     List<MapData> loadMapData() {

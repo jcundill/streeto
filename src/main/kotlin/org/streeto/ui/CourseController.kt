@@ -2,6 +2,7 @@ package org.streeto.ui
 
 import com.graphhopper.ResponsePath
 import com.graphhopper.util.shapes.BBox
+import com.graphhopper.util.shapes.GHPoint
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleStringProperty
@@ -11,6 +12,7 @@ import org.streeto.StreetO
 import org.streeto.gpx.GpxFacade
 import org.streeto.kml.KmlWriter
 import org.streeto.mapping.PaperSize
+import org.streeto.osmdata.MapDataRepository
 import org.streeto.ui.coursedetails.CourseDetailsViewModel
 import org.streeto.ui.evolution.CourseGenerationSniffer
 import org.streeto.ui.evolution.GenerationProgressViewModel
@@ -19,10 +21,7 @@ import org.streeto.ui.preferences.PreferencesHandler
 import org.streeto.ui.preferences.PreferencesViewModel
 import org.streeto.utils.CollectionHelpers.*
 import org.streeto.utils.DistUtils.dist
-import tornadofx.Controller
-import tornadofx.SortedFilteredList
-import tornadofx.reverse
-import tornadofx.singleAssign
+import tornadofx.*
 import java.io.File
 import java.util.*
 import java.util.stream.Collectors
@@ -41,6 +40,7 @@ class CourseController : Controller() {
     private val legViewModel: ScoredLegModel by inject()
     private val courseDetailsViewModel: CourseDetailsViewModel by inject()
     private val controlViewModel: ControlViewModel by inject()
+    private var mapDataRepository: MapDataRepository by singleAssign()
 
     val sniffer = CourseGenerationSniffer()
 
@@ -56,7 +56,7 @@ class CourseController : Controller() {
     }
 
     fun initializeGH(properties: Properties) {
-        streetO = StreetO(properties.getProperty("osmDir"), preferences, properties.getProperty("graph"))
+        streetO = StreetO(properties.getProperty("osmDir"), preferences)
         streetO.registerSniffer(sniffer)
         isReady.value = true
     }
@@ -156,7 +156,6 @@ class CourseController : Controller() {
             ScoredLeg(start, end, distance, pointLists)
         }.toList()
         legs.forEach(legList::add)
-        println("Generated ${legList.size} legs")
     }
 
     fun getRoute(): List<Point> {
@@ -350,5 +349,28 @@ class CourseController : Controller() {
 
     fun getLastResolution(): Double {
         return preferencesController.getLastResolution()
+    }
+
+    private fun switchToMapDataFor(position: Point): Boolean {
+        val location = GHPoint(position.lat, position.lon);
+        if (streetO.mapDataRepository.hasMapDataFor(location)) {
+            return streetO.initialiseGHFor(location).isPresent
+        }
+        return false
+    }
+
+    private fun loadMapDataFor(position: Point): Boolean {
+        return streetO.mapDataRepository.installMapDataFor(GHPoint(position.lat, position.lon)).isPresent
+    }
+
+    fun loadMapDataAt(position: Point): Boolean {
+        if( switchToMapDataFor(position)) {
+            return true
+        } else {
+            confirm("No map data found for this position", "Load it now? This will take a few minutes") {
+                return loadMapDataFor(position)
+            }
+            return false
+        }
     }
 }

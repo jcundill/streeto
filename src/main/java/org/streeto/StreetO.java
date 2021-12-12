@@ -26,6 +26,7 @@
 package org.streeto;
 
 import com.graphhopper.ResponsePath;
+import com.graphhopper.reader.osm.GraphHopperOSM;
 import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint;
 import org.streeto.furniture.StreetFurnitureFinder;
@@ -45,29 +46,36 @@ import static org.streeto.utils.CollectionHelpers.*;
 
 public class StreetO {
 
-    final ControlSiteFinder csf;
+    ControlSiteFinder csf;
     private final StreetFurnitureFinder finder = new StreetFurnitureFinder();
-    private final MapSplitter splitter;
+    private MapSplitter splitter;
     private final List<Sniffer> sniffers = new ArrayList<>();
-    private final CourseImporter courseImporter;
-    private final BBox bounds;
+    private CourseImporter courseImporter = new CourseImporter(null);
+    private BBox bounds;
     private CourseScorer scorer;
     private StreetOPreferences preferences;
+    private final MapDataRepository mapDataRepository;
 
-    public StreetO(String osmDir, StreetOPreferences prefs, String graphDir) {
-        MapDataRepository mapDataRepository = new MapDataRepository(osmDir);
-        var maybeGh = mapDataRepository.getMapDataFrom(graphDir);
+    public StreetO(String osmDir, StreetOPreferences prefs ) {
+        preferences = prefs;
+        mapDataRepository = new MapDataRepository(osmDir);
+    }
+
+    public Optional<GraphHopperOSM> initialiseGHFor(GHPoint location) {
+        Optional<GraphHopperOSM> maybeGh = mapDataRepository.getMapDataFor(location);
         if (maybeGh.isEmpty()) {
-            throw new IllegalArgumentException("No map data found in " + osmDir);
-        } else {
+            maybeGh = mapDataRepository.installMapDataFor(location);
+        }
+        if(maybeGh.isPresent()) {
+            //process it before we return it
             var gh = maybeGh.get();
-            preferences = prefs;
             bounds = gh.getGraphHopperStorage().getBounds();
             csf = new ControlSiteFinder(gh, preferences);
             splitter = new MapSplitter(csf, preferences.getPaperSize(), preferences.getMaxMapScale());
             courseImporter = new CourseImporter(csf);
             initialiseScorers();
         }
+        return maybeGh;
     }
 
     public static void main(String[] args) {
@@ -89,7 +97,7 @@ public class StreetO {
         }
         // initialize the engine
         var sniffer = new StreetOSniffer();
-        var streeto = new StreetO(properties.getProperty("graphDir"), new StreetOPreferences(), properties.getProperty("graph"));
+        var streeto = new StreetO(properties.getProperty("osmDir", "graphs"), new StreetOPreferences());
         streeto.registerSniffer(sniffer);
 
         // set up the initial course to analyse
@@ -107,6 +115,14 @@ public class StreetO {
         preferences.setPrintA3OnA4(false);
         preferences.setMaxMapScale(10000.0);
         streeto.setPreferences(preferences);
+
+        // load graphhopper data for the initial course
+        var maybeGH = streeto.initialiseGHFor(initialCourse.getControls().get(0).getLocation());
+
+        if(maybeGH.isEmpty()) {
+            System.out.println("Unable to load graphhopper data for " + initialCourse.getControls().get(0).getLocation());
+            System.exit(-1);
+        }
 
         //generate a good route based on a set of initial parameters
         var maybeControls = streeto.generateCourse(
@@ -153,7 +169,6 @@ public class StreetO {
 
     public void setPreferences(StreetOPreferences preferences) {
         this.preferences = preferences;
-        initialiseScorers();
     }
 
     public void writeMapRunFiles(List<ControlSite> controls, String title, File path) throws IOException {
@@ -262,5 +277,9 @@ public class StreetO {
 
     public BBox getBounds() {
         return bounds;
+    }
+
+    public MapDataRepository getMapDataRepository() {
+        return mapDataRepository;
     }
 }

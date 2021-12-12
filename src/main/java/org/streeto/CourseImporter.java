@@ -38,7 +38,8 @@ public class CourseImporter {
     public Course buildFromKml(InputStream is) throws Exception {
         var points = new KmlWriter().parseStream(is).collect(Collectors.toList());
         var numControls = points.size() - 2;
-        var distance = csf.routeRequest(points).getBest().getDistance();
+        //FIXME: get CSF out of here
+        var distance = 8000.0;//csf.routeRequest(points).getBest().getDistance();
         return new Course(distance, numControls, points);
     }
 
