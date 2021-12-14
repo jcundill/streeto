@@ -12,7 +12,6 @@ import org.streeto.StreetO
 import org.streeto.gpx.GpxFacade
 import org.streeto.kml.KmlWriter
 import org.streeto.mapping.PaperSize
-import org.streeto.osmdata.MapDataRepository
 import org.streeto.ui.coursedetails.CourseDetailsViewModel
 import org.streeto.ui.evolution.CourseGenerationSniffer
 import org.streeto.ui.evolution.GenerationProgressViewModel
@@ -40,7 +39,6 @@ class CourseController : Controller() {
     private val legViewModel: ScoredLegModel by inject()
     private val courseDetailsViewModel: CourseDetailsViewModel by inject()
     private val controlViewModel: ControlViewModel by inject()
-    private var mapDataRepository: MapDataRepository by singleAssign()
 
     val sniffer = CourseGenerationSniffer()
 
@@ -71,8 +69,6 @@ class CourseController : Controller() {
             streetO.importer.buildFromKml(file.inputStream())
         }
         requestedDistance.value = course.requestedDistance
-        initialiseCourse(course.controls)
-        analyseCourse()
         return course
     }
 
@@ -90,7 +86,7 @@ class CourseController : Controller() {
         return maybeSites
     }
 
-    private fun analyseCourse() {
+    fun analyseCourse() {
         generateLegs()
         scoreControls()
         updateViewModel()
@@ -120,12 +116,12 @@ class CourseController : Controller() {
         courseDetailsViewModel.bestDistance.value = streetO.routeControls(sites).distance
         courseDetailsViewModel.crowFliesDistance.value = windowed(sites, 2)
             .map { dist(it[0].location, it[1].location) }.toList().sum()
-        courseDetailsViewModel.mapScaleA3.value = streetO.getMapBoxFor(sites, PaperSize.A3).scale
-        courseDetailsViewModel.mapScaleA4.value = streetO.getMapBoxFor(sites, PaperSize.A4).scale
-        courseDetailsViewModel.mapOrientation.value = streetO.getMapBoxFor(sites, PaperSize.A4).isLandscape
+        courseDetailsViewModel.mapScaleA3.value = streetO.getMapBoxFor(sites, PaperSize.A3)?.scale ?: 20000.0
+        courseDetailsViewModel.mapScaleA4.value = streetO.getMapBoxFor(sites, PaperSize.A4)?.scale ?: 20000.0
+        courseDetailsViewModel.mapOrientation.value = streetO.getMapBoxFor(sites, PaperSize.A3)?.isLandscape ?: true
     }
 
-    private fun initialiseCourse(controls: List<ControlSite>) {
+    fun initialiseCourse(controls: List<ControlSite>) {
         controlList.clear()
         controlList.addAll(controls.map(ControlSite::toControl))
     }
@@ -352,25 +348,22 @@ class CourseController : Controller() {
     }
 
     private fun switchToMapDataFor(position: Point): Boolean {
-        val location = GHPoint(position.lat, position.lon);
+        val location = GHPoint(position.lat, position.lon)
         if (streetO.mapDataRepository.hasMapDataFor(location)) {
             return streetO.initialiseGHFor(location).isPresent
         }
         return false
     }
 
-    private fun loadMapDataFor(position: Point): Boolean {
-        return streetO.mapDataRepository.installMapDataFor(GHPoint(position.lat, position.lon)).isPresent
-    }
-
     fun loadMapDataAt(position: Point): Boolean {
-        if( switchToMapDataFor(position)) {
-            return true
+        return if (switchToMapDataFor(position)) {
+            true
         } else {
+            var loaded = false
             confirm("No map data found for this position", "Load it now? This will take a few minutes") {
-                return loadMapDataFor(position)
+                loaded = streetO.initialiseGHFor(GHPoint(position.lat, position.lon)).isPresent
             }
-            return false
+            loaded
         }
     }
 }

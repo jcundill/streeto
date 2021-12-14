@@ -2,6 +2,7 @@ package org.streeto.ui
 
 import javafx.application.Platform
 import javafx.beans.property.SimpleBooleanProperty
+import javafx.scene.control.Alert
 import javafx.scene.control.MenuBar
 import javafx.scene.control.TabPane
 import javafx.stage.FileChooser
@@ -84,11 +85,19 @@ class StreetOWorkspace : Workspace("StreetO") {
                     val courseFile =
                         chooseFile("Open File", filters = arrayOf(all, kml, gpx), mode = FileChooserMode.Single)
                     courseFile.map {
-                        mapView.runAsyncWithOverlay {
-                            courseController.loadCourse(it)
-                        } ui {
-                            fire(CourseUpdatedEvent)
-                            fire(ZoomToFitCourseEvent)
+                        val course = courseController.loadCourse(it)
+                        val start = course.controls[0].location
+                        val startPoint = Point(start.lat, start.lon)
+                        if (courseController.loadMapDataAt(startPoint)) {
+                            mapView.runAsyncWithOverlay {
+                                courseController.initialiseCourse(course.controls)
+                                courseController.analyseCourse()
+                            } ui {
+                                fire(CourseUpdatedEvent)
+                                fire(ZoomToFitCourseEvent)
+                            }
+                        } else {
+                            alert(Alert.AlertType.ERROR, "Error", "No Map Data for this position")
                         }
                     }
                 }
