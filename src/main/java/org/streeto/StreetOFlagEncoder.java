@@ -86,6 +86,7 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
         safeHighwayTags.add("track");
         safeHighwayTags.add("residential");
         safeHighwayTags.add("platform");
+        safeHighwayTags.add("cycleway");
 
         avoidHighwayTags.add("trunk");
         avoidHighwayTags.add("trunk_link");
