@@ -167,20 +167,6 @@ class StreetOWorkspace : Workspace("StreetO") {
                     fire(RouteChoiceVisibilityEvent(showRouteChoice.value))
                  }
             }
-            item("Ne_xt Leg", "shortcut+X") {
-                enableWhen(haveControls)
-                action {
-                    fire(NextLegEvent)
-                    fire(ZoomToFitLegEvent)
-                }
-            }
-            item("_Previous Leg", "shortcut+P") {
-                enableWhen(haveControls)
-                action {
-                    fire(PreviousLegEvent)
-                    fire(ZoomToFitLegEvent)
-                }
-            }
             separator()
             item("_Preferences") {
                 action {
@@ -204,6 +190,20 @@ class StreetOWorkspace : Workspace("StreetO") {
             item("Zoom To Current _Leg") {
                 enableWhen(haveControls)
                 action {
+                    fire(ZoomToFitLegEvent)
+                }
+            }
+            item("Zoom to Ne_xt Leg", "shortcut+X") {
+                enableWhen(haveControls)
+                action {
+                    fire(NextLegEvent)
+                    fire(ZoomToFitLegEvent)
+                }
+            }
+            item("Zoom to _Previous Leg", "shortcut+P") {
+                enableWhen(haveControls)
+                action {
+                    fire(PreviousLegEvent)
                     fire(ZoomToFitLegEvent)
                 }
             }

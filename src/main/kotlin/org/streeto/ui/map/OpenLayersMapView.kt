@@ -184,13 +184,16 @@ class OpenLayersMapView : View("Map") {
             visibleWhen(isClickedOnControl.not())
             action {
                 if (controller.loadMapDataAt(clickPosition.value)) {
-                    if (controller.setStartAt(clickPosition.value)) {
-                        fire(CourseUpdatedEvent)
-                    } else {
-                        alert(Alert.AlertType.ERROR, "Error", "Start position is not valid")
+                    runAsyncWithOverlay {
+                        controller.setStartAt(clickPosition.value)
+                    } ui {
+                        if (it) {
+                            fire(CourseUpdatedEvent)
+                        } else {
+                            alert(Alert.AlertType.ERROR, "Error", "Start position is not valid")
+                        }
                     }
-                } else {
-                    alert(Alert.AlertType.ERROR, "Error", "No Map Data for this position")
+
                 }
             }
         }

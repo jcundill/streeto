@@ -15,6 +15,7 @@ import org.streeto.mapping.PaperSize
 import org.streeto.ui.coursedetails.CourseDetailsViewModel
 import org.streeto.ui.evolution.CourseGenerationSniffer
 import org.streeto.ui.evolution.GenerationProgressViewModel
+import org.streeto.ui.map.OpenLayersMapView
 import org.streeto.ui.preferences.ObservablePreferences
 import org.streeto.ui.preferences.PreferencesHandler
 import org.streeto.ui.preferences.PreferencesViewModel
@@ -39,6 +40,7 @@ class CourseController : Controller() {
     private val legViewModel: ScoredLegModel by inject()
     private val courseDetailsViewModel: CourseDetailsViewModel by inject()
     private val controlViewModel: ControlViewModel by inject()
+    private val mapView: OpenLayersMapView by inject()
 
     val sniffer = CourseGenerationSniffer()
 
@@ -361,7 +363,9 @@ class CourseController : Controller() {
         } else {
             var loaded = false
             confirm("No map data found for this position", "Load it now? This will take a few minutes") {
-                loaded = streetO.initialiseGHFor(GHPoint(position.lat, position.lon)).isPresent
+                mapView.runAsyncWithOverlay {
+                    loaded = streetO.initialiseGHFor(GHPoint(position.lat, position.lon)).isPresent
+                }
             }
             loaded
         }
