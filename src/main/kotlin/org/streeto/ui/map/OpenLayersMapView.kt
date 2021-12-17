@@ -151,7 +151,6 @@ class OpenLayersMapView : View("Map") {
                 }
 
                 subscribe<ZoomToControlEvent> {
-                    println("zoom to ${it.control}")
                     if (it.control != null) {
                         zoomToControl(it.control)
                     }
@@ -225,17 +224,6 @@ class OpenLayersMapView : View("Map") {
         }
         isAutoHide = true
     }
-
-//    private fun loadMapDataFor(position: Point): Boolean {
-//        if( controller.switchToMapDataFor(position)) {
-//            return true
-//        } else {
-//            confirm("No map data found for this position", "Load it now? This will take a few minutes") {
-//                return controller.loadMapDataFor(position)
-//            }
-//            return false
-//        }
-//    }
 }
 
 

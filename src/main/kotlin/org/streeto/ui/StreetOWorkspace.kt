@@ -21,6 +21,8 @@ class StreetOWorkspace : Workspace("StreetO") {
     private val mapView: OpenLayersMapView by inject()
 
     private val haveControls = SimpleBooleanProperty(false)
+    private val showRoute = SimpleBooleanProperty(false)
+    private val showRouteChoice = SimpleBooleanProperty(false)
 
     init {
         header.items.clear()
@@ -151,16 +153,32 @@ class StreetOWorkspace : Workspace("StreetO") {
 
     private fun MenuBar.showMenu() {
         menu("_Show") {
-            checkmenuitem("_Route", "shortcut+R") {
+            item("Toggle Show R_oute", "shortcut+O") {
                 enableWhen(haveControls)
-                selectedProperty().onChange {
-                    fire(RouteVisibilityEvent(it))
+                action {
+                    showRoute.value = !showRoute.value
+                    fire(RouteVisibilityEvent(showRoute.value))
                 }
             }
-            checkmenuitem("Route _Choice", "shortcut+C") {
+            item("Toggle Show Route _Choice", "shortcut+C") {
                 enableWhen(haveControls)
-                selectedProperty().onChange {
-                    fire(RouteChoiceVisibilityEvent(it))
+                action {
+                    showRouteChoice.value = !showRouteChoice.value
+                    fire(RouteChoiceVisibilityEvent(showRouteChoice.value))
+                 }
+            }
+            item("Ne_xt Leg", "shortcut+X") {
+                enableWhen(haveControls)
+                action {
+                    fire(NextLegEvent)
+                    fire(ZoomToFitLegEvent)
+                }
+            }
+            item("_Previous Leg", "shortcut+P") {
+                enableWhen(haveControls)
+                action {
+                    fire(PreviousLegEvent)
+                    fire(ZoomToFitLegEvent)
                 }
             }
             separator()

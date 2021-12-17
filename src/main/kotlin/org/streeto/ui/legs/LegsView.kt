@@ -4,10 +4,7 @@ import javafx.beans.property.SimpleBooleanProperty
 import javafx.scene.control.ContextMenu
 import javafx.scene.control.TableView
 import javafx.scene.layout.Priority
-import org.streeto.ui.CourseController
-import org.streeto.ui.ScoredLeg
-import org.streeto.ui.ScoredLegModel
-import org.streeto.ui.ZoomToFitLegEvent
+import org.streeto.ui.*
 import tornadofx.*
 
 class LegsView : View("Legs") {
@@ -21,8 +18,38 @@ class LegsView : View("Legs") {
             columnResizePolicy = TableView.CONSTRAINED_RESIZE_POLICY
             bindSelected(model)
 
+            subscribe<NextLegEvent> {
+                if (controller.legList.isNotEmpty()) {
+                    if(selectionModel.selectedItem != null) {
+                        val idx = selectionModel.selectedIndex
+                        if (idx < controller.legList.size - 1) {
+                            selectionModel.select(idx + 1)
+                        }
+                    } else {
+                        selectionModel.select(0)
+                    }
+                }
+            }
+
+            subscribe<PreviousLegEvent> {
+                if (controller.legList.isNotEmpty()) {
+                    if( selectionModel.selectedItem != null) {
+                        val idx = selectionModel.selectedIndex
+                        if (idx > 0) {
+                            selectionModel.select(idx - 1)
+                        }
+                    } else {
+                        selectionModel.select(0)
+                    }
+                    val curr = controller.legList.indexOf(model.item)
+                    if (curr > 0) {
+                        selectionModel.select(curr - 1)
+                    }
+                }
+            }
+
             contextmenu(legViewMenu())
-            readonlyColumn("Leg", ScoredLeg::startProperty) {
+            readonlyColumn("Leg", ScoredLeg::endProperty) {
                 cellFormat {
                     text = it.value.number
                 }

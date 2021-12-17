@@ -15,20 +15,39 @@ class LegDetailsView : View("Leg Details") {
 
     class NumConverter(private val model: ScoredLegModel) : StringConverter<Control>() {
         override fun toString(p0: Control?): String {
-            return p0?.number.toString()
+            return if (p0 != null) {
+                p0.number
+            } else {
+                "No leg selected"
+            }
         }
 
         override fun fromString(p0: String?): Control {
             return model.item.start
         }
+    }
 
+    class DescriptionConverter(private val model: ScoredLegModel) : StringConverter<Control>() {
+        override fun toString(p0: Control?): String {
+            return p0?.description ?: ""
+        }
+
+        override fun fromString(p0: String?): Control {
+            return model.item.start
+        }
     }
 
     override val root = vbox {
         form {
             fieldset("Leg Details") {
                 field("Leg") {
-                    textfield(model.start, converter = NumConverter(model))
+                    textfield(model.end, converter = NumConverter(model))
+                }
+                field("Start") {
+                    textfield(model.start, converter = DescriptionConverter(model))
+                }
+                field("End") {
+                    textfield(model.end, converter = DescriptionConverter(model))
                 }
                 field("Length") {
                     textfield(model.length)
@@ -36,6 +55,8 @@ class LegDetailsView : View("Leg Details") {
                 field("Overall Score") {
                     textfield(model.overallScore)
                 }
+            }
+            fieldset("Score Details") {
                 field("Leg Length Score") {
                     textfield(model.lengthScore)
                 }

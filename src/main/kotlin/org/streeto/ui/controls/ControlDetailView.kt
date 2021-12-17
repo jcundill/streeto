@@ -17,7 +17,7 @@ class ControlDetailView : View() {
                 textfield(model.number).isEditable = false
 
                 field("Description") {
-                    textfield(model.description)//.bind(descriptionProperty)
+                    textfield(model.description)
                 }
                 field("Location") {
                     hbox {
