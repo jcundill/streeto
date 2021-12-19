@@ -15,7 +15,6 @@ import org.streeto.mapping.PaperSize
 import org.streeto.ui.coursedetails.CourseDetailsViewModel
 import org.streeto.ui.evolution.CourseGenerationSniffer
 import org.streeto.ui.evolution.GenerationProgressViewModel
-import org.streeto.ui.map.OpenLayersMapView
 import org.streeto.ui.preferences.ObservablePreferences
 import org.streeto.ui.preferences.PreferencesHandler
 import org.streeto.ui.preferences.PreferencesViewModel
@@ -40,7 +39,6 @@ class CourseController : Controller() {
     private val legViewModel: ScoredLegModel by inject()
     private val courseDetailsViewModel: CourseDetailsViewModel by inject()
     private val controlViewModel: ControlViewModel by inject()
-    private val mapView: OpenLayersMapView by inject()
 
     val sniffer = CourseGenerationSniffer()
 
@@ -49,6 +47,7 @@ class CourseController : Controller() {
     var isReady = SimpleBooleanProperty(false)
     var courseName = SimpleStringProperty("streeto")
     var requestedDistance = SimpleDoubleProperty(8000.0)
+    var osmDir = SimpleStringProperty("osm_data")
 
     init {
         preferencesViewModel.item = preferences
@@ -56,7 +55,10 @@ class CourseController : Controller() {
     }
 
     fun initializeGH(properties: Properties) {
-        streetO = StreetO(properties.getProperty("osmDir"), preferences)
+        if (properties.contains("osmDir")) {
+            osmDir.value = properties["osmDir"] as String
+        }
+        streetO = StreetO(osmDir.value, preferences)
         streetO.registerSniffer(sniffer)
         isReady.value = true
     }
@@ -357,17 +359,15 @@ class CourseController : Controller() {
         return false
     }
 
-    fun loadMapDataAt(position: Point): Boolean {
-        return if (switchToMapDataFor(position)) {
-            true
+    fun loadMapDataAt(position: Point, fetchIfNeeded: Boolean = false): Boolean {
+        return if (fetchIfNeeded) {
+            streetO.initialiseGHFor(GHPoint(position.lat, position.lon)).isPresent
         } else {
-            var loaded = false
-            confirm("No map data found for this position", "Load it now? This will take a few minutes") {
-                mapView.runAsyncWithOverlay {
-                    loaded = streetO.initialiseGHFor(GHPoint(position.lat, position.lon)).isPresent
-                }
-            }
-            loaded
+            switchToMapDataFor(position)
         }
+    }
+
+    fun hasMapDataFor(location: Point): Boolean {
+        return streetO.mapDataRepository.hasMapDataFor(GHPoint(location.lat, location.lon))
     }
 }

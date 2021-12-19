@@ -1,85 +1,153 @@
 package org.streeto.osmdata;
 
 import com.graphhopper.reader.osm.GraphHopperOSM;
-import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
+import java.util.Properties;
+
+import static org.streeto.osmdata.OutlineUtils.*;
 
 public class MapDataRepository {
 
     private final PbfFinder pbfFinder;
-    private final GhWrapper ghWrapper;
     private final String osmDir;
     private final List<MapData> mapDataList;
-    Preferences prefs = Preferences.userNodeForPackage(MapDataRepository.class);
+    Properties properties = new Properties();
 
     public MapDataRepository(String osmDir) {
         this.osmDir = osmDir;
-        this.mapDataList = loadMapData();
         this.pbfFinder = new PbfFinder();
-        this.ghWrapper = new GhWrapper();
-    }
-
-    void saveMapData(MapData mapData) {
-        mapDataList.add(mapData);
-        prefs.put(mapData.getName(), mapData.getBbox().toString());
+        this.mapDataList = new ArrayList<>();
         try {
-            prefs.flush();
-        } catch (BackingStoreException e) {
+            load(); // load from disk
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-//    public Optional<GraphHopperOSM> getMapDataFrom(String graphDir) {
-//        if (mapDataList.stream().anyMatch(mapData -> mapData.getPath().equals(graphDir))) {
-//            var gh = ghWrapper.loadGH(getOsmDirectory(graphDir));
-//            return Optional.of(gh);
-//        }
-//        return Optional.empty();
-//    }
+    public void load() throws IOException {
+        mapDataList.clear();
+        if (Files.exists(Path.of(osmDir, "osm.properties"))) {
+            properties.load(Files.newInputStream(Path.of(osmDir, "osm.properties")));
+            for (String name : properties.stringPropertyNames()) {
+                var outline = properties.getProperty(name, "");
+                var data = outline.split("\\|");
+                var date = LocalDate.parse(data[0]);
+                var ring = getOutlineFromPrefs(data[1]);
+                mapDataList.add(new MapData(name, ring, date));
+            }
+        }
+    }
 
-    public boolean hasMapDataFor(GHPoint point) {
+    private void save() throws IOException {
+        properties.store(Files.newOutputStream(Path.of(osmDir, "osm.properties")), null);
+    }
+
+    public List<MapData> getMapDataList() {
+        return mapDataList;
+    }
+
+    public Optional<MapData> getMapData(@NotNull String name) {
+        return mapDataList.stream().filter(mapData -> mapData.getName().equals(name)).findFirst();
+    }
+
+    public void removeMapData(@NotNull MapData mapData) {
+        mapDataList.remove(mapData);
+    }
+
+    public void removeMapData(@NotNull String name) {
+        mapDataList.removeIf(mapData -> mapData.getName().equals(name));
+    }
+
+    void saveMapData(MapData mapData) throws IOException {
+        mapDataList.add(mapData);
+        properties.put(mapData.getName(), toPrefsString(mapData));
+        save();
+    }
+
+    public void updateMapData(String name) throws IOException {
+        var maybeMapData = getMapData(name);
+        if (maybeMapData.isPresent()) {
+            var mapData = maybeMapData.get();
+            var center = OutlineUtils.getCenter(mapData.getOutline());
+            installMapDataFor(center);
+        }
+    }
+
+    public void deleteMapData(String name) {
+        var maybeMapData = mapDataList.stream().filter(m -> m.getName().equals(name)).findFirst();
+        if (maybeMapData.isPresent()) {
+            var mapData = maybeMapData.get();
+            try {
+                deleteFromDisk(mapData);
+                mapDataList.remove(mapData);
+                properties.remove(mapData.getName());
+                save();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void deleteFromDisk(MapData mapData) throws IOException {
+        Path dir = Path.of("./", osmDir + "/" + mapData.getName());
+        Files.walk(dir).forEach(path -> {
+            try {
+                if (!Files.isDirectory(path)) {
+                    Files.delete(path);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+        Files.delete(dir);
+    }
+
+    public boolean hasMapDataFor(GHPoint location) {
         for (MapData mapData : mapDataList) {
-            if (mapData.getBbox().contains(point.lat, point.lon)) {
+            if (isPointInsideOutline(location, mapData.getOutline())) {
                 return true;
             }
         }
         return false;
     }
 
-    public Optional<GraphHopperOSM> getMapDataFor(GHPoint point) {
-        var maybeMapData = mapDataList.stream().filter(mapData -> mapData.getBbox().contains(point.lat, point.lon)).findFirst();
+    public Optional<GraphHopperOSM> getMapDataFor(GHPoint location) {
+        var maybeMapData = mapDataList.stream().filter(mapData -> isPointInsideOutline(location, mapData.getOutline())).findFirst();
         if (maybeMapData.isEmpty()) {
             return Optional.empty();
         } else {
             var mapData = maybeMapData.get();
+            var ghWrapper = new GhWrapper();
             var gh = ghWrapper.loadGH(osmDir + "/" + mapData.getName());
             return Optional.of(gh);
         }
     }
 
-    public Optional<GraphHopperOSM> installMapDataFor(GHPoint point) {
+    public Optional<GraphHopperOSM> installMapDataFor(GHPoint point) throws IOException {
         var maybePbfUrl = pbfFinder.findPbfFor(point);
         if (maybePbfUrl.isEmpty()) {
             return Optional.empty();
         } else {
-            var pbfUrl = maybePbfUrl.get();
-            var maybeDownloadedFile = pbfFinder.getPbfFile(pbfUrl);
+            var pbfInfo = maybePbfUrl.get();
+            var maybeDownloadedFile = pbfFinder.getPbfFile(pbfInfo.getUrl());
             if (maybeDownloadedFile.isEmpty()) {
                 return Optional.empty();
             } else {
                 var downloadedFile = maybeDownloadedFile.get();
-                var name = getExtractName(pbfUrl);
+                var name = getExtractName(pbfInfo.getUrl());
+                var ghWrapper = new GhWrapper();
                 ghWrapper.initGH(downloadedFile.getAbsolutePath(), osmDir + "/" + name);
                 GraphHopperOSM gh = ghWrapper.loadGH(osmDir + "/" + name);
-                BBox bbox = gh.getGraphHopperStorage().getBounds();
-                MapData mapData = new MapData(name, bbox);
+                MapData mapData = new MapData(name, pbfInfo.getOutline(), LocalDate.now());
                 saveMapData(mapData);
                 return Optional.of(gh);
             }
@@ -91,22 +159,4 @@ public class MapDataRepository {
         var name = pbfUrl.substring(pbfUrl.lastIndexOf('/') + 1);
         return name.substring(0, name.indexOf('.'));
     }
-
-    List<MapData> loadMapData() {
-        List<MapData> maps = new ArrayList<>();
-        try {
-            var data = prefs.keys();
-            for (String name : data) {
-                var bounds = prefs.get(name, "");
-                var box = bounds.split(",");
-                var bbox = new BBox(Double.parseDouble(box[0]), Double.parseDouble(box[1]), Double.parseDouble(box[2]), Double.parseDouble(box[3]));
-                maps.add(new MapData(name, bbox));
-            }
-        } catch (BackingStoreException e) {
-            e.printStackTrace();
-        }
-        return maps;
-    }
-
-
 }

@@ -52,9 +52,6 @@ class OpenLayersMapView : View("Map") {
                         props.load(File(args["props"]!!).inputStream())
                         controller.initializeGH(props)
                     }
-                    if (!args["course"].isNullOrEmpty()) {
-                        controller.loadCourse(File(args["course"]!!))
-                    }
                 }
             }
         }
@@ -183,17 +180,25 @@ class OpenLayersMapView : View("Map") {
         item("Place Start Here") {
             visibleWhen(isClickedOnControl.not())
             action {
-                if (controller.loadMapDataAt(clickPosition.value)) {
+                val haveData = controller.hasMapDataFor(clickPosition.value)
+                var doLoad = false
+                if (!haveData) {
+                    confirm(
+                        "No map data found for this position",
+                        "Load it now? This will take a few minutes"
+                    ) {
+                        doLoad = true
+                    }
+                }
+                if (haveData || doLoad) {
                     runAsyncWithOverlay {
+                        controller.loadMapDataAt(clickPosition.value, doLoad)
                         controller.setStartAt(clickPosition.value)
                     } ui {
-                        if (it) {
-                            fire(CourseUpdatedEvent)
-                        } else {
-                            alert(Alert.AlertType.ERROR, "Error", "Start position is not valid")
-                        }
+                        fire(CourseUpdatedEvent)
                     }
-
+                } else {
+                    alert(Alert.AlertType.ERROR, "Error", "No Map Data for this position")
                 }
             }
         }

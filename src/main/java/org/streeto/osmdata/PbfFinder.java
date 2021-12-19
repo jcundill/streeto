@@ -1,7 +1,6 @@
 package org.streeto.osmdata;
 
 import com.graphhopper.util.shapes.GHPoint;
-import org.locationtech.jts.geom.Envelope;
 
 import javax.json.Json;
 import java.io.BufferedInputStream;
@@ -14,13 +13,16 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Optional;
 
+import static org.streeto.osmdata.OutlineUtils.getOutlineFromJson;
+import static org.streeto.osmdata.OutlineUtils.isPointInsideOutline;
+
 public class PbfFinder {
 
     public static final String GEOFABRIK_DE_INDEX_V_1_JSON = "https://download.geofabrik.de/index-v1.json";
 
-    public Optional<String> findPbfFor(GHPoint location) {
+    public Optional<PbfInfo> findPbfFor(GHPoint location) {
 
-        String pbfUrl = null;
+        PbfInfo pbfInfo = null;
         try {
             var url = new URL(GEOFABRIK_DE_INDEX_V_1_JSON);
             var connection = (HttpURLConnection) url.openConnection();
@@ -42,30 +44,27 @@ public class PbfFinder {
                 var properties = feature.getJsonObject("properties");
                 var geometry = feature.getJsonObject("geometry");
                 var coordinates = geometry.getJsonArray("coordinates");
-                var envelope = new Envelope();
                 var polygon = coordinates.getJsonArray(0).getJsonArray(0);
-                for (int j = 0; j < polygon.size(); j++) {
-                    var point = polygon.getJsonArray(j);
-                    var lat = point.getJsonNumber(1).doubleValue();
-                    var lon = point.getJsonNumber(0).doubleValue();
-                    envelope.expandToInclude(lon, lat);
-                }
-                if (envelope.contains(location.getLon(), location.getLat())) {
+                var outline = getOutlineFromJson(polygon);
+
+                if (isPointInsideOutline(location, outline)) {
+                    var envelope = outline.getEnvelopeInternal();
                     var width = envelope.getWidth();
                     var height = envelope.getHeight();
                     if (width < smallestWidth && height < smallestHeight) {
-                        pbfUrl = properties.getJsonObject("urls").getJsonString("pbf").getString();
+                        var pbfUrl = properties.getJsonObject("urls").getJsonString("pbf").getString();
+                        pbfInfo = new PbfInfo(pbfUrl, outline);
                         smallestWidth = width;
                         smallestHeight = height;
                     }
                 }
             }
-
         } catch (IOException e) {
+            System.out.println("Could not find pbf for location: " + location);
+            System.out.println(e.getMessage());
             // can't find the pbf, return empty
         }
-
-        return Optional.ofNullable(pbfUrl);
+        return Optional.ofNullable(pbfInfo);
     }
 
     public Optional<File> getPbfFile(String pbfUrl) {

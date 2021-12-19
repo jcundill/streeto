@@ -64,7 +64,11 @@ public class StreetO {
     public Optional<GraphHopperOSM> initialiseGHFor(GHPoint location) {
         Optional<GraphHopperOSM> maybeGh = mapDataRepository.getMapDataFor(location);
         if (maybeGh.isEmpty()) {
-            maybeGh = mapDataRepository.installMapDataFor(location);
+            try {
+                maybeGh = mapDataRepository.installMapDataFor(location);
+            } catch (IOException e) {
+                // just return empty
+            }
         }
         if(maybeGh.isPresent()) {
             //process it before we return it
@@ -81,6 +85,7 @@ public class StreetO {
     public static void main(String[] args) {
         if (args.length != 1) {
             System.out.println("Usage: StreetO <property file>");
+            System.exit(-1);
         }
         var properties = new Properties();
         try {

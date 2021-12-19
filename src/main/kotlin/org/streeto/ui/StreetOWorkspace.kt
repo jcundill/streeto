@@ -12,6 +12,7 @@ import org.streeto.ui.evolution.GenerationProgressView
 import org.streeto.ui.legs.LegDetailsView
 import org.streeto.ui.legs.LegsView
 import org.streeto.ui.map.OpenLayersMapView
+import org.streeto.ui.osmdata.OsmDataView
 import org.streeto.ui.preferences.PreferencesView
 import tornadofx.*
 
@@ -90,8 +91,19 @@ class StreetOWorkspace : Workspace("StreetO") {
                         val course = courseController.loadCourse(it)
                         val start = course.controls[0].location
                         val startPoint = Point(start.lat, start.lon)
-                        if (courseController.loadMapDataAt(startPoint)) {
+                        val haveData = courseController.hasMapDataFor(startPoint)
+                        var doLoad = false
+                        if (!haveData) {
+                            confirm(
+                                "No map data found for this position",
+                                "Load it now? This will take a few minutes"
+                            ) {
+                                doLoad = true
+                            }
+                        }
+                        if (haveData || doLoad) {
                             mapView.runAsyncWithOverlay {
+                                courseController.loadMapDataAt(startPoint, doLoad)
                                 courseController.initialiseCourse(course.controls)
                                 courseController.analyseCourse()
                             } ui {
@@ -165,12 +177,18 @@ class StreetOWorkspace : Workspace("StreetO") {
                 action {
                     showRouteChoice.value = !showRouteChoice.value
                     fire(RouteChoiceVisibilityEvent(showRouteChoice.value))
-                 }
+                }
             }
             separator()
             item("_Preferences") {
                 action {
                     workspace.openInternalWindow<PreferencesView>()
+                }
+            }
+            item("Imported _Data") {
+                action {
+                    find(OsmDataView::class).onBeforeShow()
+                    workspace.openInternalWindow<OsmDataView>()
                 }
             }
         }
