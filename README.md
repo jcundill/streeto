@@ -5,6 +5,9 @@ Use goal based searching algorithms to automatically generate passable Urban Ori
 
 Uses routing algorithms on top of OSM data to find a number of challenging course legs to make an urban orienteering course of a given distance. The start location is specified as a parameter to the algorithm and can be anywhere in the world as long as an OSM protobuf file covering that location has been loaded into the system. So start your run just outside your front door if you like.
 
+
+![StreetO screenshot](doc/streeto.png)
+
 Helper functions are provided to:
 +  Generate a printable PDF A4 open orienteering map <https://oomap.co.uk/gb> of the generated course overlaid with the controls as a line course.
 +  Generate the KML and KMZ files needed for uploading to MapRunF <https://play.google.com/store/apps/details?id=au.com.fne.maprunf&hl=en_GB> 

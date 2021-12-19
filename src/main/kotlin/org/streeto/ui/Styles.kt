@@ -8,6 +8,14 @@ class Styles : Stylesheet() {
     init {
         // No styles yet
         val white = Paint.valueOf("#ffffff")
+        tableView {
+            backgroundColor += c("#ffffff")
+            borderColor += box(white)
+        }
+        form {
+            backgroundColor += c("#ffffff")
+            borderColor += box(white)
+        }
         progressIndicator {
             maxWidth = 100.px
             maxHeight = 100.px
