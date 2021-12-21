@@ -199,9 +199,10 @@ class OpenLayersMapView : View("Map") {
                 if (haveData || doLoad) {
                     runAsyncWithOverlay {
                         controller.loadMapDataAt(clickPosition.value, doLoad)
-                        controller.setStartAt(clickPosition.value)
-                    } ui {
-                        fire(CourseUpdatedEvent)
+                    } ui { loaded ->
+                        if (loaded && controller.setStartAt(clickPosition.value)) {
+                            fire(CourseUpdatedEvent)
+                        }
                     }
                 } else {
                     alert(Alert.AlertType.ERROR, "Error", "No Map Data for this position")

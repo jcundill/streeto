@@ -104,11 +104,13 @@ class StreetOWorkspace : Workspace("StreetO") {
                         if (haveData || doLoad) {
                             mapView.runAsyncWithOverlay {
                                 courseController.loadMapDataAt(startPoint, doLoad)
-                                courseController.initialiseCourse(course.controls)
-                                courseController.analyseCourse()
-                            } ui {
-                                fire(CourseUpdatedEvent)
-                                fire(ZoomToFitCourseEvent)
+                            } ui { loaded ->
+                                if (loaded) {
+                                    courseController.initialiseCourse(course.controls)
+                                    courseController.analyseCourse()
+                                    fire(CourseUpdatedEvent)
+                                    fire(ZoomToFitCourseEvent)
+                                }
                             }
                         } else {
                             alert(Alert.AlertType.ERROR, "Error", "No Map Data for this position")
@@ -276,9 +278,15 @@ class StreetOWorkspace : Workspace("StreetO") {
                     }
                     runAsync {
                         courseController.seedFromControls()
-                    } ui {
-                        fire(CourseUpdatedEvent)
-                        fire(ZoomToFitCourseEvent)
+                    } ui { maybeSites ->
+                        if (maybeSites.isPresent) {
+                            val sites = maybeSites.get()
+                            courseController.initialiseCourse(sites)
+                            courseController.analyseCourse()
+
+                            fire(CourseUpdatedEvent)
+                            fire(ZoomToFitCourseEvent)
+                        }
                     }
                 }
             }

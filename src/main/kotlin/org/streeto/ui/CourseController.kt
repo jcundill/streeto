@@ -20,7 +20,10 @@ import org.streeto.ui.preferences.PreferencesHandler
 import org.streeto.ui.preferences.PreferencesViewModel
 import org.streeto.utils.CollectionHelpers.*
 import org.streeto.utils.DistUtils.dist
-import tornadofx.*
+import tornadofx.Controller
+import tornadofx.SortedFilteredList
+import tornadofx.reverse
+import tornadofx.singleAssign
 import java.io.File
 import java.util.*
 import java.util.stream.Collectors
@@ -78,13 +81,7 @@ class CourseController : Controller() {
         numControls: Int,
         initial: List<ControlSite>
     ): Optional<List<ControlSite>> {
-        val maybeSites = streetO.generateCourse(requestedDistance, numControls, initial)
-        if (maybeSites.isPresent) {
-            val sites = maybeSites.get()
-            initialiseCourse(sites)
-            analyseCourse()
-        }
-        return maybeSites
+        return streetO.generateCourse(requestedDistance, numControls, initial)
     }
 
     fun analyseCourse() {
