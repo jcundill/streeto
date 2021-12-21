@@ -16,6 +16,8 @@ class WorkspaceApp : App() {
             val jMetro = JMetro(Style.LIGHT)
             jMetro.scene = scene
         }
+
+        workspace.primaryStage.icons.add(resources.image("/app-icon.png"))
         super.onBeforeShow(view)
     }
 
