@@ -26,7 +26,6 @@ import java.util.*
 import java.util.stream.Collectors
 import kotlin.math.abs
 import kotlin.math.roundToInt
-import kotlin.streams.toList
 
 
 class CourseController : Controller() {
@@ -47,18 +46,16 @@ class CourseController : Controller() {
     var isReady = SimpleBooleanProperty(false)
     var courseName = SimpleStringProperty("streeto")
     var requestedDistance = SimpleDoubleProperty(8000.0)
-    var osmDir = SimpleStringProperty("osm_data")
+    lateinit var osmDir: String
 
     init {
         preferencesViewModel.item = preferences
         progressViewModel.item = sniffer
     }
 
-    fun initializeGH(properties: Properties) {
-        if (properties.contains("osmDir")) {
-            osmDir.value = properties["osmDir"] as String
-        }
-        streetO = StreetO(osmDir.value, preferences)
+    fun initializeGH(osmDir: String) {
+        this.osmDir = osmDir
+        streetO = StreetO(osmDir, preferences)
         streetO.registerSniffer(sniffer)
         isReady.value = true
     }

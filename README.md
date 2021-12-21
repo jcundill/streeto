@@ -84,14 +84,10 @@ mvn clean verify
 ```
 To get everything to compile.
 
+Application Icon 
+By מאיר מ at Hebrew Wikipedia, CC BY-SA 3.0, https://commons.wikimedia.org/w/index.php?curid=10226955
 
-### Importing Open Street Map data
 
-Graphhopper works against a local database built from OSM protobuf files. You will need to download an appropriate openstreetmap protocol buffer file for the area you want to make courses for. Great-britain-latest.osm.pbf or similar for nationwide coverage - or choose a smaller one for your local area.
-
-For details of pbf file downloads see <https://download.geofabrik.de/europe/great-britain.html>
-
-The downloaded pbf file needs to go into a folder called extracts in order to initialise the Graphhopper database - see the `main` method in the `StreetO` class for details of how this is done.
 
 
 

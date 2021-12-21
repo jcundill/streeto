@@ -8,6 +8,7 @@ import javafx.scene.control.Alert
 import javafx.scene.control.ContextMenu
 import javafx.scene.layout.Priority
 import javafx.scene.web.WebView
+import net.harawata.appdirs.AppDirsFactory
 import netscape.javascript.JSObject
 import org.streeto.ui.*
 import org.streeto.ui.controls.ControlDetailView
@@ -50,14 +51,19 @@ class OpenLayersMapView : View("Map") {
                     if (!args["props"].isNullOrEmpty()) {
                         val props = Properties()
                         props.load(File(args["props"]!!).inputStream())
-                        controller.initializeGH(props)
+                        controller.initializeGH(props.getProperty("osmDir"))
+                    } else {
+                        val props = Properties()
+                        val dataDir = AppDirsFactory.getInstance().getUserDataDir("StreetO", null, "org.streeto")
+                        props.setProperty("osmDir", dataDir)
+                        controller.initializeGH(dataDir)
                     }
                 }
             }
         }
-        engine.load(resources.url("/index.html").toExternalForm())
+        val location = resources.url("/index.html").toExternalForm()
+        engine.load(location)
     }
-
 
     override val root = vbox {
         webview {

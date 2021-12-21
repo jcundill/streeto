@@ -7,9 +7,9 @@ import tornadofx.*
 class OsmDataController : Controller() {
     val mapsList = SortedFilteredList<MapDataModel>()
     private val courseController: CourseController by inject()
-    private val mapDataRepository = MapDataRepository(courseController.osmDir.value)
 
     fun loadMaps() {
+        val mapDataRepository = MapDataRepository(courseController.osmDir)
         mapsList.clear()
         mapDataRepository.load()
         val models = mapDataRepository.mapDataList.map { MapDataModel(it.name, it.date) }
@@ -17,10 +17,12 @@ class OsmDataController : Controller() {
     }
 
     fun deleteMapData(model: MapDataModel) {
+        val mapDataRepository = MapDataRepository(courseController.osmDir)
         mapDataRepository.deleteMapData(model.name)
     }
 
     fun updateMapData(model: MapDataModel) {
+        val mapDataRepository = MapDataRepository(courseController.osmDir)
         mapDataRepository.updateMapData(model.name)
     }
 }
