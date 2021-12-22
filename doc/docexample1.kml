@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+<Document>
+<name>oom_streeto_controls</name>
+<open>1</open>
+<Style id="startfinish"><IconStyle><color>ffff00ff</color><scale>1.8</scale><Icon><href>http://maps.google.com/mapfiles/kml/paddle/wht-stars.png</href></Icon><hotSpot x="0.5" y="0" xunits="fraction" yunits="fraction"/></IconStyle><LabelStyle><color>ffff00ff</color></LabelStyle><BalloonStyle></BalloonStyle><ListStyle></ListStyle></Style>
+<Style id="control"><IconStyle><color>ffff00ff</color><scale>1.0</scale><Icon><href>http://maps.google.com/mapfiles/kml/paddle/wht-blank.png</href></Icon><hotSpot x="0.5" y="0" xunits="fraction" yunits="fraction"/></IconStyle><LabelStyle><color>ffff00ff</color><scale>1.0</scale></LabelStyle><BalloonStyle></BalloonStyle><ListStyle></ListStyle></Style>
+<Folder>
+<name>Controls</name>
+<open>1</open>
+
+<Placemark>        <name>S1</name>        <description>junction</description>        <styleUrl>#startfinish</styleUrl>        <Point>            <gx:drawOrder>1</gx:drawOrder>            <coordinates>-0.275981,52.530311,0</coordinates>        </Point></Placemark>
+<Placemark>        <name>1</name>        <description>bus_stop</description>        <styleUrl>#startfinish</styleUrl>        <Point>            <gx:drawOrder>1</gx:drawOrder>            <coordinates>-0.266732,52.539216,0</coordinates>        </Point></Placemark>
+<Placemark>        <name>2</name>        <description>bollard</description>        <styleUrl>#startfinish</styleUrl>        <Point>            <gx:drawOrder>1</gx:drawOrder>            <coordinates>-0.272480,52.543065,0</coordinates>        </Point></Placemark>
+<Placemark>        <name>3</name>        <description>junction</description>        <styleUrl>#startfinish</styleUrl>        <Point>            <gx:drawOrder>1</gx:drawOrder>            <coordinates>-0.274538,52.541874,0</coordinates>        </Point></Placemark>
+<Placemark>        <name>4</name>        <description>junction</description>        <styleUrl>#startfinish</styleUrl>        <Point>            <gx:drawOrder>1</gx:drawOrder>            <coordinates>-0.276720,52.545209,0</coordinates>        </Point></Placemark>
+<Placemark>        <name>5</name>        <description>junction</description>        <styleUrl>#startfinish</styleUrl>        <Point>            <gx:drawOrder>1</gx:drawOrder>            <coordinates>-0.275959,52.545588,0</coordinates>        </Point></Placemark>
+<Placemark>        <name>6</name>        <description>bend</description>        <styleUrl>#startfinish</styleUrl>        <Point>            <gx:drawOrder>1</gx:drawOrder>            <coordinates>-0.280549,52.545234,0</coordinates>        </Point></Placemark>
+<Placemark>        <name>7</name>        <description>junction</description>        <styleUrl>#startfinish</styleUrl>        <Point>            <gx:drawOrder>1</gx:drawOrder>            <coordinates>-0.277699,52.547987,0</coordinates>        </Point></Placemark>
+<Placemark>        <name>8</name>        <description>junction</description>        <styleUrl>#startfinish</styleUrl>        <Point>            <gx:drawOrder>1</gx:drawOrder>            <coordinates>-0.283302,52.545104,0</coordinates>        </Point></Placemark>
+<Placemark>        <name>9</name>        <description>junction</description>        <styleUrl>#startfinish</styleUrl>        <Point>            <gx:drawOrder>1</gx:drawOrder>            <coordinates>-0.286858,52.546409,0</coordinates>        </Point></Placemark>
+<Placemark>        <name>10</name>        <description>tree</description>        <styleUrl>#startfinish</styleUrl>        <Point>            <gx:drawOrder>1</gx:drawOrder>            <coordinates>-0.289963,52.542714,0</coordinates>        </Point></Placemark>
+<Placemark>        <name>11</name>        <description>junction</description>        <styleUrl>#startfinish</styleUrl>        <Point>            <gx:drawOrder>1</gx:drawOrder>            <coordinates>-0.286349,52.541977,0</coordinates>        </Point></Placemark>
+<Placemark>        <name>12</name>        <description>junction</description>        <styleUrl>#startfinish</styleUrl>        <Point>            <gx:drawOrder>1</gx:drawOrder>            <coordinates>-0.285657,52.543192,0</coordinates>        </Point></Placemark>
+<Placemark>        <name>13</name>        <description>junction</description>        <styleUrl>#startfinish</styleUrl>        <Point>            <gx:drawOrder>1</gx:drawOrder>            <coordinates>-0.283961,52.544458,0</coordinates>        </Point></Placemark>
+<Placemark>        <name>14</name>        <description>junction</description>        <styleUrl>#startfinish</styleUrl>        <Point>            <gx:drawOrder>1</gx:drawOrder>            <coordinates>-0.278985,52.538143,0</coordinates>        </Point></Placemark>
+<Placemark>        <name>15</name>        <description>junction</description>        <styleUrl>#startfinish</styleUrl>        <Point>            <gx:drawOrder>1</gx:drawOrder>            <coordinates>-0.273334,52.538039,0</coordinates>        </Point></Placemark>
+<Placemark>        <name>16</name>        <description>junction</description>        <styleUrl>#startfinish</styleUrl>        <Point>            <gx:drawOrder>1</gx:drawOrder>            <coordinates>-0.274440,52.532161,0</coordinates>        </Point></Placemark>
+<Placemark>        <name>F1</name>        <description>junction</description>        <styleUrl>#startfinish</styleUrl>        <Point>            <gx:drawOrder>1</gx:drawOrder>            <coordinates>-0.275981,52.530311,0</coordinates>        </Point></Placemark></Folder>
+</Document>
+</kml>
