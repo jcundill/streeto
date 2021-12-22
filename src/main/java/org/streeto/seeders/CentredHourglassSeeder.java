@@ -22,7 +22,6 @@ public class CentredHourglassSeeder extends AbstractSeeder {
 
         var csf = getCsf();
         var first = initialPoints.get(0);
-        var last = initialPoints.get(initialPoints.size() - 1);
         var bearing = csf.randomBearing();
         var initial = csf.getGHPointRelativeTo(first.getLocation(), bearing, scaleFactor * longRatio / 2.0);
         var second = csf.getGHPointRelativeTo(initial, bearing + angle, scaleFactor * shortRatio / 2.0);
@@ -30,7 +29,7 @@ public class CentredHourglassSeeder extends AbstractSeeder {
         var fourth = csf.getGHPointRelativeTo(third, PI + bearing, scaleFactor * longRatio);
         var fifth = csf.getGHPointRelativeTo(fourth, bearing + angle, scaleFactor * longRatio);
 
-        var route = List.of(first.getLocation(), second, third, fourth, fifth, last.getLocation());
-        return generateInitialCourse(route, requestedNumControls);
+        var merged = merge(initialPoints, List.of(second, third, fourth, fifth), requestedNumControls);
+        return generateInitialCourse(merged, requestedNumControls);
     }
 }

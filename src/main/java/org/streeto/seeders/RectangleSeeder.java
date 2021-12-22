@@ -20,13 +20,12 @@ public class RectangleSeeder extends AbstractSeeder {
         var scaleFactor = requestedCourseLength * twistFactor / 4.0; //its a rectangle
         var csf = getCsf();
         var first = initialPoints.get(0);
-        var last = initialPoints.get(initialPoints.size() - 1);
         var bearing = csf.randomBearing();
         var second = csf.getGHPointRelativeTo(first.getLocation(), Math.PI + bearing, scaleFactor * longRatio);
         var third = csf.getGHPointRelativeTo(second, Math.PI + bearing + angle, scaleFactor * shortRatio);
         var fourth = csf.getGHPointRelativeTo(third, bearing, scaleFactor * longRatio);
 
-        var points = List.of(first.getLocation(), second, third, fourth, last.getLocation());
-        return generateInitialCourse(points, requestedNumControls);
+        var merged = merge(initialPoints, List.of(second, third, fourth), requestedNumControls);
+        return generateInitialCourse(merged, requestedNumControls);
     }
 }

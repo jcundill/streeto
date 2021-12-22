@@ -260,9 +260,15 @@ class StreetOWorkspace : Workspace("StreetO") {
                         }
                         runAsync {
                             courseController.generateFromControls()
-                        } ui {
-                            fire(CourseUpdatedEvent)
-                            fire(ZoomToFitCourseEvent)
+                        } ui { maybeSites ->
+                            if (maybeSites.isPresent) {
+                                val sites = maybeSites.get()
+                                courseController.initialiseCourse(sites)
+                                courseController.analyseCourse()
+
+                                fire(CourseUpdatedEvent)
+                                fire(ZoomToFitCourseEvent)
+                            }
                         }
                     }
                 }

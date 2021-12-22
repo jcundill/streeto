@@ -24,7 +24,7 @@ public class TriangleSeeder extends AbstractSeeder {
         var second = csf.getGHPointRelativeTo(first.getLocation(), Math.PI + bearing, scaleFactor);
         var third = csf.getGHPointRelativeTo(last.getLocation(), Math.PI + bearing + angle, scaleFactor);
 
-        var points = List.of(first.getLocation(), second, third, last.getLocation());
-        return generateInitialCourse(points, requestedNumControls);
+        var merged = merge(initialPoints, List.of(second, third), requestedNumControls);
+        return generateInitialCourse(merged, requestedNumControls);
     }
 }
