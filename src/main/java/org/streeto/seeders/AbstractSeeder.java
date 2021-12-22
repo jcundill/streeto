@@ -26,14 +26,19 @@ abstract class AbstractSeeder implements SeedingStrategy {
     }
 
     private List<ControlSite> fillFromInitialPoints(List<ControlSite> points, int requestedNumControls) {
-        var pointList = csf.routeRequest(points).getBest().getPoints();
-        var xs = IntStream.range(1, requestedNumControls)
-                .mapToObj(it -> {
-                    var position = pointList.get(it * (pointList.size() / requestedNumControls - 1));
-                    return csf.findNearestControlSiteTo(position);
-                });
-        var unfiltered = Stream.concat(Stream.of(Optional.of(first(points))), xs);
-        return unfiltered.filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
+        if (requestedNumControls == 0) {
+            return List.of();
+        } else {
+            var pointList = csf.routeRequest(points).getBest().getPoints();
+            var stepSize = pointList.size() / requestedNumControls;
+            var xs = IntStream.range(1, requestedNumControls)
+                    .mapToObj(it -> {
+                        var position = pointList.get(it * stepSize - stepSize / 2);
+                        return csf.findNearestControlSiteTo(position);
+                    });
+            var unfiltered = Stream.concat(Stream.of(Optional.of(first(points))), xs);
+            return unfiltered.filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
+        }
     }
 
     protected List<ControlSite> generateInitialCourse(List<GHPoint> route, int requestedNumControls) {

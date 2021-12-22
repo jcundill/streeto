@@ -91,7 +91,10 @@ class CourseController : Controller() {
     }
 
     fun generateFromControls(): Optional<List<ControlSite>> {
-        return generateFrom(requestedDistance.value, controlList.size - 2, controlList.items.map { it.toControlSite() })
+        return generateFrom(
+            courseDetailsViewModel.bestDistance.value,
+            controlList.size - 2,
+            controlList.items.map { it.toControlSite() })
     }
 
 
@@ -111,6 +114,8 @@ class CourseController : Controller() {
         val sites = controlList.items.map(Control::toControlSite)
         courseDetailsViewModel.name.value = courseName.value
         courseDetailsViewModel.numControls.value = controlList.size - 2
+        courseDetailsViewModel.requestedDistance.value = requestedDistance.value
+        courseDetailsViewModel.distanceTolerance.value = preferences.allowedCourseLengthDeltaProperty.value
         courseDetailsViewModel.bestDistance.value = streetO.routeControls(sites).distance
         courseDetailsViewModel.crowFliesDistance.value = windowed(sites, 2)
             .map { dist(it[0].location, it[1].location) }.toList().sum()
@@ -363,5 +368,15 @@ class CourseController : Controller() {
 
     fun hasMapDataFor(location: Point): Boolean {
         return streetO.mapDataRepository.hasMapDataFor(GHPoint(location.lat, location.lon))
+    }
+
+    fun isCurrentCourseLengthValid(): Boolean {
+        val existingLength = courseDetailsViewModel.bestDistance.value
+        val maxAllowedLength = getMaxAllowedCourseLength()
+        return existingLength < maxAllowedLength
+    }
+
+    fun getMaxAllowedCourseLength(): Double {
+        return requestedDistance.value * (1.0 + preferencesViewModel.allowedCourseLengthDelta.value)
     }
 }

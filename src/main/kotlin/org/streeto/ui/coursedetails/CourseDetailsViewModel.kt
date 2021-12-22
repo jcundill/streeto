@@ -4,10 +4,12 @@ import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleStringProperty
-import tornadofx.*
+import tornadofx.ViewModel
 
 class CourseDetailsViewModel : ViewModel() {
 
+    val requestedDistance = SimpleDoubleProperty(0.0)
+    val distanceTolerance = SimpleDoubleProperty(0.0)
     val mapOrientation = SimpleBooleanProperty(false)
     val mapScaleA3 = SimpleDoubleProperty(0.0)
     val mapScaleA4 = SimpleDoubleProperty(0.0)

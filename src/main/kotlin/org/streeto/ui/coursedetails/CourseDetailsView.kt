@@ -2,8 +2,8 @@ package org.streeto.ui.coursedetails
 
 import javafx.util.StringConverter
 import org.streeto.mapping.PaperSize
-import org.streeto.ui.preferences.PreferencesViewModel
 import org.streeto.ui.never
+import org.streeto.ui.preferences.PreferencesViewModel
 import tornadofx.*
 
 class CourseDetailsView : View("Course Details") {
@@ -22,6 +22,12 @@ class CourseDetailsView : View("Course Details") {
                     }
                     field("Number Of Controls") {
                         textfield(model.numControls).isEditable = false
+                    }
+                    field("Requested Distance") {
+                        textfield(model.requestedDistance).isEditable = false
+                    }
+                    field("Distance Tolerance") {
+                        textfield(model.distanceTolerance).isEditable = false
                     }
                     field("Best Route Distance") {
                         textfield(model.bestDistance).isEditable = false

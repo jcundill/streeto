@@ -34,6 +34,7 @@ import org.streeto.utils.Envelope;
 
 import java.util.List;
 import java.util.Random;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -108,6 +109,8 @@ public class CourseSeeder {
 
     @NotNull
     private List<ControlSite> getControlSites(ControlSite startPoint, List<ControlSite> chosenControls, ControlSite finishPoint) {
-        return Stream.concat(Stream.concat(Stream.of(startPoint), chosenControls.stream()), Stream.of(finishPoint)).collect(Collectors.toList());
+        return Stream.of(Stream.of(startPoint), chosenControls.stream(), Stream.of(finishPoint))
+                .flatMap(Function.identity())
+                .toList();
     }
 }
