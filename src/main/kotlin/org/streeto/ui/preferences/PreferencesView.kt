@@ -6,11 +6,12 @@ import javafx.scene.control.TabPane
 import org.streeto.mapping.MapStyle
 import org.streeto.mapping.PaperSize
 import org.streeto.ui.CourseController
+import org.streeto.ui.StreetOView
 import tornadofx.*
 
-class PreferencesView : View("StreetO Preferences") {
+class PreferencesView : StreetOView("StreetO Preferences") {
     val controller: CourseController by inject()
-    val model: PreferencesViewModel by inject()//handler.loadPreferences()
+    val model: PreferencesViewModel by inject()
 
     override val root = vbox {
         tabpane {

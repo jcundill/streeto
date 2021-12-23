@@ -1,14 +1,11 @@
 package org.streeto.ui.controls
 
 import org.streeto.ui.ControlViewModel
+import org.streeto.ui.StreetOView
 import tornadofx.*
 
-class ControlDetailView : View() {
+class ControlDetailView : StreetOView("Control Details") {
     val model: ControlViewModel by inject()
-
-    init {
-        title = "Control Details View"
-    }
 
     override val root = vbox {
         form {

@@ -3,15 +3,12 @@ package org.streeto.ui.legs
 import javafx.util.StringConverter
 import org.streeto.ui.Control
 import org.streeto.ui.ScoredLegModel
+import org.streeto.ui.StreetOView
 import tornadofx.*
 
-class LegDetailsView : View("Leg Details") {
+class LegDetailsView : StreetOView("Leg Details") {
 
     private val model: ScoredLegModel by inject()
-
-    init {
-        title = "Leg Details View"
-    }
 
     class NumConverter(private val model: ScoredLegModel) : StringConverter<Control>() {
         override fun toString(p0: Control?): String {
@@ -78,7 +75,6 @@ class LegDetailsView : View("Leg Details") {
                 field("Next Control Placement Score") {
                     textfield(model.placementScore)
                 }
-
             }
         }
     }

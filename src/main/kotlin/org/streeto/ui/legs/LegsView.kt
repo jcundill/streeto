@@ -7,7 +7,7 @@ import javafx.scene.layout.Priority
 import org.streeto.ui.*
 import tornadofx.*
 
-class LegsView : View("Legs") {
+class LegsView : StreetOView("Legs") {
     private val controller: CourseController by inject()
     private val model: ScoredLegModel by inject()
 

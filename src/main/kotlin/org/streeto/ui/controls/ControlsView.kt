@@ -5,7 +5,7 @@ import javafx.scene.layout.Priority
 import org.streeto.ui.*
 import tornadofx.*
 
-class ControlsView : View("Controls") {
+class ControlsView : StreetOView("Controls") {
     private val controller: CourseController by inject()
     val model: ControlViewModel by inject()
 
@@ -22,7 +22,6 @@ class ControlsView : View("Controls") {
             }
 
             bindSelected(model)
-
 
             onSelectionChange {
                 println("selection -> $it")

@@ -5,6 +5,7 @@ import com.graphhopper.util.shapes.BBox
 import com.graphhopper.util.shapes.GHPoint
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleDoubleProperty
+import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import org.streeto.ControlSite
 import org.streeto.Course
@@ -49,6 +50,7 @@ class CourseController : Controller() {
     var isReady = SimpleBooleanProperty(false)
     var courseName = SimpleStringProperty("streeto")
     var requestedDistance = SimpleDoubleProperty(8000.0)
+    val courseFile = SimpleObjectProperty<File>()
     lateinit var osmDir: String
 
     init {
@@ -104,11 +106,6 @@ class CourseController : Controller() {
             getNumberOfControls(),
             controlList.items.map { it.toControlSite() })
     }
-
-    fun newCourse() {
-        initialiseCourse(listOf())
-    }
-
 
     private fun updateViewModel() {
         val sites = controlList.items.map(Control::toControlSite)
@@ -211,6 +208,7 @@ class CourseController : Controller() {
     }
 
     fun saveAs(file: File) {
+        courseFile.value = file
         val sites = controlList.map(Control::toControlSite)
         val path = streetO.routeControls(sites)
         if (file.extension == "gpx") {
@@ -233,7 +231,7 @@ class CourseController : Controller() {
         controlList.clear()
     }
 
-    fun setStartAt(point: Point): Boolean {
+    private fun setNonNumberedControl(point: Point, function: (Optional<ControlSite>) -> Unit): Boolean {
         var success = true
         val site = streetO.findNearestControlSiteTo(point.lat, point.lon)
         if (site.isEmpty) {
@@ -248,35 +246,30 @@ class CourseController : Controller() {
             initialiseCourse(controlList.map(Control::toControlSite))
             analyseCourse()
         } else {
-            val start = site.get().toControl()
-            start.number = "S1"
-            controlList[0] = start
+            function(site)
         }
         return success
+    }
+
+    fun setStartAt(point: Point): Boolean {
+        return setNonNumberedControl(point, this::updateStart)
+    }
+
+    private fun updateStart(site: Optional<ControlSite>) {
+        val start = site.get().toControl()
+        start.number = "S1"
+        controlList[0] = start
     }
 
     fun setFinishAt(point: Point): Boolean {
-        var success = true
-        val site = streetO.findNearestControlSiteTo(point.lat, point.lon)
-        if (site.isEmpty) {
-            success = false
-        } else if (controlList.isEmpty()) {
-            val start = site.get().toControl()
-            start.number = "S1"
-            val finish = site.get().toControl()
-            finish.number = "F1"
-            controlList.add(start)
-            controlList.add(finish)
-            initialiseCourse(controlList.map(Control::toControlSite))
-            analyseCourse()
-        } else {
-            val finish = site.get().toControl()
-            finish.number = "F1"
-            controlList[controlList.size - 1] = finish
-        }
-        return success
+        return setNonNumberedControl(point, this::updateFinish)
     }
 
+    private fun updateFinish(site: Optional<ControlSite>) {
+        val finish = site.get().toControl()
+        finish.number = "F1"
+        controlList[controlList.size - 1] = finish
+    }
 
     fun generatePDF(directory: File) {
         val sites = controlList.map(Control::toControlSite)
@@ -378,5 +371,12 @@ class CourseController : Controller() {
 
     fun getMaxAllowedCourseLength(): Double {
         return requestedDistance.value * (1.0 + preferencesViewModel.allowedCourseLengthDelta.value)
+    }
+
+    fun setDetailsFrom(file: File) {
+        courseFile.value = file
+        courseName.value = file.nameWithoutExtension
+        requestedDistance.value = courseDetailsViewModel.bestDistance.value.roundToInt().toDouble()
+        updateViewModel()
     }
 }

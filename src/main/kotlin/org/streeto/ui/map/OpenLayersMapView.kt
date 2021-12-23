@@ -17,7 +17,7 @@ import java.io.File
 import java.util.*
 
 
-class OpenLayersMapView : View("Map") {
+class OpenLayersMapView : StreetOView("Map") {
 
     private val controller: CourseController by inject()
     private val controlModel: ControlViewModel by inject()
@@ -30,6 +30,7 @@ class OpenLayersMapView : View("Map") {
     private var showRouteChoiceOnMap: Boolean = false
 
     override fun onBeforeShow() {
+        super.onBeforeShow()
         this.deletableWhen { never }
     }
 

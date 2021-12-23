@@ -2,11 +2,12 @@ package org.streeto.ui.coursedetails
 
 import javafx.util.StringConverter
 import org.streeto.mapping.PaperSize
+import org.streeto.ui.StreetOView
 import org.streeto.ui.never
 import org.streeto.ui.preferences.PreferencesViewModel
 import tornadofx.*
 
-class CourseDetailsView : View("Course Details") {
+class CourseDetailsView : StreetOView("Course Details") {
     private val model: CourseDetailsViewModel by inject()
     private val preferences: PreferencesViewModel by inject()
 

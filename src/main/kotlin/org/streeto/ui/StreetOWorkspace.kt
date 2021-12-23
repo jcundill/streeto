@@ -35,6 +35,10 @@ class StreetOWorkspace : Workspace("StreetO") {
             haveControls.value = newValue.list.size > 1
             haveNumberedControls.value = newValue.list.size > 2
         }
+        courseController.courseFile.onChange { newValue ->
+            workspace.title = "StreetO - " + (newValue?.path ?: "Untitled")
+
+        }
     }
 
 
@@ -66,15 +70,29 @@ class StreetOWorkspace : Workspace("StreetO") {
     }
 
     private fun MenuBar.helpMenu() {
-        menu("Help") {
+        menu("_Help") {
+            item("User Guide") {
+                action {
+                    hostServices.showDocument("https://jcundill.github.io/streeto/index.html")
+                }
+            }
             item("About").action {
-                workspace.openInternalWindow<AboutView>(closeButton = true)
+                find<AboutView>().openModal()
             }
         }
     }
 
     private fun MenuBar.fileMenu() {
         menu("_File") {
+            item("_New").action {
+                enableWhen(courseController.isReady)
+                action {
+                    courseController.removeAllControls()
+                    courseController.courseFile.value = null
+                    fire(CourseUpdatedEvent)
+                }
+
+            }
             item("_Open") {
                 enableWhen(courseController.isReady)
                 action {
@@ -83,8 +101,8 @@ class StreetOWorkspace : Workspace("StreetO") {
                     val gpx = FileChooser.ExtensionFilter("GPX", "*.gpx")
                     val courseFile =
                         chooseFile("Open File", filters = arrayOf(all, kml, gpx), mode = FileChooserMode.Single)
-                    courseFile.map {
-                        val course = courseController.loadCourse(it)
+                    courseFile.map { file ->
+                        val course = courseController.loadCourse(file)
                         val start = course.controls[0].location
                         val startPoint = Point(start.lat, start.lon)
                         val haveData = courseController.hasMapDataFor(startPoint)
@@ -104,6 +122,7 @@ class StreetOWorkspace : Workspace("StreetO") {
                                 if (loaded) {
                                     courseController.initialiseCourse(course.controls)
                                     courseController.analyseCourse()
+                                    courseController.setDetailsFrom(file)
                                     fire(CourseUpdatedEvent)
                                     fire(ZoomToFitCourseEvent)
                                 }
@@ -117,7 +136,10 @@ class StreetOWorkspace : Workspace("StreetO") {
 
             separator()
             item("_Save") {
-
+                enableWhen(courseController.courseFile.isNotNull.and(haveControls))
+                action {
+                    courseController.saveAs(courseController.courseFile.value)
+                }
             }
             item("Save _As") {
                 enableWhen(haveControls)
@@ -134,7 +156,7 @@ class StreetOWorkspace : Workspace("StreetO") {
             }
             separator()
             item("Create _MapRun Files") {
-                enableWhen(haveControls)
+                enableWhen(haveNumberedControls)
                 action {
                     val directory = chooseDirectory(title = "KML+KMZ Save Location")
                     if (directory != null) {
@@ -145,7 +167,7 @@ class StreetOWorkspace : Workspace("StreetO") {
                 }
             }
             item("Create Map _PDF") {
-                enableWhen(haveControls)
+                enableWhen(haveNumberedControls)
                 action {
                     val directory = chooseDirectory(title = "PDF Save Location")
                     if (directory != null) {
@@ -287,9 +309,6 @@ class StreetOWorkspace : Workspace("StreetO") {
         dialog("Seed from Existing Controls") {
             field("Preferred Distance") {
                 textfield(courseController.requestedDistance)
-            }
-            field("Course Title") {
-                textfield(courseController.courseName)
             }
             hbox {
                 alignment = Pos.CENTER_RIGHT

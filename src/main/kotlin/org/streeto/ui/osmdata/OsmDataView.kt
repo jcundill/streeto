@@ -2,13 +2,15 @@ package org.streeto.ui.osmdata
 
 import javafx.scene.control.TableView
 import javafx.scene.layout.Priority
+import org.streeto.ui.StreetOView
 import tornadofx.*
 
-class OsmDataView : View("Imported OSM Data") {
+class OsmDataView : StreetOView("Imported OSM Data") {
     private val controller: OsmDataController by inject()
     val model: MapDataViewModel by inject()
 
     override fun onBeforeShow() {
+        super.onBeforeShow()
         controller.loadMaps()
     }
 
