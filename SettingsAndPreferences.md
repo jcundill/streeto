@@ -1,3 +1,5 @@
+[back](./index.md)
+
 ## Settings and Preferences
 
 ### Leg Length Preferences
@@ -51,3 +53,5 @@ These determine how much the algorithm considers a junction feature at the curre
 ![Image](./doc/mappingprefs.png)
 
 ![Image](./doc/jeneticsprefs.png)
+
+[back](./index.md)

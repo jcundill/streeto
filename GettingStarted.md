@@ -1,11 +1,6 @@
+[back](./index.md)
+
 ## Getting Started
-
-### Installing
-
-Windows and macOS Installers are available for download from [GitHub](https://github.com/jcundill/streeto/releases).
-
-Note that currently the installers are not digitally signed, this will be fixed in the future. But for now they will trigger warning messages.
-
 
 
 
@@ -65,6 +60,6 @@ The location selected earlier for the start will now be shown on the map
 [Example PDF File](./doc/streeto.pdf)
 
 
-
+[back](./index.md)
 
   
