@@ -19,6 +19,7 @@ import java.util.*
 
 class OpenLayersMapView : StreetOView("Map") {
 
+    private val haveControls = SimpleBooleanProperty(false)
     private val controller: CourseController by inject()
     private val controlModel: ControlViewModel by inject()
     private val legModel: ScoredLegModel by inject()
@@ -28,6 +29,12 @@ class OpenLayersMapView : StreetOView("Map") {
     private val clickPosition = SimpleObjectProperty<Point>()
     private var showRouteOnMap: Boolean = false
     private var showRouteChoiceOnMap: Boolean = false
+
+    init {
+        controller.controlList.onChange { newValue ->
+            haveControls.value = newValue.list.size > 1
+        }
+    }
 
     override fun onBeforeShow() {
         super.onBeforeShow()
@@ -211,7 +218,7 @@ class OpenLayersMapView : StreetOView("Map") {
             }
         }
         item("Place Finish Here") {
-            visibleWhen(isClickedOnControl.not())
+            visibleWhen(isClickedOnControl.not().and(haveControls))
             action {
                 controller.setFinishAt(clickPosition.value)
                 fire(CourseUpdatedEvent)
@@ -219,6 +226,7 @@ class OpenLayersMapView : StreetOView("Map") {
         }
         item("Split Leg After") {
             visibleWhen(isClickedOnControl)
+            enableWhen(controlModel.number.isNotEqualTo("F1"))
             action {
                 controller.splitLegAfterSelected()
                 fire(CourseUpdatedEvent)
@@ -226,6 +234,7 @@ class OpenLayersMapView : StreetOView("Map") {
         }
         item("Split Leg Before") {
             visibleWhen(isClickedOnControl)
+            enableWhen(controlModel.number.isNotEqualTo("S1"))
             action {
                 controller.splitLegBeforeSelected()
                 fire(CourseUpdatedEvent)
@@ -233,6 +242,7 @@ class OpenLayersMapView : StreetOView("Map") {
         }
         item("Remove Control") {
             visibleWhen(isClickedOnControl)
+            enableWhen(controlModel.number.isNotEqualTo("S1").and(controlModel.number.isNotEqualTo("F1")))
             action {
                 controller.removeSelectedControl()
                 fire(CourseUpdatedEvent)
