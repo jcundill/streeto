@@ -78,11 +78,57 @@ In addition to the improvers, there are a number of hard constraints that the co
 
 StreetO is a java based piece of Software, primarily because the Graphhopper routing engine and the jenetics library that do a lot of the heavy lifting are written in Java.
 
-Maven build system
+Needs JDK 17.0.1 or later to compile the code and build the installer packages.
+
+Whilst the business logic used by the application to generate and analyse courses is plain Java code,
+the user interface itself is written in [Kotlin](https://kotlinlang.org/) using the tornadofx framework, see https://tornadofx.io/
+for documentation on the framework.
+
+You'll need the JetBrains Kotlin plugin https://plugins.jetbrains.com/plugin/6954-kotlin to be able to run 
+the code from within Intellij.
+
+Main class to run is `org.streeto.ui.WorkspaceApp`. This is a javaFX 
+application launcher that starts the main UI.
+
+JavaFX uses the Java module system. StreetO is not a modular application as its main dependencies 
+are themselves not modular.
+
+To get rid of the `WARNING: Unsupported JavaFX configuration: classes were loaded from 'unnamed module @1ab4fc1'
+` warning when running or debugging the application in Intellij, download the 
+[JavaFX 17.0.1 SDK](https://gluonhq.com/products/javafx/) for your platform and add the following to the Intellij run configuration VM options
+for the `WorkspaceApp`
+
 ```
+--module-path
+/the/path/to/javafx-sdk-17.0.1/lib
+--add-modules
+javafx.controls,javafx.web
+--add-exports
+javafx.graphics/com.sun.javafx.sg.prism=ALL-UNNAMED
+```
+
+
+
+StreetO uses the maven build system with the relevant Kotlin, JavaFX and jpackage dependencies to compile, package and run the 
+application from the command line.
+
+```
+git clone
+cd streeto
 mvn clean verify
 ```
 To get everything to compile.
+
+```
+mvn javafx:run
+```
+To run the GUI.
+
+```dtd
+mvn install
+```
+To build the installer package for the current platform. 
+
 
 Application Icon 
 By מאיר מ at Hebrew Wikipedia, CC BY-SA 3.0, https://commons.wikimedia.org/w/index.php?curid=10226955
