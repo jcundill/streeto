@@ -1,6 +1,6 @@
 [back](./index.md)
 
-## Introduction to StreetO User Interface
+## Introduction to the StreetO User Interface
 
 The primary view shown in StreetO is a map.
 You can add control sites onto this map and link them together to form an orienteering course.
