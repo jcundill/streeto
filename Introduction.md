@@ -59,7 +59,7 @@ adding in the appropriate way designations for the bit you couldn't do.
 
 I have this exact issue with a service road through an electrical substation just around the corner from where I live.
 
-It happens infrequently, the AI generally does a good job, but obviously not every possible route can be vetted up
+Having said that, it happens infrequently, the AI generally does a good job, but obviously not every possible route can be vetted up
 front, I've no idea how accurate the OpenStreetMap data for the area just south of Alice Springs in Australia is, for
 example, so use your common sense and have a look over the map before you set off. You can always just generate another
 one if this one is no good.

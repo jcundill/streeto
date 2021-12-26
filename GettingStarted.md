@@ -66,7 +66,7 @@ The System will prompt you to enter the approximate distance you would like the 
 Note, this is the distance of the shortest navigable route around all the controls on the course, and not the 'crow
 flies' distance between the control sites as commonly used on orienteering maps.
 
-Enter, for example, '6500' for 6.5K run and click 'OK'.
+Enter, for example, '6500' for a 6.5K run and click 'OK'.
 
 StreetO will now generate the course based on the distance preference you entered, the start and finish locations, and
 by default, although you can change this - see [Settings and Preferences](./SettingsAndPreferences.md) - try and make
@@ -86,7 +86,7 @@ By default, although this is also configurable, the algorithm will run for 180 s
 
 You can manually stop the algorithm at any time by clicking the 'Stop Evolution' button.
 
-When it has finished, it will take the best course it made out and display that on the map.
+When it has finished, it will take the best course it made from the evolved population and display that on the map.
 
 ![Image](./doc/showingcourse.png)
 
@@ -118,6 +118,11 @@ See the documentation on their page for details of how to do this.
 
 You are now all set. Hopefully you have a decent run ahead of you, so print off the map, lace up your trainers and give
 it a go.
+
+Be sure to read the caveats' section of the [Introduction](./Introduction.md#constraints-limitations-etc) for more information on the limitations of this software.
+
+Note: This software is still of a pre-release quality, so there may be bugs. If you find any, please let me know.
+
 
 [back](./index.md)
 
