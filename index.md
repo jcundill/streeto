@@ -1,6 +1,3 @@
-
-
-
 <img src="./doc/underconstruction.png" width="200" height="160">
 
 [Introduction](./Introduction.md)
@@ -14,6 +11,8 @@
 [Placing and Editing Controls on the Map](./PlacingControls.md)
 
 [Generating Courses](./GeneratingCourses.md)
+
+[Viewing Course Details](./ViewCourseDetails.md)
 
 [Loading and Saving Courses](./LoadingSavingCourses.md)
 
