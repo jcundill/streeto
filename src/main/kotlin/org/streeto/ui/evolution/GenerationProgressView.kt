@@ -49,7 +49,7 @@ class GenerationProgressView : StreetOView("Course Evolution Progress") {
     }
 
     override val root = vbox {
-        prefWidth = 400.0
+        prefWidth = 440.0
         prefHeight = 400.0
         model.started.onChange {
             if (it) {
@@ -63,6 +63,7 @@ class GenerationProgressView : StreetOView("Course Evolution Progress") {
 
     private fun evolveCourseView(): Node {
         return vbox {
+            paddingRight = 10.0
             label("Generation Complete") {
                 visibleWhen(model.finished)
             }
