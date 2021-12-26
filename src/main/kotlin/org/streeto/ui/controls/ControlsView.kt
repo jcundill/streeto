@@ -1,6 +1,7 @@
 package org.streeto.ui.controls
 
 import javafx.beans.property.SimpleBooleanProperty
+import javafx.event.EventHandler
 import javafx.scene.layout.Priority
 import org.streeto.ui.*
 import tornadofx.*
@@ -13,6 +14,13 @@ class ControlsView : StreetOView("Controls") {
         tableview(controller.controlList) {
             vgrow = Priority.ALWAYS
             hgrow = Priority.ALWAYS
+
+            onMouseClicked = EventHandler {
+                if (it.clickCount == 2) {
+                    fire(ZoomToControlEvent(selectedItem))
+                }
+            }
+
             column("Control", Control::number) {
                 contentWidth(padding = 50.0)
                 isSortable = false
@@ -23,10 +31,21 @@ class ControlsView : StreetOView("Controls") {
 
             bindSelected(model)
 
-            onSelectionChange {
-                println("selection -> $it")
-                println(model.item)
-                println("${model.number}, ${model.description}, ${model.lat}, ${model.lon}")
+
+            subscribe<NextLegEvent> { _ ->
+                if (selectionModel.selectedIndex < controller.controlList.size - 1) {
+                    selectionModel.select(selectionModel.selectedIndex + 1)
+                }
+            }
+
+            subscribe<PreviousLegEvent> { _ ->
+                if (selectionModel.selectedIndex > 0) {
+                    selectionModel.select(selectionModel.selectedIndex - 1)
+                }
+            }
+
+            subscribe<ControlSelectedEvent> { event ->
+                selectionModel.select(event.control)
             }
 
             contextmenu {

@@ -6,6 +6,8 @@ import javafx.concurrent.Worker
 import javafx.event.EventHandler
 import javafx.scene.control.Alert
 import javafx.scene.control.ContextMenu
+import javafx.scene.input.KeyCode
+import javafx.scene.input.KeyEvent
 import javafx.scene.layout.Priority
 import javafx.scene.web.WebView
 import net.harawata.appdirs.AppDirsFactory
@@ -117,7 +119,25 @@ class OpenLayersMapView : StreetOView("Map") {
                     controlModel.item = ctrl
                     isClickedOnControl.value = ctrl != null
                     clickPosition.value = coords
+                    if (ctrl != null) {
+                        fire(ControlSelectedEvent(ctrl))
+                    }
                 }
+
+                addEventFilter(KeyEvent.KEY_PRESSED) {
+                    if (it.code == KeyCode.DOWN || it.code == KeyCode.UP) {
+                        if (it.code == KeyCode.DOWN) {
+                            fire(NextLegEvent)
+                        } else {
+                            fire(PreviousLegEvent)
+                        }
+                        it.consume()
+                        if (it.isShortcutDown) {
+                            fire(ZoomToFitLegEvent)
+                        }
+                    }
+                }
+
 
                 subscribe<ResetRotationEvent> {
                     rotation = 0.0

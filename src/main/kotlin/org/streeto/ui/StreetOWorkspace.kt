@@ -125,6 +125,7 @@ class StreetOWorkspace : Workspace("StreetO") {
                                     courseController.setDetailsFrom(file)
                                     fire(CourseUpdatedEvent)
                                     fire(ZoomToFitCourseEvent)
+                                    fire(ControlSelectedEvent(courseController.controlList[0]))
                                 }
                             }
                         } else {
@@ -235,14 +236,26 @@ class StreetOWorkspace : Workspace("StreetO") {
                     fire(ZoomToFitLegEvent)
                 }
             }
-            item("Zoom to Ne_xt Leg", "shortcut+X") {
+            item("Select _Next Leg", "DOWN") {
+                enableWhen(haveControls)
+                action {
+                    fire(NextLegEvent)
+                }
+            }
+            item("Select _Previous Leg", "UP") {
+                enableWhen(haveControls)
+                action {
+                    fire(PreviousLegEvent)
+                }
+            }
+            item("Zoom to Ne_xt Leg", "shortcut+DOWN") {
                 enableWhen(haveNumberedControls)
                 action {
                     fire(NextLegEvent)
                     fire(ZoomToFitLegEvent)
                 }
             }
-            item("Zoom to _Previous Leg", "shortcut+P") {
+            item("Zoom to Pre_vious Leg", "shortcut+UP") {
                 enableWhen(haveNumberedControls)
                 action {
                     fire(PreviousLegEvent)

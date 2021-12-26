@@ -98,7 +98,7 @@ public class MapDataRepository {
     }
 
     private void deleteFromDisk(MapData mapData) throws IOException {
-        Path dir = Path.of("./", osmDir + "/" + mapData.getName());
+        Path dir = Path.of(osmDir, mapData.getName());
         Files.walk(dir).forEach(path -> {
             try {
                 if (!Files.isDirectory(path)) {

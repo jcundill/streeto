@@ -76,7 +76,7 @@ class ThunkingLayer(val browser: WebEngine) {
 
     fun clearRouteChoice() = callJavascript("document.routeChoiceSource.clear();")
 
-    fun zoomToControl(control: Control, level: Int = 19) =
+    fun zoomToControl(control: Control, level: Int = 20) =
         callMapFunction("zoomToLatLon(${asLatLonObj(control)}, $level);")
 
     private fun callJavascript(str: String): Any = browser.executeScript(str)

@@ -41,3 +41,6 @@ streeto.properties
 /.bsp/
 /doc/streeto/
 /.jqwik-database
+/openlayers/.parcel-cache/
+/openlayers/node_modules/
+/openlayers/dist/
