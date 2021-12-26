@@ -124,16 +124,18 @@ class OpenLayersMapView : StreetOView("Map") {
                     }
                 }
 
-                addEventFilter(KeyEvent.KEY_PRESSED) {
-                    if (it.code == KeyCode.DOWN || it.code == KeyCode.UP) {
-                        if (it.code == KeyCode.DOWN) {
-                            fire(NextLegEvent)
-                        } else {
-                            fire(PreviousLegEvent)
-                        }
-                        it.consume()
-                        if (it.isShortcutDown) {
-                            fire(ZoomToFitLegEvent)
+                if( !Styles.isMac()) {
+                    addEventFilter(KeyEvent.KEY_PRESSED) {
+                        if (it.code == KeyCode.DOWN || it.code == KeyCode.UP) {
+                            if (it.code == KeyCode.DOWN) {
+                                fire(NextLegEvent)
+                            } else {
+                                fire(PreviousLegEvent)
+                            }
+                            it.consume()
+                            if (it.isShortcutDown) {
+                                fire(ZoomToFitLegEvent)
+                            }
                         }
                     }
                 }

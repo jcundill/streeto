@@ -27,16 +27,18 @@ class LegsView : StreetOView("Legs") {
                 }
             }
 
-            addEventFilter(KEY_PRESSED) {
-                if (it.code == KeyCode.DOWN || it.code == KeyCode.UP) {
-                    if (it.code == KeyCode.DOWN) {
-                        fire(NextLegEvent)
-                    } else {
-                        fire(PreviousLegEvent)
-                    }
-                    it.consume()
-                    if (it.isShortcutDown) {
-                        fire(ZoomToFitLegEvent)
+            if( !Styles.isMac() ) {
+                addEventFilter(KEY_PRESSED) {
+                    if (it.code == KeyCode.DOWN || it.code == KeyCode.UP) {
+                        it.consume()
+                        if (it.code == KeyCode.DOWN) {
+                            fire(NextLegEvent)
+                        } else {
+                            fire(PreviousLegEvent)
+                        }
+                        if (it.isShortcutDown) {
+                            fire(ZoomToFitLegEvent)
+                        }
                     }
                 }
             }

@@ -20,8 +20,11 @@ class Styles : Stylesheet() {
         progressIndicator {
             maxWidth = 100.px
             maxHeight = 100.px
-            backgroundColor = multi(white)
-            borderImageWidth = box(0.0.px)
+            if( !isMac()) {
+                backgroundColor = multi(white)
+                borderImageWidth = box(0.0.px)
+            }
+
         }
     }
 
@@ -34,7 +37,7 @@ class Styles : Stylesheet() {
             }
         }
 
-        private fun isMac(): Boolean {
+        fun isMac(): Boolean {
             with(System.getProperty("os.name", "generic").lowercase()) {
                 return (indexOf("mac") >= 0) || (indexOf("darwin") >= 0)
             }
