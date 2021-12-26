@@ -2,6 +2,8 @@ package org.streeto.ui.evolution
 
 
 import javafx.geometry.Pos
+import javafx.geometry.VPos
+import javafx.scene.Node
 import javafx.scene.chart.NumberAxis
 import javafx.scene.chart.XYChart
 import javafx.util.StringConverter
@@ -21,7 +23,6 @@ class GenerationProgressView : StreetOView("Course Evolution Progress") {
 
     override fun onBeforeShow() {
         super.onBeforeShow()
-        line.data.clear()
         model.fitness.onChange { newValue ->
             if (newValue?.generation == 1L) {
                 startTime = Date().time
@@ -42,42 +43,77 @@ class GenerationProgressView : StreetOView("Course Evolution Progress") {
 
     }
 
-    override val root = vbox {
+    override fun onUndock() {
+        model.finished.value = true
+        super.onUndock()
+    }
 
-        hbox {
-            vbox {
-                label("Generating Initial Population ...") {
-                    hiddenWhen(model.started)
+    override val root = vbox {
+        prefWidth = 400.0
+        prefHeight = 400.0
+        model.started.onChange {
+            if (it) {
+                replaceChildren(evolveCourseView())
+            } else {
+                replaceChildren(buildPopulationView())
+            }
+        }
+        add(buildPopulationView())
+    }
+
+    private fun evolveCourseView(): Node {
+        return vbox {
+            label("Generation Complete") {
+                visibleWhen(model.finished)
+            }
+            linechart("Course Fitness", NumberAxis(0.0, 100.0, 10.0), NumberAxis(0.0, 1.0, 0.1)) {
+                visibleWhen(model.started)
+                createSymbols = false
+                line = series("Fitness") {
+                    isLegendVisible = false
+                }
+            }
+            line.data.clear()
+            hbox {
+                paddingAll = 10.0
+                button("Stop Evolution") {
+                    action { model.finished.value = true }
+                    enableWhen(model.started.and(model.finished.not()))
                 }
                 label(model.fitness, converter = ProgressConverter()) {
-                    visibleWhen(model.started.and(model.finished.not()))
+                    paddingLeft = 40.0
+                    paddingTop = 5.0
                 }
             }
         }
-        label("Generation Complete") {
-            visibleWhen(model.finished)
-        }
+    }
 
-        linechart("Evolution", NumberAxis(0.0, 100.0, 10.0), NumberAxis(0.0, 1.0, 0.1)) {
-            visibleWhen(model.started)
-            createSymbols = false
-            line = series("Fitness")
-        }
-        button("Stop Evolution") {
-            action { model.finished.value = true }
-            enableWhen(model.started.and(model.finished.not()))
-            alignment = Pos.CENTER_RIGHT
+    private fun buildPopulationView(): Node {
+        return borderpane {
+            top {
+                label("Generating Initial Population ...")
+            }
+            center {
+                minHeight = 350.0
+                progressindicator {
+                    style {
+                        alignment = Pos.CENTER
+                        vAlignment = VPos.CENTER
+                        prefHeight = 200.px
+                        prefWidth = 200.px
+                    }
+                }
+            }
         }
     }
 
     class ProgressConverter : StringConverter<Progress>() {
         override fun toString(value: Progress): String {
-            return "${value.generation}: ${value.fitness}"
+            return "Generation: ${value.generation}, Fitness: ${"%.3f".format(value.fitness)}"
         }
 
         override fun fromString(p0: String?): Progress {
             return Progress(0, 0.0)
         }
-
     }
 }
