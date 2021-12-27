@@ -17,14 +17,16 @@ This removes everything from the Map and the Course, including the Start and the
 
 ### Improve Existing Controls
 
-This will take the controls currently on the map and the current shortest route around those controls and feed this
+This will take the controls currently on the map and the current desired course length and feed this
 information back into the course generation algorithm.
 
 It will try and find better control sites taking the existing ones as the starting location and keeping the course
-length roughly the same as it is now. Course length tolerence is discussed
+length roughly the same as the desired course length set for this course when it was initially seeded or loaded into the system.
+
+Course length tolerence is discussed
 in [Settings and Preferences](./SettingsAndPreferences.md).
 
-Once the generation algorithm has completed, the new controls will replace the existing one on the map.
+Once the generation algorithm has completed, the new controls will replace the existing ones on the map.
 
 ### Seed from Existing Controls
 
