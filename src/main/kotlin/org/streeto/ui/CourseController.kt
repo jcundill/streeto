@@ -68,14 +68,18 @@ class CourseController : Controller() {
     val dataBounds: BBox
         get() = streetO.bounds
 
-    fun loadCourse(file: File): Course {
-        val course = if (file.extension == "gpx") {
-            streetO.importer.buildFromGPX(file.path)
-        } else {
-            streetO.importer.buildFromKml(file.inputStream())
+    fun loadCourse(file: File): Course? {
+        return try {
+            val course = if (file.extension == "gpx") {
+                streetO.importer.buildFromGPX(file.path)
+            } else {
+                streetO.importer.buildFromKml(file.inputStream())
+            }
+            requestedDistance.value = course.requestedDistance
+            course
+        } catch (e: Exception) {
+            null
         }
-        requestedDistance.value = course.requestedDistance
-        return course
     }
 
     private fun generateFrom(
@@ -271,14 +275,24 @@ class CourseController : Controller() {
         controlList[controlList.size - 1] = finish
     }
 
-    fun generatePDF(directory: File) {
-        val sites = controlList.map(Control::toControlSite)
-        streetO.writeMap(sites, courseName.value, directory)
+    fun generatePDF(directory: File): Boolean {
+        return try {
+            val sites = controlList.map(Control::toControlSite)
+            streetO.writeMap(sites, courseName.value, directory)
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 
-    fun generateMapRunFiles(directory: File) {
-        val sites = controlList.map(Control::toControlSite)
-        streetO.writeMapRunFiles(sites, courseName.value, directory)
+    fun generateMapRunFiles(directory: File, name: String): Boolean {
+        return try {
+            val sites = controlList.map(Control::toControlSite)
+            streetO.writeMapRunFiles(sites, name, directory)
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 
     fun splitLegAfterSelected() {

@@ -17,6 +17,7 @@ import org.streeto.ui.map.OpenLayersMapView
 import org.streeto.ui.osmdata.OsmDataView
 import org.streeto.ui.preferences.PreferencesView
 import tornadofx.*
+import java.io.File
 import java.util.*
 
 class StreetOWorkspace : Workspace("StreetO") {
@@ -96,40 +97,48 @@ class StreetOWorkspace : Workspace("StreetO") {
             item("_Open") {
                 enableWhen(courseController.isReady)
                 action {
-                    val all = FileChooser.ExtensionFilter("Any", "*.*")
+                    val all = FileChooser.ExtensionFilter("Course Files", "*.kml", "*.gpx")
                     val kml = FileChooser.ExtensionFilter("KML", "*.kml")
                     val gpx = FileChooser.ExtensionFilter("GPX", "*.gpx")
                     val courseFile =
                         chooseFile("Open File", filters = arrayOf(all, kml, gpx), mode = FileChooserMode.Single)
                     courseFile.map { file ->
                         val course = courseController.loadCourse(file)
-                        val start = course.controls[0].location
-                        val startPoint = Point(start.lat, start.lon)
-                        val haveData = courseController.hasMapDataFor(startPoint)
-                        var doLoad = false
-                        if (!haveData) {
-                            confirm(
-                                "No map data found for this position",
-                                "Load it now? This will take a few minutes"
-                            ) {
-                                doLoad = true
-                            }
-                        }
-                        if (haveData || doLoad) {
-                            mapView.runAsyncWithOverlay {
-                                courseController.loadMapDataAt(startPoint, doLoad)
-                            } ui { loaded ->
-                                if (loaded) {
-                                    courseController.initialiseCourse(course.controls)
-                                    courseController.analyseCourse()
-                                    courseController.setDetailsFrom(file)
-                                    fire(CourseUpdatedEvent)
-                                    fire(ZoomToFitCourseEvent)
-                                    fire(ControlSelectedEvent(courseController.controlList[0]))
+                        if (course != null) {
+                            val start = course.controls[0].location
+                            val startPoint = Point(start.lat, start.lon)
+                            val haveData = courseController.hasMapDataFor(startPoint)
+                            var doLoad = false
+                            if (!haveData) {
+                                confirm(
+                                    "No map data found for this position",
+                                    "Load it now? This will take a few minutes"
+                                ) {
+                                    doLoad = true
                                 }
                             }
+                            if (haveData || doLoad) {
+                                mapView.runAsyncWithOverlay {
+                                    courseController.loadMapDataAt(startPoint, doLoad)
+                                } ui { loaded ->
+                                    if (loaded) {
+                                        courseController.initialiseCourse(course.controls)
+                                        courseController.analyseCourse()
+                                        courseController.setDetailsFrom(file)
+                                        fire(CourseUpdatedEvent)
+                                        fire(ZoomToFitCourseEvent)
+                                        fire(ControlSelectedEvent(courseController.controlList[0]))
+                                    }
+                                }
+                            } else {
+                                alert(Alert.AlertType.ERROR, "Error", "No Map Data for this position")
+                            }
                         } else {
-                            alert(Alert.AlertType.ERROR, "Error", "No Map Data for this position")
+                            alert(
+                                type = Alert.AlertType.ERROR,
+                                header = "Error",
+                                content = "Could not load a course from file ${file.path}"
+                            )
                         }
                     }
                 }
@@ -159,10 +168,32 @@ class StreetOWorkspace : Workspace("StreetO") {
             item("Create _MapRun Files") {
                 enableWhen(haveNumberedControls)
                 action {
-                    val directory = chooseDirectory(title = "KML+KMZ Save Location")
-                    if (directory != null) {
+                    val path = courseController.courseFile.value?.parentFile?.absolutePath ?: ""
+                    val name = courseController.courseName.value ?: ""
+                    val mapRunFiles = FileChooser.ExtensionFilter("MapRun Files", "*.kml", "*.kmz")
+                    val fileSelection = chooseFile(
+                        title = "Save MapRun Files As", arrayOf(mapRunFiles),
+                        mode = FileChooserMode.Save,
+                        initialFileName = name,
+                        initialDirectory = File(path)
+                    )
+                    if (fileSelection.isNotEmpty()) {
                         mapView.runAsyncWithOverlay {
-                            courseController.generateMapRunFiles(directory)
+                            courseController.generateMapRunFiles(
+                                fileSelection.first().parentFile,
+                                fileSelection.first().nameWithoutExtension
+                            )
+                        } ui { written ->
+                            if (written) {
+                                val filename = fileSelection.first().nameWithoutExtension
+                                alert(
+                                    Alert.AlertType.INFORMATION,
+                                    "MapRun Files Created",
+                                    "$filename.kmz and $filename.kml written to ${fileSelection.first().parentFile.absolutePath}"
+                                )
+                            } else {
+                                alert(Alert.AlertType.ERROR, "Error", "Error creating MapRun Files")
+                            }
                         }
                     }
                 }
@@ -170,10 +201,24 @@ class StreetOWorkspace : Workspace("StreetO") {
             item("Create Map _PDF") {
                 enableWhen(haveNumberedControls)
                 action {
-                    val directory = chooseDirectory(title = "PDF Save Location")
-                    if (directory != null) {
+                    val path = courseController.courseFile.value?.parentFile?.absolutePath ?: ""
+                    val name = courseController.courseName.value ?: ""
+                    val pdf = FileChooser.ExtensionFilter("PDF", "*.pdf")
+                    val fileSelection = chooseFile(
+                        title = "Save PDF Map As", arrayOf(pdf),
+                        mode = FileChooserMode.Save,
+                        initialFileName = if (name.isNotBlank()) "$name.pdf" else "",
+                        initialDirectory = File(path)
+                    )
+                    if (fileSelection.isNotEmpty()) {
                         mapView.runAsyncWithOverlay {
-                            courseController.generatePDF(directory)
+                            courseController.generatePDF(fileSelection[0])
+                        } ui { written ->
+                            if (written) {
+                                hostServices.showDocument(fileSelection[0].toURI().toString())
+                            } else {
+                                alert(Alert.AlertType.ERROR, "Error", "Error creating PDF Map")
+                            }
                         }
                     }
                 }

@@ -151,7 +151,7 @@ public class StreetO {
                 var outputFolder = new File("./");
                 var title = String.format("abc-%d", System.currentTimeMillis());
                 streeto.writeGpx(controls, route, title, outputFolder);
-                streeto.writeMap(controls, title, outputFolder);
+                streeto.writeMap(controls, title, new File(outputFolder, title + ".pdf"));
                 streeto.writeMapRunFiles(controls, title, outputFolder);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -256,9 +256,8 @@ public class StreetO {
         return MapFitter.getForEnvelope(envelopeToMap, paperSize, MapFitter.landscape20000.getScale()).orElse(null);
     }
 
-    public void writeMap(List<ControlSite> controls, String mapTitle, File path) throws IOException {
+    public void writeMap(List<ControlSite> controls, String mapTitle, File file) throws IOException {
 
-        File file = new File(path.getAbsoluteFile(), mapTitle + ".pdf");
         var printer = new MapPrinter(preferences);
         var envelopeToMap = csf.getEnvelopeForProbableRoutes(controls);
         var mapBox = MapFitter.getForEnvelope(envelopeToMap, preferences.getPaperSize(), preferences.getMaxMapScale()).orElseThrow();
