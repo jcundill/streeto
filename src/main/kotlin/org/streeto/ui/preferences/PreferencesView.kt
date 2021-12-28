@@ -109,10 +109,21 @@ class PreferencesView : StreetOView("StreetO Preferences") {
                                 combobox(model.paperSize, PaperSize.values().asList())
                             }
                             field("Print A3 Maps on A4 Paper") {
-                                checkbox { model.printA3OnA4 }
+                                checkbox {
+                                    isSelected = model.printA3OnA4.value
+                                    enableWhen { model.paperSize.isEqualTo(PaperSize.A3) }
+                                    selectedProperty().addListener { _, _, newValue ->
+                                        model.printA3OnA4.value = newValue
+                                    }
+                                }
                             }
                             field("Split Map for Better Scale") {
-                                checkbox { model.splitForBetterScale }
+                                checkbox {
+                                    isSelected = model.splitForBetterScale.value
+                                    selectedProperty().addListener { _, _, newValue ->
+                                        model.splitForBetterScale.value = newValue
+                                    }
+                                }
                             }
                         }
                     }
