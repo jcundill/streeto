@@ -200,12 +200,15 @@ public class StreetO {
         }
         var lastMondayRunner = new CourseFinderRunner(scorer::scoreLegs, csf, sniffers, preferences);
         var maybeBest = lastMondayRunner.run(distance, numControls, initialControls);
-        return maybeBest.map(best -> {
-            formatNumber(first(best), "S1");
-            forEachIndexed(dropFirstAndLast(best, 1), (i, ctrl) -> formatNumber(ctrl, String.format("%d", i + 1)));
-            formatNumber(last(best), "F1");
-            return best;
-        });
+        return maybeBest.map(this::renumber);
+    }
+
+    private List<ControlSite> renumber(List<ControlSite> best) {
+        var renumbered = best.stream().map(cs -> new ControlSite(cs.getLocation(), cs.getDescription())).toList();
+        formatNumber(first(renumbered), "S1");
+        formatNumber(last(renumbered), "F1");
+        forEachIndexed(dropFirstAndLast(renumbered, 1), (i, ctrl) -> formatNumber(ctrl, String.format("%d", i + 1)));
+        return renumbered;
     }
 
     public ScoreDetails score(List<ControlSite> controls) {

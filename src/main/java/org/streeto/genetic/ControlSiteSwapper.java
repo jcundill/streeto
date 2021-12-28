@@ -29,7 +29,7 @@ class ControlSiteSwapper extends UniformCrossover<AnyGene<ISeq<ControlSite>>, Do
         var rnd = RandomRegistry.random();
         var newFirsts = first.toArray(new ControlSite[]{});
         var newSeconds = second.toArray(new ControlSite[]{});
-        for (int index = 1; index < newFirsts.length - 1; index++) {
+        for (int index = 1; index < newFirsts.length - 2; index++) {
             if (rnd.nextDouble() < probability()) {
                 var a = newFirsts[index];
                 var b = newFirsts[index + 1];

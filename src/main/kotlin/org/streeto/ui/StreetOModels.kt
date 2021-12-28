@@ -122,6 +122,8 @@ class Control(number: String?, description: String?, lat: Double?, lon: Double?)
 
         if (number != other.number) return false
         if (description != other.description) return false
+        if (lat != other.lat) return false
+        if (lon != other.lon) return false
 
         return true
     }
@@ -129,6 +131,8 @@ class Control(number: String?, description: String?, lat: Double?, lon: Double?)
     override fun hashCode(): Int {
         var result = number?.hashCode() ?: 0
         result = 31 * result + (description?.hashCode() ?: 0)
+        result = 31 * result + lat.hashCode()
+        result = 31 * result + lon.hashCode()
         return result
     }
 
