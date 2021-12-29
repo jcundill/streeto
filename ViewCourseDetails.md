@@ -10,6 +10,10 @@ Still in the process of writing this.
 
 ![Image](./doc/mapmenu.png)
 
+Toggling showing the best route and the route choice available for the current leg.
+
+![Image](./doc/showmenu.png)
+
 
 
 
