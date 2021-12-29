@@ -79,28 +79,26 @@ export function paintCourse(ctrls, courseSource) {
     courseSource.clear();
     lastCtrls = ctrls;
 
-    var angle = getAngle(ctrls[0], ctrls[1]);
-    drawStart(courseSource, ctrls[0].lat, ctrls[0].lon, angle);
-    //drawControl(courseSource,ctrls[0].lat, ctrls[0].lon, "Start" )
-    const finish = ctrls[ctrls.length - 1];
-    drawFinish(courseSource, finish.lat, finish.lon);
+    if( ctrls.length > 1) {  //have at least got start and finish
+        var angle = getAngle(ctrls[0], ctrls[1]);
+        drawStart(courseSource, ctrls[0].lat, ctrls[0].lon, angle);
+        const finish = ctrls[ctrls.length - 1];
+        drawFinish(courseSource, finish.lat, finish.lon);
+    
+        for (let index = 1; index < ctrls.length - 1; index++) {
+            const ctrl = ctrls[index];
+            const prev = ctrls[index -1];
+            drawControl(courseSource, ctrl.lat, ctrl.lon, ctrl.number);
+            drawLine(courseSource, prev.lat, prev.lon, ctrl.lat, ctrl.lon);
+        };
 
-    for (let index = 1; index < ctrls.length - 1; index++) {
-        const ctrl = ctrls[index];
-        drawControl(courseSource, ctrl.lat, ctrl.lon, ctrl.number)
-    };
-    for (let index = 0; index < ctrls.length - 1; index++) {
-        const start = ctrls[index];
-        const end = ctrls[index + 1]
-        drawLine(courseSource, start.lat, start.lon, end.lat, end.lon)
+        const last = ctrls[ctrls.length - 2];
+        drawLine(courseSource, last.lat, last.lon, finish.lat, finish.lon);
     }
-
 }
 
 export function redrawCourse(courseSource) {
-    if( lastCtrls.length > 0 ) {
-        paintCourse(lastCtrls, courseSource)
-    }
+    paintCourse(lastCtrls, courseSource);
 }
 
 function getAngle(first, second) {

@@ -140,19 +140,12 @@ class OpenLayersMapView : StreetOView("Map") {
                     }
                 }
 
-
                 subscribe<ResetRotationEvent> {
                     rotation = 0.0
                 }
 
                 subscribe<ZoomToFitCourseEvent> {
                     zoomToBestFit()
-                }
-
-                subscribe<CourseUpdatedEvent> {
-                    if (mapCenter != null) {
-                        controller.saveLastLocation(mapCenter!!, resolution)
-                    }
                 }
 
                 subscribe<ZoomToFitLegEvent> {
@@ -175,11 +168,12 @@ class OpenLayersMapView : StreetOView("Map") {
                 }
 
                 subscribe<CourseUpdatedEvent> {
+                    if (mapCenter != null) {
+                        controller.saveLastLocation(mapCenter!!, resolution)
+                    }
+                    drawCourse(controller.controlList)
                     if (controller.controlList.isNotEmpty()) {
-                        drawCourse(controller.controlList)
-                        drawOverlays()
-                    } else {
-                        clearCourse()
+                         drawOverlays()
                     }
                 }
 
