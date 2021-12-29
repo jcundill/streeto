@@ -1,0 +1,17 @@
+{
+  "name": "gpx",
+  "dependencies": {
+    "ol": "6.5.0",
+    "ol-layerswitcher": "^3.8.3"
+  },
+  "devDependencies": {
+    "@parcel/transformer-html": "^2.0.0-nightly.612",
+    "@parcel/transformer-posthtml": "^2.0.0-nightly.612",
+    "parcel": "2.0.0-beta.1"
+  },
+  "scripts": {
+    "dev": "parcel index.html",
+    "start": "parcel -p 12345 index.html",
+    "build": "parcel build --public-url . index.html"
+  }
+}
