@@ -214,7 +214,7 @@ class OpenLayersMapView : StreetOView("Map") {
             }
         }
         item("Place Start Here") {
-            visibleWhen(isClickedOnControl.not())
+            visibleWhen(isClickedOnControl.not().or(haveControls.and(controlModel.number.isEqualTo("F1"))))
             action {
                 val haveData = controller.hasMapDataFor(clickPosition.value)
                 var doLoad = false
@@ -240,7 +240,7 @@ class OpenLayersMapView : StreetOView("Map") {
             }
         }
         item("Place Finish Here") {
-            visibleWhen(isClickedOnControl.not().and(haveControls))
+            visibleWhen(haveControls.and((controlModel.number.isEqualTo("S1").or(isClickedOnControl.not()))))
             action {
                 controller.setFinishAt(clickPosition.value)
                 fire(CourseUpdatedEvent)

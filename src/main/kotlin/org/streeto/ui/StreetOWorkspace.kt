@@ -241,7 +241,7 @@ class StreetOWorkspace : Workspace("StreetO") {
                     fire(RouteVisibilityEvent(showRoute.value))
                 }
             }
-            item("Toggle Show Route _Choice", "shortcut+C") {
+            item("Toggle Show Route _Choice", "shift+shortcut+O") {
                 enableWhen(haveControls)
                 action {
                     showRouteChoice.value = !showRouteChoice.value

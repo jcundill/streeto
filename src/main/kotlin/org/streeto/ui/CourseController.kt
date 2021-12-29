@@ -168,16 +168,20 @@ class CourseController : Controller() {
     fun selectLegTo(control: Control?) {
         if (control != null) {
             val idx = controlList.indexOf(control)
-            val leg = CourseLeg(controlList[idx - 1], control)
-            legViewModel.item = legList.first { it.start == leg.start && it.end == leg.end }
+            if (idx >= 0) {
+                val leg = CourseLeg(controlList[idx - 1], control)
+                legViewModel.item = legList.first { it.start == leg.start && it.end == leg.end }
+            }
         }
     }
 
     fun selectLegFrom(control: Control?) {
         if (control != null) {
             val idx = controlList.indexOf(control)
-            val leg = CourseLeg(control, controlList[idx + 1])
-            legViewModel.item = legList.first { it.start == leg.start && it.end == leg.end }
+            if (idx < controlList.size - 1) {
+                val leg = CourseLeg(control, controlList[idx + 1])
+                legViewModel.item = legList.first { it.start == leg.start && it.end == leg.end }
+            }
         }
     }
 
@@ -251,6 +255,7 @@ class CourseController : Controller() {
             analyseCourse()
         } else {
             function(site)
+            analyseCourse()
         }
         return success
     }
@@ -366,7 +371,10 @@ class CourseController : Controller() {
     }
 
     fun loadMapDataAt(position: Point, fetchIfNeeded: Boolean = false): Boolean {
-        return if (fetchIfNeeded) {
+        return if (streetO.bounds != null && streetO.bounds.contains(position.lat, position.lon)) {
+            // this data is already loaded
+            true
+        } else if (fetchIfNeeded) {
             streetO.initialiseGHFor(GHPoint(position.lat, position.lon)).isPresent
         } else {
             switchToMapDataFor(position)

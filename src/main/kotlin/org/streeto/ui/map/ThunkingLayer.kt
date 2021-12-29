@@ -54,13 +54,13 @@ class ThunkingLayer(val browser: WebEngine) {
 
     fun drawRoute(route: List<Point>) {
         clearRoute()
-        callMapFunction("drawRoute(${asPointList(route)}, document.routeSource);")
+        callMapFunction("drawRoute(${asPointList(route)}, document.routeSource, 'rgba(0,0,255, 0.7)');")
     }
 
     fun drawRouteChoice(routes: List<PointList>) {
         clearRouteChoice()
         routes.forEach { route: PointList ->
-            callMapFunction("drawRoute(${asPointList(route.points)}, document.routeChoiceSource);")
+            callMapFunction("drawRoute(${asPointList(route.points)}, document.routeChoiceSource,'rgba(40, 116, 166, 0.7)');")
         }
     }
 
