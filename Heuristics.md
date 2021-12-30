@@ -64,7 +64,7 @@ This heuristic is only concerned with the length of the shortest route between t
 and the control at the end of the leg.
 
 There are a number of [Settings and Preferences](./SettingsAndPreferences.md#leg-length-preferences) that feed into the
-score given to this leg.
+score given by this heuristic.
 
 Legs can have a minimum and maximum acceptable length. The first and the last legs can have different acceptable 
 maximum lengths.
