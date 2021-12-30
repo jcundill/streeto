@@ -20,4 +20,4 @@
 
 [Managing OpenStreetMap Data](./OpenStreetMapData.md)
 
-[Heuristics used to evaluate the quality of course legs](./Heuristics.md)
+[Heuristics used to Evaluate Course Legs](./Heuristics.md)
