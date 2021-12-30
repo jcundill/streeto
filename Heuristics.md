@@ -8,9 +8,31 @@ legs on those courses would make for an interesting orienteering challenge as mu
 It does this by scoring each candidate course against a set of heuristics. It then retains the best scoring candidates
 and feeds them into the next generation of the algorithm
 
-The heuristics that it uses are described below.
 
-The heuristics assign a value between o and 1 for the various aspects of that leg.
+You assign weightings to each of these heuristics in the
+[Settings And Preferences](./SettingsAndPreferences.md#course-scoring-preferences) dialog to tell the algorithm how
+much importance you want to give to each of these factors.
+
+There is no right or wrong way to weight the heuristics. To some extent it depends on the map data at the location 
+you're generating a course for, and to some extent it depends on your personal preference.
+
+Route Choice is probably the most important heuristic in an urban orienteering course. But you can't just switch
+everything else off, or you'll end up with a course that that just oscillates between two or three different locations
+that have great route choice options between them, but basically run the same legs over and over again as you said you 
+didn't care about route repetition, or exposing future controls.
+
+So, the weightings need tweaking. Currently, they are all set to 1 by default.
+
+What I find works well for me in my local area is something like this:
+
+![Image](./doc/coursescorerprefs.png)
+
+
+The heuristics assign a value between o and 1 for the various aspects of that leg. The score assigned to a candidate
+course is derived from the mean of the weighted sum of all the heuristics on all the legs on that course. It's actually
+taken as an [RMS](https://en.wikipedia.org/wiki/Root_mean_square) error value.
+
+The heuristics that the system uses are described below.
 
 ### Dog Leg Scorer
 In orienteering, a dog leg is where the route that takes to a control site is the same as the route that you take when
