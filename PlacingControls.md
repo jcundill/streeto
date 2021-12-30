@@ -10,7 +10,7 @@ A feature is one of the following:
 - A path, track or road junction.
 - A bend in a path, track or road.
 
-The [Settings abd Preferences](./SettingsAndPreferences.md) describes how to tweak what constitutes an acceptable
+The [Settings abd Preferences](./SettingsAndPreferences.md#control-placement-preferences) describes how to tweak what constitutes an acceptable
 feature. Only accept a bend if it's something like a right angle, only consider street furniture less than 15 metres
 away from the click location, etc.
 
@@ -19,7 +19,7 @@ Controls will snap to the nearest feature when placed or moved.
 Controls can be added to the map either by loading an existing course
 file [Loading and Saving Courses](./LoadingSavingCourses.md) or by adding them manually
 
-Right clicking on any part of the map outside the circle of any existing control will display the Start and Finish
+Right-clicking on any part of the map outside the circle of any existing control will display the Start and Finish
 context menu.
 
 ![Image](./doc/setstart.png)
@@ -31,7 +31,7 @@ location of the mouse click.
 
 This can be done at any time, even if there are additional controls on the map.
 
-Right clicking within the control circle of a control will display the Edit context menu for that control.
+Right-clicking within the control circle of a control will display the Edit context menu for that control.
 
 ![Image](./doc/controlcontextmenu.png)
 
@@ -42,7 +42,7 @@ This pops up a dialog box with the details of the control. The type of feature i
 ### Split Leg After
 
 This will add an extra control in between this one and the next control on the map. The added control is placed on an
-available feature from the map roughly half way along the existing leg.
+available feature from the map roughly halfway along the existing leg.
 
 ### Split Leg Before
 

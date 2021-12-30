@@ -29,8 +29,8 @@ said this.
 Let's take the kids and make Daddies phone (or watch) go beep by following the purple lines around a map. Let's do this
 at Grannies on Sunday, everyone would love that. Again, it is probably true that only Orienteers have ever said this.
 
-So, tag an easily accesible start and finish location on Open Streetmap - my front door, the pub - and tell the software
-how far a reasonable run/walk/meander would be right now and then just let the AI 'scurry' around OpenStreetmap data
+So, tag an easily accessible start and finish location on OpenStreetMap - my front door, the pub - and tell the software
+how far a reasonable run/walk/meander would be right now and then just let the AI 'scurry' around OpenStreetMap data
 extracts of the area in question to try to find a reasonable orienteering challenge that meets these constraints rather
 than trying to plan it all out yourself.
 
@@ -48,7 +48,7 @@ is open for public access (it doesn't), then the AI will quite happily place a c
 containment facility, because as far as it can tell. there is no reason you shouldn't just be able to run along that
 service road to get to it.
 
-We exclude most potentially dodgy or dangerous locations as far as we can given the underlying OpenStreetMap data. You
+We exclude most potentially dodgy or dangerous locations as far as we can, given the underlying OpenStreetMap data. You
 can't go for a run in the slow lane of a motorway or across areas designated with limited access, so the AI doesn't even
 consider them.
 
@@ -59,10 +59,10 @@ adding in the appropriate way designations for the bit you couldn't do.
 
 I have this exact issue with a service road through an electrical substation just around the corner from where I live.
 
-Having said that, it happens infrequently, the AI generally does a good job, but obviously not every possible route can be vetted up
-front, I've no idea how accurate the OpenStreetMap data for the area just south of Alice Springs in Australia is, for
-example, so use your common sense and have a look over the map before you set off. You can always just generate another
-one if this one is no good.
+Having said that, it happens infrequently, the AI generally does a good job, but obviously not every possible route can
+be vetted up front, I've no idea how accurate the OpenStreetMap data for the area just south of Alice Springs in
+Australia is, for example, so use your common sense and have a look over the map before you set off. You can always just
+generate another one if this one is no good.
 
 In a similar vein, the routing algorithm used on top of the OpenStreetMap data is completely path/track/road driven. So
 for an urban park or playing field with mapped paths around the perimeter it is blind to the fact that you can just run

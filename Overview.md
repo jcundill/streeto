@@ -18,7 +18,7 @@ This screenshot shows the main view of StreetO and three of the drawers open
 
 The details of these drawer views are described in the sections below.
 
-You can control how they display alongside the map view by right clicking in the relevant margin.
+You can control how they display alongside the map view by right-clicking in the relevant margin.
 
 ![Image](./doc/drawertoggle.png)
 
@@ -38,11 +38,11 @@ It is divided into two sections, Details and Map Details, as shown below.
 ##### Name
 
 Name is the simple filename of the file, if any, that this course was initially loaded from. The full path to this file
-is shown in the window tille.
+is shown in the window title.
 
 ##### Overall Score
 
-How good StreetO thinks the course is. Scores are decimal values between 0 and 1. 1 is a prefect score.
+How good StreetO thinks the course is. Scores are decimal values between 0 and 1. 1 is a perfect score.
 
 ##### Number Of Controls
 
@@ -79,11 +79,11 @@ The Map scale you'd end up with if this course was printed onto A4 paper.
 
 ##### Map Size Preference
 
-Whuch option is selected in [Settings and Preferences](./SettingsAndPreferences.md) for Map paper size.
+Which option is selected in [Settings and Preferences](./SettingsAndPreferences.md#paper-size) for Map paper size.
 
 ##### Max Scale Preference
 
-The value from  [Settings and Preferences](./SettingsAndPreferences.md) for the highest scale the system should allow
+The value from  [Settings and Preferences](./SettingsAndPreferences.md#maximum-map-scale) for the highest scale the system should allow
 maps to be printed at.
 
 ##### Map Orientation
@@ -96,7 +96,7 @@ The Controls Drawer contains a list showing what type of feature each control on
 
 ![Image](./doc/controlsdrawer.png)
 
-Right clicking on any of the controls brings up a menu that allows you to view further details, the coordinates of the
+Right-clicking on any of the controls brings up a menu that allows you to view further details, the coordinates of the
 control, or to zoom the map display into the area around this control.
 
 ### Leg Details View
@@ -127,16 +127,16 @@ The length of the leg in metres.
 
 ##### Overall Score
 
-How good StreetO thinks the leg is. Scores are decimal values between 0 and 1. 1 is a prefect score.
+How good StreetO thinks the leg is. Scores are decimal values between 0 and 1. 1 is a perfect score.
 
 #### Score Details Section
 
-The score details section shows the individual scores for the various features of the leg.
+The 'Score Details' section shows the individual scores for the various features of the leg.
 
 ##### Leg Length Score
 
 How well this leg is scored based on its length. In the example above, the leg is scored quite low because it is longer
-than the max individual leg length set in [Settings and Preferences](./SettingsAndPreferences.md).
+than the max individual leg length set in [Settings and Preferences](./SettingsAndPreferences.md#max-leg-distance).
 
 ##### Leg Complexity Score
 
@@ -156,13 +156,12 @@ Score based on how much the route of this leg follows a path/track/road that has
 
 ##### Dog Leg Score
 
-Score based on how much of this leg is a dog leg route from the previous leg. In the example above, there is a little
-bit of a dog leg getting to, and moving on from, control 6.
+Score based on how much of this leg is a dog leg route from the previous leg. In the example above, there is a bit of a dog leg getting to, and moving on from, control 6.
 
 ##### Next Control Placement Score
 
 How StreetO thinks this leg is scored based on the next control placement. How well the various features on a map are
-scored is controlled by  [Settings and Preferences](./SettingsAndPreferences.md).
+scored is controlled by  [Settings and Preferences](./SettingsAndPreferences.md#control-placement-preferences).
 
 ### Legs View
 

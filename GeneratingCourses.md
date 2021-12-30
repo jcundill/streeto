@@ -2,7 +2,7 @@
 
 ## Generating Courses
 
-Most functions related to generating or editing courses are found on the Course Menu. These opetions are discussed
+Most functions related to generating or editing courses are found on the Course Menu. These options are discussed
 below.
 
 ![Image](./doc/coursemenu.png)
@@ -17,14 +17,14 @@ This removes everything from the Map and the Course, including the Start and the
 
 ### Improve Existing Controls
 
-This will take the controls currently on the map and the current desired course length and feed this
-information back into the course generation algorithm.
+This will take the controls currently on the map and the current desired course length and feed this information back
+into the course generation algorithm.
 
-It will try and find better control sites taking the existing ones as the starting location and keeping the course
-length roughly the same as the desired course length set for this course when it was initially seeded or loaded into the system.
+It will try and find better control sites taking the existing ones as the initial locations and keeping the course
+length roughly the same as the desired course length set for this course when it was initially seeded or loaded into the
+system.
 
-Course length tolerence is discussed
-in [Settings and Preferences](./SettingsAndPreferences.md).
+Course length tolerance is discussed in [Settings and Preferences](./SettingsAndPreferences.md#allowed-course-length-delta).
 
 Once the generation algorithm has completed, the new controls will replace the existing ones on the map.
 
@@ -32,11 +32,11 @@ Once the generation algorithm has completed, the new controls will replace the e
 
 This menu option prompts you for a desired course length.
 
-Based on the Desired Average Leg Length preference set in [Settings and Preferences](./SettingsAndPreferences.md), it
+Based on the Desired Average Leg Length preference set in [Settings and Preferences](./SettingsAndPreferences.md#desired-average-leg-length), it
 will work out the number of controls that should be placed on the course to satisfy this preference.
 
-Any existing controls on the map are used as the starting point for the course generation, as with the Improve Existing
-Controls option but here the algorithm will add addition, or remove existing, controls to make the right number for the
+Any existing controls on the map are used as the starting point for the course generation, as with the 'Improve Existing
+Controls' option but here the algorithm will add additional, or remove existing, controls to make the right number for the
 Average Leg Length setting.
 
 It is possible, and quite common, to seed a course from just the Start and Finish Locations.
@@ -70,7 +70,7 @@ This menu option will reverse the direction of the course.
 
 This menu option will reevaluate the scores assigned to the legs between the controls on the map. Generally, this is
 done automatically, but this option can be useful if you are changing
-the [Settings and Preferences](./SettingsAndPreferences.md)
+the [Settings and Preferences](./SettingsAndPreferences.md#course-scoring-preferences)
 associated with leg scoring and want to see what effect the new settings would make to an existing course.
 
 [back](./index.md) 

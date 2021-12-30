@@ -1,4 +1,4 @@
-<img src="./doc/underconstruction.png" width="200" height="160">
+## StreetO User Guide
 
 [Introduction](./Introduction.md)
 

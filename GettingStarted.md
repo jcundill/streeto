@@ -11,7 +11,7 @@ Boston in the US.
 
 Navigate around the map as you would with Google Maps or OpenStreetMap.
 
-Zoom in and out with the mouse wheel. Pan with the left mouse button.
+Zoom in and out with the mouse wheel. Pan with the left mouse button. Holding Shift while panning rotates the map.
 
 You can right-click on the map to add a new course.
 
@@ -30,7 +30,7 @@ for the whole of the world.
 
 Once the data has been downloaded it will be imported into the routing engine, processed and saved.
 
-Factors such as the size of the data extract, the speed of the computer and the speed on the internet connection,
+Factors such as the size of the data extract, the speed of the computer and the speed of the internet connection,
 determine the time it takes to import the data. It usually takes a couple of minutes to import the data.
 
 You must wait for the data to be imported before you can use StreetO to create a course in this area.
@@ -69,7 +69,7 @@ flies' distance between the control sites as commonly used on orienteering maps.
 Enter, for example, '6500' for a 6.5K run and click 'OK'.
 
 StreetO will now generate the course based on the distance preference you entered, the start and finish locations, and
-by default, although you can change this - see [Settings and Preferences](./SettingsAndPreferences.md) - try and make
+by default, although you can change this - see [Settings and Preferences](./SettingsAndPreferences.md#desired-average-leg-length) - try and make
 the mean length of all the legs on the course around 500 m.
 
 StreetO works by continuously generating and improving a population of candidate courses. It uses various heuristics to
@@ -90,7 +90,7 @@ When it has finished, it will take the best course it made from the evolved popu
 
 ![Image](./doc/showingcourse.png)
 
-You can inspect the details of the course, see [Viewing Course Details](./ViewCourseDetails.md) for more information,
+You can inspect the details of the course and its legs, see [Viewing Course Details](./ViewCourseDetails.md) for more information,
 and you can manually edit the course StreetO generated for you, see [Placing Controls](./PlacingControls.md) for more
 information about this.
 
@@ -108,13 +108,25 @@ to.
 
 ![Image](./doc/getpdf.png)
 
-See this [Example PDF File](./doc/streeto.pdf) for the sort of map you'll end up with. This comes from Open Orienteering
-Map.
+See this [Example PDF File](./doc/streeto.pdf) for the sort of map you'll end up with. This comes from [Open Orienteering
+Map](https://oomap.co.uk). Various Options to control the size, scale and appearance of the map are available, 
+see [Settings and Preferences](./SettingsAndPreferences.md#mapping-preferences) for more information.
 
+
+
+You can just use the map to run around the course, or you can use the MapRunG or MapRun6 software, in conjunction 
+with the map to get feedback when you make it to the next control.
+
+MapRunG and MapRun6 are free software, and can be installed on your phone or Garmin watch. 
+See [the MapRun site](https://maprunners.weebly.com/) for details of this software.
+
+Using MapRunG or MapRun6 is optional, but it is recommended.
+
+To use MapRun, you'll want to create a "Check Sites" type of course.
 The [Check Sites](https://console.maprun.net/#/check_sites_create) functionality of MapRun allows you to upload the
 relevant files you just created as a private and confidential 'event' and download them to your phone and your watch.
 
-See the documentation on their page for details of how to do this.
+See the documentation referred to above for details of how to do this.
 
 You are now all set. Hopefully you have a decent run ahead of you, so print off the map, lace up your trainers and give
 it a go.
