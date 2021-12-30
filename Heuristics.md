@@ -125,7 +125,7 @@ bend in the path to that location.
 There are  [Settings and Preferences](./SettingsAndPreferences.md#control-placement-preferences) that 
 allow you to define what is considered a sharp enough bend to constitute a valid control site.
 
-You can allocate fractional scores to these non-street furniture controls locations, if you want to encourage the 
+You can allocate fractional scores to these non-street furniture control locations, if you want to encourage the 
 algorithm not to use them.
 
 This heuristic simply scores the leg based on the score given to feature type of the control at the end of the leg.
