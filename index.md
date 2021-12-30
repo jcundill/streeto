@@ -19,3 +19,5 @@
 [Settings and Preferences](./SettingsAndPreferences.md)
 
 [Managing OpenStreetMap Data](./OpenStreetMapData.md)
+
+[Heuristics used to evaluate the quality of course legs](./Heuristics.md)
