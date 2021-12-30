@@ -76,10 +76,20 @@ class AboutView : StreetOView("About StreetO") {
 
             }
         }
-        hbox {
-            hyperlink("Application Icon: מאיר מ at Hebrew Wikipedia, CC BY-SA 3.0") {
-                action {
-                    hostServices.showDocument("https://commons.wikimedia.org/w/index.php?curid=10226955")
+        vbox {
+            paddingAll = 10.0
+            hbox {
+                hyperlink("Map PDFs courtesy of the Open Orienteering Map project") {
+                    action {
+                        hostServices.showDocument("https://blog.oomap.co.uk/oom/")
+                    }
+                }
+            }
+            hbox {
+                hyperlink("Application Icon: מאיר מ at Hebrew Wikipedia, CC BY-SA 3.0") {
+                    action {
+                        hostServices.showDocument("https://commons.wikimedia.org/w/index.php?curid=10226955")
+                    }
                 }
             }
         }
