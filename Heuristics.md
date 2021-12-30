@@ -18,7 +18,7 @@ you're generating a course for, and to some extent it depends on your personal p
 
 Route Choice is probably the most important heuristic in an urban orienteering course. But you can't just switch
 everything else off, or you'll end up with a course that that just oscillates between two or three different locations
-that have great route choice options between them, but basically run the same legs over and over again as you said you 
+that have great route choice options between them, but basically just runs the same legs over and over again as you said you 
 didn't care about route repetition, or exposing future controls.
 
 So, the weightings need tweaking. Currently, they are all set to 1 by default.
