@@ -187,7 +187,7 @@ candidate courses that would fit on that map if the desired course length is ver
 
 ##### Paper Size
 
-Generate an A3 or A$ sized pdf of the course.
+Generate an A3 or A4 sized pdf of the course.
 
 ##### Print A3 Maps on A4 Paper
 
