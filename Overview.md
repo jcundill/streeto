@@ -83,8 +83,8 @@ Which option is selected in [Settings and Preferences](./SettingsAndPreferences.
 
 ##### Max Scale Preference
 
-The value from  [Settings and Preferences](./SettingsAndPreferences.md#maximum-map-scale) for the highest scale the system should allow
-maps to be printed at.
+The value from  [Settings and Preferences](./SettingsAndPreferences.md#maximum-map-scale) for the highest scale the
+system should allow maps to be printed at.
 
 ##### Map Orientation
 
@@ -156,7 +156,8 @@ Score based on how much the route of this leg follows a path/track/road that has
 
 ##### Dog Leg Score
 
-Score based on how much of this leg is a dog leg route from the previous leg. In the example above, there is a bit of a dog leg getting to, and moving on from, control 6.
+Score based on how much of this leg is a dog leg route from the previous leg. In the example above, there is a bit of a
+dog leg getting to, and moving on from, control 6.
 
 ##### Next Control Placement Score
 
@@ -174,8 +175,7 @@ View.
 Legs can be selected in the list by either clicking on them or using the up and down arrows on the keyboard.
 
 Selecting a leg does not automatically zoom the map display in to focus on that leg, but this option is available from a
-right click context menu.
+right click context menu, or by double-clicking on the leg in the list.
 
-Options exist
 
 [back](./index.md)
