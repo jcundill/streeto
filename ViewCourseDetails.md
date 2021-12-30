@@ -4,7 +4,7 @@
 
 ### Showing Routing Overlays
 
-What the algorithm considers to be the best route around can be overlaid on the map. Similarly, what the 
+What the algorithm considers to be the best route around the generated course can be overlaid on the map. Similarly, what the 
 algorithm thinks the route choice options on the currently selected leg are can also be overlaid on the map.
 
 Both of these options are available from the Show menu.
