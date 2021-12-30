@@ -43,6 +43,10 @@ class LegsView : StreetOView("Legs") {
                 }
             }
 
+            subscribe<CourseUpdatedEvent> {
+                this@tableview.refresh()
+            }
+
             subscribe<ControlSelectedEvent> {
                 controller.selectLegFrom(it.control)
                 selectionModel.select(model.item)
