@@ -32,7 +32,7 @@ Information regarding the 'Street Furniture' - bus stops, post boxes, etc. is al
 [Overpass API](https://wiki.openstreetmap.org/wiki/Overpass_API) for the area immediately surrounding the start
 location at the same time.
 
-### Managing Imprted Open Street Map Data
+### Managing Imported Open Street Map Data
 
 From the Show Menu, select 'Imported Data' to see which data extracts have already been downloaded into the system.
 
