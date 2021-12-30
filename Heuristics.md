@@ -6,7 +6,7 @@ StreetO works by using a Genetic Algorithm to evolve a population of candidate o
 legs on those courses would make for an interesting orienteering challenge as much as possible.
 
 It does this by scoring each candidate course against a set of heuristics. It then retains the best scoring candidates
-and feed them into the next generation of the algorithm
+and feeds them into the next generation of the algorithm
 
 The heuristics that it uses are described below.
 
