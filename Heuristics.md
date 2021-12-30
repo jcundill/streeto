@@ -36,7 +36,7 @@ The heuristics that the system uses are described below.
 
 ### Dog Leg Scorer
 In orienteering, a dog leg is where the route that takes to a control site is the same as the route that you take when
-leaving that control site on you way to the next one.
+leaving that control site on your way to the next one.
 
 This is generally ok, as long as the route repetition is not too long and doesn't form a significant part of the route to
 the next control site.
