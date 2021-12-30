@@ -53,6 +53,8 @@ class CourseController : Controller() {
     val courseFile = SimpleObjectProperty<File>()
     lateinit var osmDir: String
 
+    private var lastFurniturePosition: GHPoint? = null
+
     init {
         preferencesViewModel.item = preferences
         progressViewModel.item = sniffer
@@ -371,14 +373,25 @@ class CourseController : Controller() {
     }
 
     fun loadMapDataAt(position: Point, fetchIfNeeded: Boolean = false): Boolean {
-        return if (streetO.bounds != null && streetO.bounds.contains(position.lat, position.lon)) {
+        val point = GHPoint(position.lat, position.lon)
+        val loaded = if (streetO.bounds != null && streetO.bounds.contains(position.lat, position.lon)) {
             // this data is already loaded
             true
         } else if (fetchIfNeeded) {
-            streetO.initialiseGHFor(GHPoint(position.lat, position.lon)).isPresent
+            streetO.initialiseGHFor(point).isPresent
         } else {
             switchToMapDataFor(position)
         }
+        if (loaded && !hasFurnitureFor(point)) {
+            streetO.findFurniture(point)
+            lastFurniturePosition = point
+        }
+        return loaded
+    }
+
+    private fun hasFurnitureFor(point: GHPoint): Boolean {
+        // if we have furniture for this area, we can use it
+        return lastFurniturePosition != null && dist(point, lastFurniturePosition!!) < 1000
     }
 
     fun hasMapDataFor(location: Point): Boolean {

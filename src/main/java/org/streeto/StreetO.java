@@ -218,7 +218,7 @@ public class StreetO {
         return scorer.score(controls);
     }
 
-    private void findFurniture(GHPoint start) {
+    public void findFurniture(GHPoint start) {
         var scaleFactor = 5000.0;
         var max = csf.getGHPointRelativeTo(start, Math.PI * 0.25, scaleFactor);
         var min = csf.getGHPointRelativeTo(start, Math.PI * 1.25, scaleFactor);

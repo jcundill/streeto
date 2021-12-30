@@ -76,7 +76,7 @@ public class ControlSiteFinder {
     public Envelope getEnvelopeForProbableRoutes(List<ControlSite> controls) {
         var routes = windowed(controls, 2).map(it ->
                 routeRequest(it).getBest()
-        ).collect(Collectors.toList());
+        ).toList();
 
         var env = new Envelope();
         routes.forEach(it -> it.getPoints().forEach(env::expandToInclude));
@@ -145,12 +145,13 @@ public class ControlSiteFinder {
     }
 
     public Optional<ControlSite> findNearestControlSiteTo(GHPoint p) {
-        var loc = findClosestStreetLocation(p);
-        if (loc.isEmpty()) return Optional.empty();
-        else {
-            // have we got nearby furniture - if so always use that
-            var f = findLocalStreetFurniture(loc.get());
-            if (f.isPresent()) return f;
+        // have we got nearby furniture - if so always use that
+        var f = findLocalStreetFurniture(p);
+        if (f.isPresent()) {
+            return f;
+        } else { // find the nearest TOWER or PILLAR on the map
+            var loc = findClosestStreetLocation(p);
+            if (loc.isEmpty()) return Optional.empty();
             else {
                 var site = loc.get();
                 var isTower = gh.getLocationIndex().findClosest(site.lat, site.lon, filter).getSnappedPosition() == Snap.Position.TOWER;

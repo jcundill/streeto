@@ -45,7 +45,7 @@ class StreetFurnitureMapDataHandler implements MapDataWithGeometryHandler {
     }
 
     private ControlSite parsePointFeature(Node node) {
-        return toControlSite(node.getPosition().getLatitude(), node.getPosition().getLongitude(), getDescription(node));
+        return toControlSite(node.getPosition().getLatitude(), node.getPosition().getLongitude(), getDescription(node).replace("_", " "));
     }
 
     @NotNull
