@@ -124,7 +124,7 @@ Using MapRunG or MapRun6 is optional, but it is recommended.
 
 To use MapRun, you'll want to create a "Check Sites" type of course.
 The [Check Sites](https://console.maprun.net/#/check_sites_create) functionality of MapRun allows you to upload the
-relevant files you just created as a private and confidential 'event' and download them to your phone and your watch.
+relevant files you just created as a private and confidential 'event' and immediately download them to your phone and your watch.
 
 See the documentation referred to above for details of how to do this.
 
