@@ -10,7 +10,7 @@ A feature is one of the following:
 - A path, track or road junction.
 - A bend in a path, track or road.
 
-The [Settings abd Preferences](./SettingsAndPreferences.md#control-placement-preferences) describes how to tweak what
+The [Settings and Preferences](./SettingsAndPreferences.md#control-placement-preferences) describes how to tweak what
 constitutes an acceptable feature. Only accept a bend if it's something like a right angle, only consider street
 furniture less than 15 metres away from the click location, etc.
 
