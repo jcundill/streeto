@@ -23,7 +23,7 @@ You can control how they display alongside the map view by right-clicking in the
 ![Image](./doc/drawertoggle.png)
 
 Floating drawers are opened on top of the map view. Non-floating drawers are shown next to the map view. I.e. they make
-the area allocated to the map smaller. Multiselect allow you to have more than one of the drawers open at the same time.
+the area allocated to the map smaller. Multiselect allows you to have more than one of the drawers open at the same time.
 
 ### Course Details View
 
