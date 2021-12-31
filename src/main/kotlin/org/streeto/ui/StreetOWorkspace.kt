@@ -11,6 +11,8 @@ import org.streeto.ControlSite
 import org.streeto.ui.controls.ControlsView
 import org.streeto.ui.coursedetails.CourseDetailsView
 import org.streeto.ui.evolution.GenerationProgressView
+import org.streeto.ui.geocode.NominatimChecker
+import org.streeto.ui.geocode.NominatimView
 import org.streeto.ui.legs.LegDetailsView
 import org.streeto.ui.legs.LegsView
 import org.streeto.ui.map.OpenLayersMapView
@@ -29,8 +31,11 @@ class StreetOWorkspace : Workspace("StreetO") {
     private val haveNumberedControls = SimpleBooleanProperty(false)
     private val showRoute = SimpleBooleanProperty(false)
     private val showRouteChoice = SimpleBooleanProperty(false)
+    private val isNominatimOk = SimpleBooleanProperty(false)
+    private val nominatimChecker = NominatimChecker()
 
     init {
+        isNominatimOk.value = nominatimChecker.isOkToUseNominatim()
         header.items.clear()
         courseController.controlList.onChange { newValue ->
             haveControls.value = newValue.list.size > 1
@@ -38,7 +43,6 @@ class StreetOWorkspace : Workspace("StreetO") {
         }
         courseController.courseFile.onChange { newValue ->
             workspace.title = "StreetO - " + (newValue?.path ?: "Untitled")
-
         }
     }
 
@@ -85,14 +89,24 @@ class StreetOWorkspace : Workspace("StreetO") {
 
     private fun MenuBar.fileMenu() {
         menu("_File") {
-            item("_New").action {
-                enableWhen(courseController.isReady)
-                action {
-                    courseController.removeAllControls()
-                    courseController.courseFile.value = null
-                    fire(CourseUpdatedEvent)
+            menu("_New") {
+                item("Course Here") {
+                    enableWhen(courseController.isReady)
+                    action {
+                        courseController.removeAllControls()
+                        courseController.courseFile.value = null
+                        fire(CourseUpdatedEvent)
+                    }
                 }
-
+                item("Course Location") {
+                    enableWhen(isNominatimOk.and(courseController.isReady))
+                    action {
+                        courseController.removeAllControls()
+                        courseController.courseFile.value = null
+                        fire(CourseUpdatedEvent)
+                        find<NominatimView>().openModal()
+                    }
+                }
             }
             item("_Open") {
                 enableWhen(courseController.isReady)

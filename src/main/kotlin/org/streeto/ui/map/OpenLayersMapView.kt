@@ -106,7 +106,7 @@ class OpenLayersMapView : StreetOView("Map") {
                     if (ready) {
                         val lastCenter = controller.getLastLocation()
                         if (lastCenter != Point(0.0, 0.0)) {
-                            mapCenter = lastCenter
+                            zoomToPoint(lastCenter, 15)
                             resolution = controller.getLastResolution()
                         } else {
                             zoomToDataBounds(controller.dataBounds)
@@ -124,7 +124,7 @@ class OpenLayersMapView : StreetOView("Map") {
                     }
                 }
 
-                if( !Styles.isMac()) {
+                if (!Styles.isMac()) {
                     addEventFilter(KeyEvent.KEY_PRESSED) {
                         if (it.code == KeyCode.DOWN || it.code == KeyCode.UP) {
                             if (it.code == KeyCode.DOWN) {
@@ -168,12 +168,14 @@ class OpenLayersMapView : StreetOView("Map") {
                 }
 
                 subscribe<CourseUpdatedEvent> {
-                    if (mapCenter != null) {
-                        controller.saveLastLocation(mapCenter!!, resolution)
-                    }
                     drawCourse(controller.controlList)
                     if (controller.controlList.isNotEmpty()) {
-                         drawOverlays()
+                        drawOverlays()
+                        // have we moved the start somewhere else
+                        // if so, we need to update the stored last location used
+                        if (controller.getLastLocation() != controller.controlList.first()) {
+                            controller.saveLastLocation(controller.controlList[0], resolution)
+                        }
                     }
                 }
 
@@ -181,6 +183,12 @@ class OpenLayersMapView : StreetOView("Map") {
                     if (it.control != null) {
                         zoomToControl(it.control)
                     }
+                }
+
+                subscribe<NewMapLocationEvent> {
+                    val point = Point(it.lat, it.lon)
+                    zoomToPoint(point, 16)
+                    controller.saveLastLocation(point, resolution)
                 }
 
                 legModel.start.addListener { _, _, newValue ->

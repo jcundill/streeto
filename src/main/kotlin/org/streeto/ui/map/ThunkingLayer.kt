@@ -38,6 +38,8 @@ class ThunkingLayer(val browser: WebEngine) {
 
     fun zoomToBestFit() = callMapFunction("zoomToFitCourse()")
 
+    fun zoomToPoint(point: Point, level: Int) = callMapFunction("zoomToLatLon(${asLatLonObj(point)}, $level)")
+
     fun clearCourse() = callMapFunction("clearCourse()")
 
     fun addControl(location: Control) = callMapFunction("addControls(${asLatLon(location)})")
