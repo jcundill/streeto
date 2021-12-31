@@ -13,10 +13,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.version>1.6.0</kotlin.version>
         <tornadofx.version>2.0.0-SNAPSHOT</tornadofx.version>
-        <!-- Set this to the class with the main method for your application -->
         <main-class>org.streeto.ui.WorkspaceAppKt</main-class>
-        <!-- Change your app's name to something interesting... but you might want to avoid spaces
-        just to safe for compatibility across operating systems. -->
         <app.name>StreetO</app.name>
         <!-- This converts the build timestamp to a Windows-installer friendly version number (minute level resolution).
         Note that Maven generated timestamp is in UTC, not local time. For more information see:
@@ -27,8 +24,6 @@
         <app.version>${maven.build.timestamp}</app.version>
 
         <!-- This property is used to specify the modules included in the (custom) JVM image. -->
-        <!-- Reminder: javafx.web (the embedded browser component) is not included in this project by default due
-        to GitHub template size restrictions. You can download the full SDK from https://openjfx.io -->
         <jvm.modules>javafx.controls,javafx.web,java.logging,jdk.crypto.ec</jvm.modules>
 
         <!-- Set the project to UTF-8, avoiding warnings in the build logs -->
@@ -40,9 +35,6 @@
         <!-- Used to set both the path to find the JavaFX modules and also the versions for Maven dependencies -->
         <javafx.version>17</javafx.version>
 
-        <!-- Replace this UUID with a custom one for your project. This ID is used by the Windows installer system
-        to know that an installer is intended to replace/upgrade an earlier version. The easiest thing to do is
-        grab a unique UUID via https://www.uuidgenerator.net -->
         <windows.upgrade.uuid>dc440b3b-ed8d-4bc7-af2f-5eada97b3601</windows.upgrade.uuid>
         <!-- This is used to set many user-visible fields in the Windows Installer. See win-jpackage.txt -->
         <windows.vendor>StreetO</windows.vendor>
@@ -122,32 +114,6 @@
                     </excludes>
                 </configuration>
             </plugin>
-<!--            <plugin>-->
-<!--                <groupId>org.apache.maven.plugins</groupId>-->
-<!--                <artifactId>maven-assembly-plugin</artifactId>-->
-<!--                <version>3.1.1</version>-->
-<!--                <configuration>-->
-<!--                    <archive>-->
-<!--                        <manifest>-->
-<!--                            <mainClass>-->
-<!--                                org.streeto.ui.WorkspaceAppKt-->
-<!--                            </mainClass>-->
-<!--                        </manifest>-->
-<!--                    </archive>-->
-<!--                    <descriptorRefs>-->
-<!--                        <descriptorRef>jar-with-dependencies</descriptorRef>-->
-<!--                    </descriptorRefs>-->
-<!--                </configuration>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <id>make-assembly</id>-->
-<!--                        <phase>package</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>single</goal>-->
-<!--                        </goals>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--            </plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -267,7 +233,6 @@
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-web</artifactId>
             <version>17.0.1</version>
-            <!--            <classifier>windows</classifier>-->
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
@@ -278,7 +243,6 @@
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-graphics</artifactId>
             <version>17.0.1</version>
-            <!--            <classifier>windows</classifier>-->
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
@@ -329,8 +293,6 @@
             <artifactId>appdirs</artifactId>
             <version>1.2.1</version>
         </dependency>
-
-
         <!-- https://mvnrepository.com/artifact/com.graphhopper/graphhopper-core -->
         <dependency>
             <groupId>com.graphhopper</groupId>
@@ -501,5 +463,4 @@
             </properties>
         </profile>
     </profiles>
-
 </project>

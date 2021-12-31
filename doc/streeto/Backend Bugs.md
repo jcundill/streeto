@@ -1,3 +1,0 @@
-- [ ] Complexity scores are too high
-- [ ] Dog Leg scorer not recognising doglegs
-- [ ] 
