@@ -8,7 +8,7 @@ orienteering course. Placing Controls onto the map is discussed in [Placing Cont
 StreetO is mainly concerned with the generation and evaluation of potential Orienteering Courses. To aid with this there
 are a number of supplementary views displaying this evaluation information.
 
-The supplementary views are called 'drawers' with the UI.
+The supplementary views are called 'drawers' within the UI.
 
 These can be opened from the tabs on the left and right of the map as shown below.
 
