@@ -28,7 +28,7 @@ What I find works well for me in my local area is something like this:
 ![Image](./doc/coursescorerprefs.png)
 
 
-The heuristics assign a value between o and 1 for the various aspects of that leg. The score assigned to a candidate
+The heuristics assign a value between 0 and 1 for the various aspects of that leg. The score assigned to a candidate
 course is derived from the mean of the weighted sum of all the heuristics on all the legs on that course. It's actually
 taken as an [RMS](https://en.wikipedia.org/wiki/Root_mean_square) error value.
 
