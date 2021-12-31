@@ -111,7 +111,7 @@ it is divided into two sections, Leg Details and Score Details, as shown below.
 
 ##### Leg
 
-The leg number of the control that the currently selected leg takes you to.
+The number of the control that the currently selected leg takes you to.
 
 ##### Start
 
@@ -132,6 +132,8 @@ How good StreetO thinks the leg is. Scores are decimal values between 0 and 1. 1
 #### Score Details Section
 
 The 'Score Details' section shows the individual scores for the various features of the leg.
+
+The factors that affect the way a leg is scored are discussed on the [Heuristics](./Heuristics.md) page.
 
 ##### Leg Length Score
 
