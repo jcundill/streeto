@@ -170,6 +170,7 @@ class PreferencesView : StreetOView("StreetO Preferences") {
             }
         }
         hbox {
+            paddingAll = 10.0
             alignment = Pos.CENTER_RIGHT
             button("Save") {
                 action {
@@ -180,8 +181,7 @@ class PreferencesView : StreetOView("StreetO Preferences") {
             }
             button("Reset") {
                 action {
-                    model.rollback()
-                    controller.flushPreferences(model.item)
+                    controller.resetPreferences()
                 }
             }
             button("Cancel") {

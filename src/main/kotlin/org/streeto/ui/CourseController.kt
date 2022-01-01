@@ -212,6 +212,10 @@ class CourseController : Controller() {
         }
     }
 
+    fun resetPreferences() {
+        preferencesViewModel.item = preferencesController.loadPreferences()
+    }
+
     fun flushPreferences(preferences: ObservablePreferences) {
         preferencesController.flushPreferences(preferences)
         streetO.setPreferences(preferences)
