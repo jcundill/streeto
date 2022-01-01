@@ -174,6 +174,7 @@ public class StreetO {
 
     public void setPreferences(StreetOPreferences preferences) {
         this.preferences = preferences;
+        initialiseScorers();
     }
 
     public void writeMapRunFiles(List<ControlSite> controls, String title, File path) throws IOException {
