@@ -1,3 +1,9 @@
+---
+layout: default
+title: StreetO User Guide
+permalink: /UserGuide.html
+
+---
 ## StreetO User Guide
 
 [Introduction](./Introduction.md)

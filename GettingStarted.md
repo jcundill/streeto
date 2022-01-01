@@ -1,4 +1,4 @@
-[back](./index.md)
+[back](./UserGuide.md)
 
 ## Getting Started
 
@@ -136,6 +136,6 @@ Be sure to read the caveats' section of the [Introduction](./Introduction.md#con
 Note: This software is still of a pre-release quality, so there may be bugs. If you find any, please let me know.
 
 
-[back](./index.md)
+[back](./UserGuide.md)
 
   

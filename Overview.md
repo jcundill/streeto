@@ -1,4 +1,4 @@
-[back](./index.md)
+[back](./UserGuide.md)
 
 ## Introduction to the StreetO User Interface
 
@@ -180,4 +180,4 @@ Selecting a leg does not automatically zoom the map display in to focus on that 
 right click context menu, or by double-clicking on the leg in the list.
 
 
-[back](./index.md)
+[back](./UserGuide.md)

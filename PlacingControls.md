@@ -1,4 +1,4 @@
-[back](./index.md)
+[back](./UserGuide.md)
 
 ## Placing and Editing Controls on the Map
 
@@ -69,4 +69,4 @@ be moved by dragging it.
 Mouse down and dragging when the cursor is still showing the arrow cursor will pan the map, rather than move the
 control.
 
-[back](./index.md)
+[back](./UserGuide.md)

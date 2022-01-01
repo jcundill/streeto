@@ -1,4 +1,4 @@
-[back](./index.md)
+[back](./UserGuide.md)
 
 ## Generating Courses
 
@@ -73,4 +73,4 @@ done automatically, but this option can be useful if you are changing
 the [Settings and Preferences](./SettingsAndPreferences.md#course-scoring-preferences)
 associated with leg scoring and want to see what effect the new settings would make to an existing course.
 
-[back](./index.md) 
+[back](./UserGuide.md) 

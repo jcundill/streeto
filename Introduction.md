@@ -1,4 +1,4 @@
-[back](./index.md)
+[back](./UserGuide.md)
 
 ## Introduction
 
@@ -79,4 +79,4 @@ Bung a virtual start kite next to the Barbican Centre in London, or next to the 
 on the southern edge of Nuneaton, tell it to find something about 8 or 9K long and to place around 20 Controls, and
 you'll probably have a decent orienteering challenge generated for you.
 
-[back](./index.md)
+[back](./UserGuide.md)

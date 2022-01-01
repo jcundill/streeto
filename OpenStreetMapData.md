@@ -1,4 +1,4 @@
-[back](./index.md)
+[back](./UserGuide.md)
 
 ## Managing Open Street Map Data
 
@@ -41,4 +41,4 @@ From the Show Menu, select 'Imported Data' to see which data extracts have alrea
 Right-clicking on one of the data extracts will bring up a menu of options. 
 From here you can delete the data extract from the system, or re-import it again to get the latest data.
 
-[back](./index.md)
+[back](./UserGuide.md)

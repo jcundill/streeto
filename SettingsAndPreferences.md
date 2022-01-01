@@ -1,4 +1,4 @@
-[back](./index.md)
+[back](./UserGuide.md)
 
 ## Settings and Preferences
 
@@ -273,4 +273,4 @@ The number of candidate courses that should be evaluated in each generation.
 The radius, in metres, of the circle around a control site that the algorithm will look for an alternate feature in when
 mutating a given control
 
-[back](./index.md)
+[back](./UserGuide.md)

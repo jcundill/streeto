@@ -1,4 +1,4 @@
-[back](./index.md)
+[back](./UserGuide.md)
 
 ## Loading and Saving Courses
 
@@ -31,4 +31,4 @@ the requested distance are the ones that generally get selected by the algorithm
 If this proves problematic, then seed the course with its existing controls 
 and choose a slightly shorter distance.
 
-[back](./index.md)
+[back](./UserGuide.md)

@@ -1,4 +1,4 @@
-[back](./index.md)
+[back](./UserGuide.md)
 
 ## Viewing Course Details
 
@@ -54,4 +54,4 @@ As above, but selects the previous leg in the course.
 
 
 
-[back](./index.md)
+[back](./UserGuide.md)
