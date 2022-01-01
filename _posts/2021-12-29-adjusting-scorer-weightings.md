@@ -5,7 +5,7 @@ date:   2021-12-29 11:20:17 +0000
 categories: streeto scorers
 ---
 
-Wrote this up for the [User Guide](/UserGuide.md). Thought it might make sense to give a few 
+Wrote this up for the [User Guide](/UserGuide.html). Thought it might make sense to give a few 
 examples here.
 
 StreetO works by using a Genetic Algorithm to evolve a population of candidate orienteering courses such that the
@@ -16,7 +16,7 @@ and feeds them into the next generation of the algorithm
 
 
 You assign weightings to each of these heuristics in the
-[Settings And Preferences](/SettingsAndPreferences.md#course-scoring-preferences) dialog to tell the algorithm how
+[Settings And Preferences](/SettingsAndPreferences.html#course-scoring-preferences) dialog to tell the algorithm how
 much importance you want to give to each of these factors.
 
 There is no right or wrong way to weight the heuristics. To some extent it depends on the map data at the location
