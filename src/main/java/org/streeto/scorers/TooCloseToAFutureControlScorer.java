@@ -41,14 +41,15 @@ import static org.streeto.utils.CollectionHelpers.*;
 import static org.streeto.utils.DistUtils.dist;
 
 public class TooCloseToAFutureControlScorer extends AbstractLegScorer {
-    private final double minLegLength;
-    private final double minControlSeparation;
 
     public TooCloseToAFutureControlScorer(StreetOPreferences preferences) {
-        super(preferences.getComesTooCloseWeighting());
-        this.minLegLength = preferences.getMinLegDistance();
-        minControlSeparation = preferences.getMinControlSeparation();
+        super(preferences);
 
+    }
+
+    @Override
+    public double getWeighting() {
+        return preferences.getComesTooCloseWeighting();
     }
 
     /**
@@ -82,15 +83,14 @@ public class TooCloseToAFutureControlScorer extends AbstractLegScorer {
                     .map(this::getLastPoint)
                     .collect(Collectors.toList());
             var mins = thisLeg.getAll().stream()
-                    .map(legRoute -> scoreRoute(thisLeg.getBest().getDistance(), remainingControls, legRoute))
-                    .collect(Collectors.toList());
+                    .map(legRoute -> scoreRoute(thisLeg.getBest().getDistance(), remainingControls, legRoute)).toList();
             score = Collections.min(mins);
         }
         return scoreFunction(score);
     }
 
     private Double scoreRoute(double bestDistance, List<GHPoint3D> remainingControls, ResponsePath legRoute) {
-        var likelihood = legRoute.getDistance() < minControlSeparation ? 1.0 : bestDistance / legRoute.getDistance();
+        var likelihood = legRoute.getDistance() < preferences.getMinControlSeparation() ? 1.0 : bestDistance / legRoute.getDistance();
         if (iterableAsStream(legRoute.getPoints())
                 .anyMatch(it -> goesTooCloseToAFutureControl(remainingControls, it))) return 1.0 - likelihood;
         else return 1.0;
@@ -101,6 +101,6 @@ public class TooCloseToAFutureControlScorer extends AbstractLegScorer {
     }
 
     private boolean goesTooCloseToAFutureControl(List<? extends GHPoint> ctrls, GHPoint p) {
-        return ctrls.stream().anyMatch(c -> dist(p, c) < minLegLength); // can't get too close to yourself
+        return ctrls.stream().anyMatch(c -> dist(p, c) < preferences.getMinControlSeparation());
     }
 }

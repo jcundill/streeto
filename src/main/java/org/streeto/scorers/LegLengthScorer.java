@@ -36,17 +36,13 @@ import static org.streeto.utils.CollectionHelpers.mapIndexed;
 
 public class LegLengthScorer extends AbstractLegScorer {
 
-    private final double minLegLength;
-    private final double maxLastLegLength;
-    private final double maxFirstLegLength;
-    private final double maxLegLength;
-
     public LegLengthScorer(StreetOPreferences preferences) {
-        super(preferences.getLegLengthWeighting());
-        this.minLegLength = preferences.getMinLegDistance();
-        this.maxLegLength = preferences.getMaxLegDistance();
-        this.maxLastLegLength = preferences.getMaxLastLegLength();
-        this.maxFirstLegLength = preferences.getMaxFirstControlDistance();
+        super(preferences);
+     }
+
+    @Override
+    public double getWeighting() {
+        return preferences.getLegLengthWeighting();
     }
 
     /**
@@ -64,11 +60,11 @@ public class LegLengthScorer extends AbstractLegScorer {
     private double getMaxLenForLeg(int numLegs, int idx) {
         double maxLen;
         if (idx == 0) {
-            maxLen = maxFirstLegLength;
+            maxLen = preferences.getMaxFirstControlDistance();
         } else if (idx == numLegs) {
-            maxLen = maxLastLegLength;
+            maxLen = preferences.getMaxLastLegLength();
         } else {
-            maxLen = maxLegLength;
+            maxLen = preferences.getMaxLegDistance();
         }
         return maxLen;
     }
@@ -76,8 +72,8 @@ public class LegLengthScorer extends AbstractLegScorer {
     private double evaluate(GHResponse leg, double maxLegLength) {
         var score = 0.0;
         var best = leg.getBest().getDistance();
-        if (best < minLegLength) {
-            score = best / minLegLength;
+        if (best < preferences.getMinLegDistance()) {
+            score = best / preferences.getMinLegDistance();
         } else if (best > maxLegLength) {
             score = maxLegLength / best;
         } else {

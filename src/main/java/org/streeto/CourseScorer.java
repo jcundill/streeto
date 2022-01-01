@@ -25,15 +25,12 @@
 
 package org.streeto;
 
-import com.graphhopper.GHResponse;
-import com.graphhopper.util.shapes.GHPoint;
 import org.jetbrains.annotations.NotNull;
-import org.streeto.scorers.LegScorer;
+import org.streeto.scorers.*;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 import static org.streeto.utils.CollectionHelpers.*;
@@ -42,14 +39,19 @@ import static org.streeto.utils.CollectionHelpers.*;
 public class CourseScorer {
 
     private final List<LegScorer> legScorers;
-    private final BiFunction<GHPoint, GHPoint, GHResponse> findRoutes;
-    private final double sumOfWeights;
+    private final ControlSiteFinder csf;
 
-    public CourseScorer(List<LegScorer> legScorers, BiFunction<GHPoint, GHPoint, GHResponse> findRoutes) {
-        this.legScorers = legScorers;
-        this.findRoutes = findRoutes;
-        this.sumOfWeights = this.legScorers.stream().mapToDouble(LegScorer::getWeighting).sum();
-
+    public CourseScorer(StreetOPreferences preferences, ControlSiteFinder csf) {
+        legScorers = List.of(
+                new LegLengthScorer(preferences),
+                new LegRouteChoiceScorer(preferences),
+                new LegComplexityScorer(preferences),
+                new BeenThisWayBeforeScorer(preferences),
+                new TooCloseToAFutureControlScorer(preferences),
+                new DogLegScorer(preferences),
+                new DistinctControlSiteScorer(preferences, csf)
+        );
+        this.csf = csf;
     }
 
     public List<Double> scoreLegs(List<ControlSite> controls) {
@@ -69,12 +71,17 @@ public class CourseScorer {
             return scores.stream().map(score -> score * scorerWeighting).collect(Collectors.toList());
         }).collect(Collectors.toList());
         var weightedLegScores = transpose(weightedFeatureScores);
+        var sumOfWeights = getSumOfWeights();
         return weightedLegScores.stream().map(ws -> ws.stream().mapToDouble(x -> x).sum() / sumOfWeights).collect(Collectors.toList());
+    }
+
+    private double getSumOfWeights() {
+        return legScorers.stream().mapToDouble(LegScorer::getWeighting).sum();
     }
 
     private List<List<Double>> getFeatureScoresPerLeg(List<ControlSite> controls) {
         var legRoutes = windowed(controls, 2)
-                .map(leg -> findRoutes.apply(first(leg).getLocation(), last(leg).getLocation()))
+                .map(leg -> csf.findRoutes(first(leg).getLocation(), last(leg).getLocation()))
                 .collect(Collectors.toList());
 
 

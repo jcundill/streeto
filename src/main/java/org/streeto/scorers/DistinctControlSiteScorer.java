@@ -21,17 +21,10 @@ import static org.streeto.utils.CollectionHelpers.last;
 
 public class DistinctControlSiteScorer extends AbstractLegScorer {
 
-    private final double junctionScoreFactor;
-    private final double bendScoreFactor;
     private final ControlSiteFinder csf;
-    private final double minTurnAngle;
-
 
     public DistinctControlSiteScorer(StreetOPreferences preferences, ControlSiteFinder csf) {
-        super(preferences.getDistinctControlSiteWeighting());
-        this.junctionScoreFactor = preferences.getJunctionScoreFactor();
-        this.bendScoreFactor = preferences.getBendScoreFactor();
-        this.minTurnAngle = preferences.getMinTurnAngle();
+        super(preferences);
         this.csf = csf;
     }
 
@@ -51,7 +44,7 @@ public class DistinctControlSiteScorer extends AbstractLegScorer {
             if (site.getType() == ControlType.FURNITURE) {
                 score = 1.0;
             } else if (site.getType() == ControlType.TOWER) {
-                score = junctionScoreFactor;
+                score = preferences.getJunctionScoreFactor();
             } else if (site.getType() == ControlType.PILLAR) {
                 score = calculateTurnAngleAt(location);
             }
@@ -68,7 +61,7 @@ public class DistinctControlSiteScorer extends AbstractLegScorer {
                 var prev = pl.get(i - 1);
                 var next = pl.get(i + 1);
                 var angle = turnAngle(prev, location, next);
-                if (angle > minTurnAngle) return bendScoreFactor;
+                if (angle > preferences.getMinTurnAngle()) return preferences.getBendScoreFactor();
                 else return 0.0;
             }
         }
@@ -82,4 +75,8 @@ public class DistinctControlSiteScorer extends AbstractLegScorer {
         return abs(toDegrees(ANGLE_CALC.alignOrientation(anglePrev, angleNext) - anglePrev));
     }
 
+    @Override
+    public double getWeighting() {
+        return preferences.getDistinctControlSiteWeighting();
+    }
 }

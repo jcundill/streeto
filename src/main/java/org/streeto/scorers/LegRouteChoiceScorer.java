@@ -39,7 +39,12 @@ import static org.streeto.utils.CollectionHelpers.dropFirstAndLast;
 public class LegRouteChoiceScorer extends AbstractLegScorer {
 
     public LegRouteChoiceScorer(StreetOPreferences preferences) {
-        super(preferences.getRouteChoiceWeighting());
+        super(preferences);
+    }
+
+    @Override
+    public double getWeighting() {
+        return preferences.getRouteChoiceWeighting();
     }
 
     /**
@@ -63,7 +68,7 @@ public class LegRouteChoiceScorer extends AbstractLegScorer {
     }
 
     private double evalAlts(GHResponse leg) {
-        var sortedDistances = leg.getAll().stream().map(ResponsePath::getDistance).sorted().collect(Collectors.toList());
+        var sortedDistances = leg.getAll().stream().map(ResponsePath::getDistance).sorted().toList();
         // work out the delta between the length of the best and the length of the next best
         var ratio = sortedDistances.get(0) / sortedDistances.get(1);
         //work out how much these two routes have in common

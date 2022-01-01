@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 import static java.lang.Math.min;
 
 public class LegComplexityScorer extends AbstractLegScorer {
-    private final double turnDensity;
 
     private static final List<Integer> turnInstructions = List.of(
             Instruction.TURN_LEFT,
@@ -29,8 +28,12 @@ public class LegComplexityScorer extends AbstractLegScorer {
     );
 
     public LegComplexityScorer(StreetOPreferences preferences) {
-        super(preferences.getLegComplexityWeighting());
-        this.turnDensity = preferences.getTurnDensity();
+        super(preferences);
+    }
+
+    @Override
+    public double getWeighting() {
+        return preferences.getLegComplexityWeighting();
     }
 
     private double evaluate(GHResponse leg) {
@@ -46,7 +49,7 @@ public class LegComplexityScorer extends AbstractLegScorer {
         } else if (turns == 0L) {
             score = 0.0; // no decisions - not complex at all
         } else {
-            var legTurnDensity = turnDensity * turns / leg.getBest().getDistance();
+            var legTurnDensity = preferences.getTurnDensity() * turns / leg.getBest().getDistance();
             score = min(legTurnDensity, 1.0);
         }
         return scoreFunction(score);

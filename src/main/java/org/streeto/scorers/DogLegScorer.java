@@ -42,7 +42,12 @@ import static org.streeto.utils.DistUtils.dist;
 public class DogLegScorer extends AbstractLegScorer {
 
     public DogLegScorer(StreetOPreferences preferences) {
-        super(preferences.getDogLegWeighting());
+        super(preferences);
+    }
+
+    @Override
+    public double getWeighting() {
+        return preferences.getDogLegWeighting();
     }
 
     /**
@@ -69,7 +74,7 @@ public class DogLegScorer extends AbstractLegScorer {
             score = 0.0; //controls are in the same place
         } else {
             List<GHPoint3D> nextTail = drop(nextPoints, 1);
-            var inBoth = dropLast(prevPoints, 1).stream().filter(nextTail::contains).collect(Collectors.toList());
+            var inBoth = dropLast(prevPoints, 1).stream().filter(nextTail::contains).toList();
             if (inBoth.size() == 0) {
                 score = 1.0;
             } else {

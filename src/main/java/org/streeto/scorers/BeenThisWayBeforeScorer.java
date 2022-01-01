@@ -13,7 +13,12 @@ import static org.streeto.utils.CollectionHelpers.mapIndexed;
 
 public class BeenThisWayBeforeScorer extends AbstractLegScorer {
     public BeenThisWayBeforeScorer(StreetOPreferences preferences) {
-        super(preferences.getBeenHereBeforeWeighting());
+        super(preferences);
+    }
+
+    @Override
+    public double getWeighting() {
+        return preferences.getBeenHereBeforeWeighting();
     }
 
     @Override

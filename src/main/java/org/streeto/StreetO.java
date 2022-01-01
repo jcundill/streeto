@@ -36,7 +36,6 @@ import org.streeto.gpx.GpxFacade;
 import org.streeto.kml.KmlWriter;
 import org.streeto.mapping.*;
 import org.streeto.osmdata.MapDataRepository;
-import org.streeto.scorers.*;
 
 import java.io.*;
 import java.util.*;
@@ -77,7 +76,7 @@ public class StreetO {
             csf = new ControlSiteFinder(gh, preferences);
             splitter = new MapSplitter(csf, preferences.getPaperSize(), preferences.getMaxMapScale());
             courseImporter = new CourseImporter(csf);
-            initialiseScorers();
+            scorer = new CourseScorer(preferences, csf);
         }
         return maybeGh;
     }
@@ -159,22 +158,8 @@ public class StreetO {
         }
     }
 
-    private void initialiseScorers() {
-        List<LegScorer> featureScorers = List.of(
-                new LegLengthScorer(preferences),
-                new LegRouteChoiceScorer(preferences),
-                new LegComplexityScorer(preferences),
-                new BeenThisWayBeforeScorer(preferences),
-                new TooCloseToAFutureControlScorer(preferences),
-                new DogLegScorer(preferences),
-                new DistinctControlSiteScorer(preferences, csf)
-        );
-        scorer = new CourseScorer(featureScorers, csf::findRoutes);
-    }
-
     public void setPreferences(StreetOPreferences preferences) {
         this.preferences = preferences;
-        initialiseScorers();
     }
 
     public void writeMapRunFiles(List<ControlSite> controls, String title, File path) throws IOException {
