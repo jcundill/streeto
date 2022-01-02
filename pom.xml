@@ -6,7 +6,7 @@
 
     <groupId>wibble</groupId>
     <artifactId>streeto</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0-beta4</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -60,6 +60,7 @@
             <!-- Add the default resource path back in - by overriding above it disables the default -->
             <resource>
                 <directory>${project.basedir}/src/main/resources</directory>
+                <filtering>true</filtering>
             </resource>
         </resources>
 

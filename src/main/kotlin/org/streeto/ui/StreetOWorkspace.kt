@@ -8,6 +8,7 @@ import javafx.scene.control.MenuBar
 import javafx.scene.control.TabPane
 import javafx.stage.FileChooser
 import org.streeto.ControlSite
+import org.streeto.ui.about.AboutView
 import org.streeto.ui.controls.ControlsView
 import org.streeto.ui.coursedetails.CourseDetailsView
 import org.streeto.ui.evolution.GenerationProgressView

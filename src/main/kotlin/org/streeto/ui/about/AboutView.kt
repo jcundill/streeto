@@ -1,10 +1,19 @@
-package org.streeto.ui
+package org.streeto.ui.about
 
 import javafx.geometry.Pos
+import org.streeto.ui.StreetOView
 import tornadofx.*
 
 class AboutView : StreetOView("About StreetO") {
 
+    private val version: String ;
+    init {
+        resources.url("/VERSION.txt").openStream().bufferedReader().use {
+            version = it.readLine()
+        }
+        title = "About StreetO - $version"
+
+    }
     override val root = vbox {
         prefWidth = 660.0
         hbox {
