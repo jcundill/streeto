@@ -50,7 +50,7 @@ algorithm.
 As mentioned, if there are more controls on the Map than should be used for the requested distance, the algorithm will
 remove the extra controls before generating a new Course.
 
-Note: It is not possible to seed a course from and existing set of controls if the length of the best route around those
+Note: It is not possible to seed a course from an existing set of controls if the length of the best route around those
 controls is significantly longer than the newly requested course length.
 
 This is because the algorithm cannot easily use that course to seed candidate courses from, as most generated candidates
@@ -58,7 +58,7 @@ Will be immediately discarded as being too long. This leads to problems with fin
 candidate courses within a reasonable time.
 
 The program will inform you of this and not let you continue until you've moved or deleted enough of the existing
-controls to get the distance oof the shortest routes around them back into tolerance.
+controls to get the distance of the shortest routes around them back into tolerance.
 
 Once the generation algorithm has completed the new controls will replace the existing one on the map.
 
