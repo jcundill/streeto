@@ -6,7 +6,10 @@ import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import org.streeto.ControlSite
-import tornadofx.*
+import tornadofx.ItemViewModel
+import tornadofx.getValue
+import tornadofx.setValue
+import tornadofx.toProperty
 
 val never get() = BooleanExpression.booleanExpression(false.toProperty())
 
@@ -20,6 +23,24 @@ open class Point(lat: Double?, lon: Double?) {
 
     override fun toString(): String {
         return "[$lat, $lon]"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Point
+
+        if (lat != other.lat) return false
+        if (lon != other.lon) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = lat.hashCode()
+        result = 31 * result + lon.hashCode()
+        return result
     }
 }
 

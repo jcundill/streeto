@@ -26,7 +26,7 @@ class OpenLayersMapView : StreetOView("Map") {
     private val controlModel: ControlViewModel by inject()
     private val legModel: ScoredLegModel by inject()
 
-    val customFunction = JavaCallback(controller, this)
+    private val customFunction = JavaCallback(controller, this)
     private val isClickedOnControl = SimpleBooleanProperty(false)
     private val clickPosition = SimpleObjectProperty<Point>()
     private var showRouteOnMap: Boolean = false
@@ -109,10 +109,12 @@ class OpenLayersMapView : StreetOView("Map") {
                             zoomToPoint(lastCenter, 15)
                             resolution = controller.getLastResolution()
                         } else {
-                            zoomToDataBounds(controller.dataBounds)
+                            // show the whole world
+                            zoomToPoint(lastCenter, 1)
                         }
                     }
                 }
+
                 onMouseClicked = EventHandler {
                     val coords = mouseCoordinates
                     val ctrl = controller.getControlAt(coords, resolution)
