@@ -107,7 +107,7 @@ If any way is marked as being for 'delivery' or 'customers only', then skip that
 
 If it's a potentially unsafe road, and it's through a tunnel, then skip it unless it definitely says that there is a pavement.
 
-You are allowed to run through fords, and there are no restrictions on the steep the path is.
+You are allowed to run through fords, and there are no restrictions on how steep the path is.
 
 There are other decisions made, piers, platforms, etc. But the above covers most of it.
 
