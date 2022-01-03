@@ -75,8 +75,11 @@ public class KmlWriter {
         var markers = (NodeList) xPath.evaluate(xpath, doc, XPathConstants.NODESET);
         return mapIndexed(i -> (Element) markers.item(i), markers.getLength())
                 .map(node -> {
-                    var name = node.getElementsByTagName("name").item(0).getTextContent();
-                    var description = node.getElementsByTagName("description").item(0).getTextContent();
+                    // we don't always have a description (or potentially a name)
+                    // StreetO uses the description for the control placement type
+                    // externally imported KMLs don't have descriptions
+                    var name = getTextOrDefault(node.getElementsByTagName("name"), "");
+                    var description = getTextOrDefault(node.getElementsByTagName("description"), "");
                     var point = (Element) node.getElementsByTagName("Point").item(0);
                     var coords = point.getElementsByTagName("coordinates").item(0).getTextContent();
                     var x = coords.split(",");
@@ -85,6 +88,14 @@ public class KmlWriter {
                     ret.setNumber(name);
                     return ret;
                 });
+    }
+
+    private String getTextOrDefault(NodeList nodelist, String defaultValue) {
+        var value = defaultValue;
+        if (nodelist.getLength() > 0) {
+            value = nodelist.item(0).getTextContent();
+        }
+        return value;
     }
 
     @NotNull

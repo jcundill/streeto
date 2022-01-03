@@ -128,8 +128,12 @@ class CourseController : Controller() {
     }
 
     fun initialiseCourse(controls: List<ControlSite>) {
+        val snapped = controls.map {
+            streetO.findNearestControlSiteTo(it.location.lat, it.location.lon).orElseThrow()
+        }
         controlList.clear()
-        controlList.addAll(controls.map(ControlSite::toControl))
+        controlList.addAll(snapped.map(ControlSite::toControl))
+        renumberControls()
     }
 
     fun scoreControls() {
@@ -342,6 +346,8 @@ class CourseController : Controller() {
     private fun avg(a: Double, b: Double): Double = (a + b) / 2
 
     private fun renumberControls() {
+        first(controlList).number = "S1"
+        last(controlList).number = "F1"
         controlList.drop(1).dropLast(1).forEachIndexed { index, control ->
             control.number = (index + 1).toString()
         }
@@ -349,8 +355,6 @@ class CourseController : Controller() {
 
     fun reverseCourse() {
         controlList.reverse()
-        first(controlList).number = "S1"
-        last(controlList).number = "F1"
         renumberControls()
         analyseCourse()
     }
