@@ -62,7 +62,7 @@ var routeChoiceLayer = new VectorLayer({
 
 var view = new View({
   center: [-7916041.528716288, 5228379.045749711],
-  zoom: 12,
+  zoom: 1,
 });
 
 var select = new Select({style:null});

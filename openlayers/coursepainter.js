@@ -21,7 +21,6 @@ var labelStyle = new Text({
     rotateWithView: false 
 });
 
-
 var controlStyle = new Style({
     image: new CircleStyle({
         radius: 25,
@@ -33,7 +32,6 @@ var controlStyle = new Style({
         text: labelStyle
     }),
 });
-
 
 var lineStyle = new Style({
     stroke: new Stroke({
@@ -73,7 +71,6 @@ var controlStyleFunction = function (feature) {
     style.getText().setText(feature.get("number"));
     return style;
 };
-
 
 export function paintCourse(ctrls, courseSource) {
     courseSource.clear();

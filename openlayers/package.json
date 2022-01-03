@@ -12,6 +12,6 @@
   "scripts": {
     "dev": "parcel index.html",
     "start": "parcel -p 12345 index.html",
-    "build": "parcel build --public-url . index.html"
+    "build": "parcel build --no-source-maps --no-content-hash --dist-dir ../src/main/resources --public-url . index.html"
   }
 }
