@@ -112,4 +112,8 @@ public class CourseScorer {
         forEachZipped(names, featureScores, results::put);
         return results;
     }
+
+    public static double getOverallScore(List<Double> legScores) {
+        return legScores.stream().mapToDouble(x -> Math.pow(x, 2)).average().orElse(0.0);
+    }
 }
