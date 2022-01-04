@@ -127,7 +127,10 @@ To run the GUI.
 ```dtd
 mvn install
 ```
-To build the installer package for the current platform. 
+To build the installer package for the current platform. Note we use Java `jpackage` tool to build the installers,
+this needs external tool support installing on the system for the platform you are building on, see
+[Packaging Pre-Reqs](https://docs.oracle.com/en/java/javase/17/jpackage/packaging-overview.html) on the Oracle site for 
+details
 
 
 Application Icon 
