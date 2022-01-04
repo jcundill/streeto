@@ -29,7 +29,7 @@ public class ScoreDetails {
     }
 
     public double getOverallScore() {
-        return legScores.stream().collect(Collectors.averagingDouble(it -> it));
+        return CourseScorer.getOverallScore(legScores);
     }
 
     private String formatName(String cls) {
