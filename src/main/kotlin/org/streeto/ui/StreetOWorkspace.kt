@@ -17,6 +17,7 @@ import org.streeto.ui.geocode.NominatimView
 import org.streeto.ui.legs.LegDetailsView
 import org.streeto.ui.legs.LegsView
 import org.streeto.ui.map.OpenLayersMapView
+import org.streeto.ui.map.StreetOActions
 import org.streeto.ui.osmdata.OsmDataView
 import org.streeto.ui.preferences.PreferencesView
 import tornadofx.*
@@ -115,39 +116,23 @@ class StreetOWorkspace : Workspace("StreetO") {
                     val all = FileChooser.ExtensionFilter("Course Files", "*.kml", "*.gpx")
                     val kml = FileChooser.ExtensionFilter("KML", "*.kml")
                     val gpx = FileChooser.ExtensionFilter("GPX", "*.gpx")
-                    val courseFile =
+                    val courseFiles =
                         chooseFile("Open File", filters = arrayOf(all, kml, gpx), mode = FileChooserMode.Single)
-                    courseFile.map { file ->
+                    if (courseFiles.isNotEmpty()) {
+                        val file = courseFiles[0]
                         val course = courseController.loadCourse(file)
                         if (course != null) {
                             val start = course.controls[0].location
                             val startPoint = Point(start.lat, start.lon)
-                            val haveData = courseController.hasMapDataFor(startPoint)
-                            var doLoad = false
-                            if (!haveData) {
-                                confirm(
-                                    "No map data found for this position",
-                                    "Load it now? This will take a few minutes"
-                                ) {
-                                    doLoad = true
-                                }
+                            val onLoaded = {
+                                courseController.initialiseCourse(course.controls)
+                                courseController.analyseCourse()
+                                courseController.setDetailsFrom(file)
+                                fire(CourseUpdatedEvent)
+                                fire(ZoomToFitCourseEvent)
+                                fire(ControlSelectedEvent(courseController.controlList[0]))
                             }
-                            if (haveData || doLoad) {
-                                mapView.runAsyncWithOverlay {
-                                    courseController.loadMapDataAt(startPoint, doLoad)
-                                } ui { loaded ->
-                                    if (loaded) {
-                                        courseController.initialiseCourse(course.controls)
-                                        courseController.analyseCourse()
-                                        courseController.setDetailsFrom(file)
-                                        fire(CourseUpdatedEvent)
-                                        fire(ZoomToFitCourseEvent)
-                                        fire(ControlSelectedEvent(courseController.controlList[0]))
-                                    }
-                                }
-                            } else {
-                                alert(Alert.AlertType.ERROR, "Error", "No Map Data for this position")
-                            }
+                            StreetOActions.loadMapDataAction(courseController, mapView, startPoint, onLoaded)
                         } else {
                             alert(
                                 type = Alert.AlertType.ERROR,
@@ -158,7 +143,6 @@ class StreetOWorkspace : Workspace("StreetO") {
                     }
                 }
             }
-
             separator()
             item("_Save") {
                 enableWhen(courseController.courseFile.isNotNull.and(haveControls))

@@ -16,6 +16,11 @@ public class PbfInfo {
         return url;
     }
 
+    public String getName() {
+        var name = url.substring(url.lastIndexOf('/') + 1);
+        return name.substring(0, name.indexOf('.'));
+    }
+
     public LinearRing getOutline() {
         return outline;
     }

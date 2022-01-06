@@ -4,6 +4,7 @@ import com.graphhopper.reader.osm.GraphHopperOSM;
 import com.graphhopper.util.shapes.GHPoint;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -143,7 +144,7 @@ public class MapDataRepository {
                 return Optional.empty();
             } else {
                 var downloadedFile = maybeDownloadedFile.get();
-                var name = getExtractName(pbfInfo.getUrl());
+                var name = pbfInfo.getName();
                 var ghWrapper = new GhWrapper();
                 ghWrapper.initGH(downloadedFile.getAbsolutePath(), osmDir + "/" + name);
                 GraphHopperOSM gh = ghWrapper.loadGH(osmDir + "/" + name);
@@ -158,5 +159,17 @@ public class MapDataRepository {
     private String getExtractName(String pbfUrl) {
         var name = pbfUrl.substring(pbfUrl.lastIndexOf('/') + 1);
         return name.substring(0, name.indexOf('.'));
+    }
+
+    public Optional<GraphHopperOSM> loadMapDataFromPBF(@NotNull File pbfFile) throws IOException {
+        var name = getExtractName(pbfFile.getName());
+        var ghWrapper = new GhWrapper();
+        ghWrapper.initGH(pbfFile.getAbsolutePath(), osmDir + "/" + name);
+        GraphHopperOSM gh = ghWrapper.loadGH(osmDir + "/" + name);
+        var bounds = gh.getGraphHopperStorage().getBounds();
+        var outline = getOutlineFromBBox(bounds);
+        MapData mapData = new MapData(name, outline, LocalDate.now());
+        saveMapData(mapData);
+        return Optional.of(gh);
     }
 }

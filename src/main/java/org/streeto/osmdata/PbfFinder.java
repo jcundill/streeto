@@ -3,6 +3,7 @@ package org.streeto.osmdata;
 import com.graphhopper.util.shapes.GHPoint;
 
 import javax.json.Json;
+import javax.json.JsonArray;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -20,10 +21,10 @@ public class PbfFinder {
 
     public static final String GEOFABRIK_DE_INDEX_V_1_JSON = "https://download.geofabrik.de/index-v1.json";
 
-    public Optional<PbfInfo> findPbfFor(GHPoint location) {
+    private JsonArray extracts = null;
 
-        PbfInfo pbfInfo = null;
-        try {
+    private JsonArray getExtracts() throws IOException {
+        if (extracts == null) {
             var url = new URL(GEOFABRIK_DE_INDEX_V_1_JSON);
             var connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
@@ -36,7 +37,15 @@ public class PbfFinder {
             var buff = new BufferedInputStream(connection.getInputStream());
 
             var json = Json.createReader(buff).readObject();
-            var features = json.getJsonArray("features");
+            extracts = json.getJsonArray("features");
+        }
+        return extracts;
+    }
+
+    public Optional<PbfInfo> findPbfFor(GHPoint location) {
+        PbfInfo pbfInfo = null;
+        try {
+            var features = getExtracts();
             var smallestWidth = Double.MAX_VALUE;
             var smallestHeight = Double.MAX_VALUE;
             for (int i = 0; i < features.size(); i++) {
