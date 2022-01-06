@@ -1,5 +1,6 @@
 package org.streeto.osmdata;
 
+import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint;
 import org.jetbrains.annotations.NotNull;
 import org.locationtech.jts.geom.Coordinate;
@@ -10,10 +11,20 @@ import org.locationtech.jts.geom.impl.CoordinateArraySequence;
 
 import javax.json.JsonArray;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 class OutlineUtils {
     public static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
+
+    public static LinearRing getOutlineFromBBox(BBox bounds) {
+        var bottomLeft = new Coordinate(bounds.minLon, bounds.minLat);
+        var topRight = new Coordinate(bounds.maxLon, bounds.maxLat);
+        var topLeft = new Coordinate(bounds.minLon, bounds.maxLat);
+        var bottomRight = new Coordinate(bounds.maxLon, bounds.minLat);
+        var coordinates = List.of(bottomLeft, topLeft, topRight, bottomRight, bottomLeft).toArray(Coordinate[]::new);
+        return getOutlineFromCoords(coordinates);
+    }
 
     @NotNull
     public static LinearRing getOutlineFromJson(JsonArray polygon) {

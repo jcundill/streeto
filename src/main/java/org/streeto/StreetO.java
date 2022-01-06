@@ -36,6 +36,8 @@ import org.streeto.gpx.GpxFacade;
 import org.streeto.kml.KmlWriter;
 import org.streeto.mapping.*;
 import org.streeto.osmdata.MapDataRepository;
+import org.streeto.osmdata.PbfFinder;
+import org.streeto.osmdata.PbfInfo;
 
 import java.io.*;
 import java.util.*;
@@ -47,6 +49,7 @@ public class StreetO {
 
     ControlSiteFinder csf;
     private final StreetFurnitureFinder finder = new StreetFurnitureFinder();
+    private final PbfFinder pbfFinder = new PbfFinder();
     private MapSplitter splitter;
     private final List<Sniffer> sniffers = new ArrayList<>();
     private CourseImporter courseImporter = new CourseImporter(null);
@@ -55,9 +58,13 @@ public class StreetO {
     private StreetOPreferences preferences;
     private final MapDataRepository mapDataRepository;
 
-    public StreetO(String osmDir, StreetOPreferences prefs ) {
+    public StreetO(String osmDir, StreetOPreferences prefs) {
         preferences = prefs;
         mapDataRepository = new MapDataRepository(osmDir);
+    }
+
+    public Optional<PbfInfo> getGeoFabrikExtractDetailsFor(GHPoint location) {
+        return pbfFinder.findPbfFor(location);
     }
 
     public Optional<GraphHopperOSM> initialiseGHFor(GHPoint location) {

@@ -4,7 +4,6 @@ import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.concurrent.Worker
 import javafx.event.EventHandler
-import javafx.scene.control.Alert
 import javafx.scene.control.ContextMenu
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
@@ -14,6 +13,7 @@ import net.harawata.appdirs.AppDirsFactory
 import netscape.javascript.JSObject
 import org.streeto.ui.*
 import org.streeto.ui.controls.ControlDetailView
+import org.streeto.ui.map.StreetOActions.loadMapDataAction
 import tornadofx.*
 import java.io.File
 import java.util.*
@@ -220,27 +220,12 @@ class OpenLayersMapView : StreetOView("Map") {
         item("Place Start Here") {
             visibleWhen(isClickedOnControl.not().or(haveControls.and(controlModel.number.isEqualTo("F1"))))
             action {
-                val haveData = controller.hasMapDataFor(clickPosition.value)
-                var doLoad = false
-                if (!haveData) {
-                    confirm(
-                        "No map data found for this position",
-                        "Load it now? This will take a few minutes"
-                    ) {
-                        doLoad = true
+                val onLoaded = {
+                    if (controller.setStartAt(clickPosition.value)) {
+                        fire(CourseUpdatedEvent)
                     }
                 }
-                if (haveData || doLoad) {
-                    runAsyncWithOverlay {
-                        controller.loadMapDataAt(clickPosition.value, doLoad)
-                    } ui { loaded ->
-                        if (loaded && controller.setStartAt(clickPosition.value)) {
-                            fire(CourseUpdatedEvent)
-                        }
-                    }
-                } else {
-                    alert(Alert.AlertType.ERROR, "Error", "No Map Data for this position")
-                }
+                loadMapDataAction(controller, this@OpenLayersMapView, clickPosition.value, onLoaded)
             }
         }
         item("Place Finish Here") {

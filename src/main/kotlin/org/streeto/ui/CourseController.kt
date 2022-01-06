@@ -13,9 +13,11 @@ import org.streeto.StreetO
 import org.streeto.gpx.GpxFacade
 import org.streeto.kml.KmlWriter
 import org.streeto.mapping.PaperSize
+import org.streeto.osmdata.PbfInfo
 import org.streeto.ui.coursedetails.CourseDetailsViewModel
 import org.streeto.ui.evolution.CourseGenerationSniffer
 import org.streeto.ui.evolution.GenerationProgressViewModel
+import org.streeto.ui.osmdata.OsmDataController
 import org.streeto.ui.preferences.ObservablePreferences
 import org.streeto.ui.preferences.PreferencesHandler
 import org.streeto.ui.preferences.PreferencesViewModel
@@ -37,6 +39,7 @@ class CourseController : Controller() {
     var legList = SortedFilteredList<ScoredLeg>()
 
     private val preferencesController: PreferencesHandler by inject()
+    private val osmDataController: OsmDataController by inject()
     private val preferencesViewModel: PreferencesViewModel by inject()
     private val progressViewModel: GenerationProgressViewModel by inject()
     private val legViewModel: ScoredLegModel by inject()
@@ -374,7 +377,7 @@ class CourseController : Controller() {
 
     private fun switchToMapDataFor(position: Point): Boolean {
         val location = GHPoint(position.lat, position.lon)
-        if (streetO.mapDataRepository.hasMapDataFor(location)) {
+        if (osmDataController.hasMapDataFor(location)) {
             return streetO.initialiseGHFor(location).isPresent
         }
         return false
@@ -382,10 +385,7 @@ class CourseController : Controller() {
 
     fun loadMapDataAt(position: Point, fetchIfNeeded: Boolean = false): Boolean {
         val point = GHPoint(position.lat, position.lon)
-        val loaded = if (streetO.bounds != null && streetO.bounds.contains(position.lat, position.lon)) {
-            // this data is already loaded
-            true
-        } else if (fetchIfNeeded) {
+        val loaded = if (fetchIfNeeded) {
             streetO.initialiseGHFor(point).isPresent
         } else {
             switchToMapDataFor(position)
@@ -403,7 +403,7 @@ class CourseController : Controller() {
     }
 
     fun hasMapDataFor(location: Point): Boolean {
-        return streetO.mapDataRepository.hasMapDataFor(GHPoint(location.lat, location.lon))
+        return osmDataController.hasMapDataFor(GHPoint(location.lat, location.lon))
     }
 
     fun isCurrentCourseLengthValid(): Boolean {
@@ -421,5 +421,10 @@ class CourseController : Controller() {
         courseName.value = file.nameWithoutExtension
         requestedDistance.value = courseDetailsViewModel.bestDistance.value.roundToInt().toDouble()
         updateViewModel()
+    }
+
+    fun getGeoFabrikExtractFor(position: Point): Optional<PbfInfo> {
+        val point = GHPoint(position.lat, position.lon)
+        return streetO.getGeoFabrikExtractDetailsFor(point)
     }
 }
