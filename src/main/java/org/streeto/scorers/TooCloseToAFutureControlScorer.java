@@ -59,7 +59,7 @@ public class TooCloseToAFutureControlScorer extends AbstractLegScorer {
     @Override
     public List<Double> apply(List<GHResponse> routedLegs) {
         if (routedLegs.size() < 2) {
-            return List.of(0.0);
+            return List.of(1.0);
         } else {
             //evaluate the start without including the finish
             var startScore = evaluate(dropLast(futureLegs(routedLegs, 0), 1), first(routedLegs));
