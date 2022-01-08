@@ -4,7 +4,7 @@ package org.streeto.csim;
 import com.graphhopper.util.shapes.GHPoint;
 import com.graphhopper.util.shapes.GHPoint3D;
 
-public class Point {
+class Point {
     public double latitude;
     public double longitude;
     public long timestamp = 0;

@@ -1,7 +1,7 @@
 package org.streeto.csim;
 
 
-public class CellPair {
+class CellPair {
     public Cell firstPlot;
     public Cell secondPlot;
 

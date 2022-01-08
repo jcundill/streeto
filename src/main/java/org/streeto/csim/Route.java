@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class Route {
+class Route {
     List<Point> points;
     List<Point> mercatorPoints;
     public final double plotLengthDegrees;
@@ -159,8 +159,7 @@ public class Route {
         }
 
         //System.out.println("Dilating cells...");
-        for (int i = 0; i < plots.size(); i++) {
-            Cell plot = plots.get(i);
+        for (Cell plot : plots) {
             if (plot.X == 0 || plot.X == cellsPerZone - 1 || plot.Y == 0 || plot.Y == cellsPerZone - 1) {
                 plot.updateCellLocation();
                 MGRSCoordConverter a = new MGRSCoordConverter();
@@ -311,10 +310,10 @@ public class Route {
             }
 
         }
-        for (int i = 0; i < shadowPlots.size(); i++) {
-            shadowPlots.get(i).frequency = 0;
-            if (!plots.contains(shadowPlots.get(i))) {
-                plots.add(shadowPlots.get(i));
+        for (Cell shadowPlot : shadowPlots) {
+            shadowPlot.frequency = 0;
+            if (!plots.contains(shadowPlot)) {
+                plots.add(shadowPlot);
             }
         }
 

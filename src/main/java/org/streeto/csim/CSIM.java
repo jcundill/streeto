@@ -27,9 +27,6 @@ public class CSIM {
 
     public CSIM(int cellLength) {
         this.cellLength = cellLength;
-//        Parameters.PLOT_LENGTH = cellLength;
-//        Parameters.MAX_CELLS_PER_ZONE = 100000 / Parameters.PLOT_LENGTH;
-//        Parameters.PLOT_LENGTH_DEGREES = cellLength * 0.00020 / 25;
 
         intAB = 0;
         intAdB = 0;

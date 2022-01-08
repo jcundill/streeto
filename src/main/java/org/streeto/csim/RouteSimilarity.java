@@ -7,7 +7,6 @@ public class RouteSimilarity {
 
     private final StreetOPreferences preferences;
     public RouteSimilarity(StreetOPreferences preferences) {
-        //TODO: make this a preference
         this.preferences = preferences;
     }
 

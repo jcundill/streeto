@@ -4,8 +4,7 @@ import gov.nasa.worldwind.geom.coords.MGRSCoordConverter;
 
 import java.util.Objects;
 
-
-public class Cell {
+class Cell {
     public int frequency;
     public int X, Y;
     public boolean fake;
