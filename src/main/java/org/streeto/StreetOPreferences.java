@@ -39,6 +39,7 @@ public class StreetOPreferences {
     private double turnDensity = 50.0;
     private double bendScoreFactor = 0.75;
     private double avgLegDistance = 500.0;
+    private int csimCellSize = 25;
 
     public PaperSize getPaperSize() {
         return paperSize;
@@ -320,5 +321,13 @@ public class StreetOPreferences {
 
     public void setAvgLegDistance(double avgLegDistance) {
         this.avgLegDistance = avgLegDistance;
+    }
+
+    public int getCSIMCellSize() {
+        return csimCellSize;
+    }
+
+    public void setCSIMCellSize(int csimCellSize) {
+        this.csimCellSize = csimCellSize;
     }
 }

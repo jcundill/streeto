@@ -28,6 +28,7 @@ package org.streeto;
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
 import com.graphhopper.GraphHopper;
+import com.graphhopper.ResponsePath;
 import com.graphhopper.reader.osm.GraphHopperOSM;
 import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
@@ -37,12 +38,13 @@ import com.graphhopper.util.Parameters;
 import com.graphhopper.util.PointList;
 import com.graphhopper.util.shapes.GHPoint;
 import io.jenetics.util.RandomRegistry;
+import org.streeto.csim.CSIM;
+import org.streeto.csim.Point;
+import org.streeto.csim.Route;
+import org.streeto.csim.RouteSimilarity;
 import org.streeto.utils.Envelope;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.lang.Math.*;
@@ -63,6 +65,7 @@ public class ControlSiteFinder {
     private final double maxShare;
     private final double maxFurnitureDistance;
     List<ControlSite> furniture;
+    private final RouteSimilarity csim;
     private int hit = 0;
     private int miss = 0;
 
@@ -71,6 +74,7 @@ public class ControlSiteFinder {
         filter = DefaultEdgeFilter.allEdges(gh.getEncodingManager().getEncoder("streeto"));
         this.maxShare = preferences.getMaxRouteShare();
         this.maxFurnitureDistance = preferences.getMaxFurnitureDistance();
+         this.csim = new RouteSimilarity(preferences);
     }
 
     public Envelope getEnvelopeForProbableRoutes(List<ControlSite> controls) {
@@ -132,12 +136,38 @@ public class ControlSiteFinder {
             var req = new GHRequest(from, to);
             req.setAlgorithm(Parameters.Algorithms.ALT_ROUTE);
             req.getHints().putObject(Parameters.Algorithms.AltRoute.MAX_SHARE, maxShare);
-            req.getHints().putObject(Parameters.Algorithms.AltRoute.MAX_PATHS, 4);
+            req.getHints().putObject(Parameters.Algorithms.AltRoute.MAX_PATHS, 10);
             req.setProfile("streeto");
             var resp = gh.route(req);
+            if (resp.hasAlternatives()) {
+                filterAlternatives(resp);
+            }
             routedLegCache.put(p, resp);
             return resp;
         }
+    }
+
+    private void filterAlternatives(GHResponse resp) {
+        var alts = resp.getAll();
+        var toRemove = new ArrayList<ResponsePath>();
+        double[][] simArray = new double[alts.size()][alts.size()];
+        //how similar are the alts to the other ones.
+        for (int i = 0; i < alts.size(); i++) {
+            for (int j = 0; j < alts.size(); j++) {
+                simArray[i][j] = csim.similarity(alts.get(i), alts.get(j));
+            }
+        }
+        // filter out alternatives that are too similar to each other
+        for (int i = 1; i < alts.size(); i++) { // don't remove best
+            for (int j = 1; j < alts.size(); j++) { // don't remove best
+                if (i != j && simArray[i][j] > 0.9 && simArray[j][i] > 0.9) {
+                    // too similar, flag for removal
+                    toRemove.add(resp.getAll().get(i));
+                }
+            }
+        }
+        // remove flagged alternatives
+        resp.getAll().removeAll(toRemove);
     }
 
     public Optional<ControlSite> findNearestControlSiteTo(ControlSite site) {

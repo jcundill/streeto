@@ -30,16 +30,20 @@ import com.graphhopper.ResponsePath;
 import com.graphhopper.util.shapes.GHPoint;
 import org.jetbrains.annotations.NotNull;
 import org.streeto.StreetOPreferences;
+import org.streeto.csim.CSIM;
+import org.streeto.csim.RouteSimilarity;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.streeto.utils.CollectionHelpers.dropFirstAndLast;
+import static org.streeto.utils.CollectionHelpers.*;
 
 public class LegRouteChoiceScorer extends AbstractLegScorer {
+    private final RouteSimilarity csim;
 
     public LegRouteChoiceScorer(StreetOPreferences preferences) {
         super(preferences);
+        csim = new RouteSimilarity(preferences);
     }
 
     @Override
@@ -68,19 +72,16 @@ public class LegRouteChoiceScorer extends AbstractLegScorer {
     }
 
     private double evalAlts(GHResponse leg) {
-        var sortedDistances = leg.getAll().stream().map(ResponsePath::getDistance).sorted().toList();
-        // work out the delta between the length of the best and the length of the next best
-        var ratio = sortedDistances.get(0) / sortedDistances.get(1);
-        //work out how much these two routes have in common
-        List<GHPoint> first = dropFirstAndLast(getRouteChoiceOptionAsList(leg, 0), 1);
-        List<GHPoint> second = dropFirstAndLast(getRouteChoiceOptionAsList(leg, 1), 1);
-
-        if (first.isEmpty() || second.isEmpty())
-            return 0.0; // not a real choice
-
-        var commonLen = getCommonRouteLength(first, second);
-        var commonRatio = commonLen / sortedDistances.get(0);
-        return ratio - commonRatio;
+        var best = leg.getBest();
+        var bestDistance = best.getDistance();
+        var alts = drop(leg.getAll(), 1);
+        var score = 0.0;
+        for (ResponsePath alt : alts) {
+            var similarity = csim.similarity(best, alt);
+            var altScore = (bestDistance / alt.getDistance()) * (1.0 - similarity);
+            score += altScore;
+        }
+        return score / alts.size();
     }
 
 }
