@@ -38,9 +38,6 @@ import com.graphhopper.util.Parameters;
 import com.graphhopper.util.PointList;
 import com.graphhopper.util.shapes.GHPoint;
 import io.jenetics.util.RandomRegistry;
-import org.streeto.csim.CSIM;
-import org.streeto.csim.Point;
-import org.streeto.csim.Route;
 import org.streeto.csim.RouteSimilarity;
 import org.streeto.utils.Envelope;
 
@@ -62,8 +59,7 @@ public class ControlSiteFinder {
     private final EdgeFilter filter;
     private final HashMap<List<GHPoint>, GHResponse> routedLegCache = new HashMap<>();
     private final Random rnd = RandomRegistry.random();
-    private final double maxShare;
-    private final double maxFurnitureDistance;
+    private final StreetOPreferences preferences;
     List<ControlSite> furniture;
     private final RouteSimilarity csim;
     private int hit = 0;
@@ -72,9 +68,8 @@ public class ControlSiteFinder {
     public ControlSiteFinder(GraphHopperOSM gh, StreetOPreferences preferences) {
         this.gh = gh;
         filter = DefaultEdgeFilter.allEdges(gh.getEncodingManager().getEncoder("streeto"));
-        this.maxShare = preferences.getMaxRouteShare();
-        this.maxFurnitureDistance = preferences.getMaxFurnitureDistance();
-         this.csim = new RouteSimilarity(preferences);
+        this.preferences = preferences;
+        this.csim = new RouteSimilarity(preferences);
     }
 
     public Envelope getEnvelopeForProbableRoutes(List<ControlSite> controls) {
@@ -119,7 +114,7 @@ public class ControlSiteFinder {
     public GHResponse routeRequest(GHRequest req, int numAlternatives) {
         if (numAlternatives > 1) {
             req.setAlgorithm(Parameters.Algorithms.ALT_ROUTE);
-            req.getHints().putObject(Parameters.Algorithms.AltRoute.MAX_SHARE, maxShare);
+            req.getHints().putObject(Parameters.Algorithms.AltRoute.MAX_SHARE, preferences.getMaxRouteShare());
             req.getHints().putObject(Parameters.Algorithms.AltRoute.MAX_PATHS, numAlternatives);
         }
         req.setProfile("streeto");
@@ -135,7 +130,7 @@ public class ControlSiteFinder {
             miss++;
             var req = new GHRequest(from, to);
             req.setAlgorithm(Parameters.Algorithms.ALT_ROUTE);
-            req.getHints().putObject(Parameters.Algorithms.AltRoute.MAX_SHARE, maxShare);
+            req.getHints().putObject(Parameters.Algorithms.AltRoute.MAX_SHARE, preferences.getMaxRouteShare());
             req.getHints().putObject(Parameters.Algorithms.AltRoute.MAX_PATHS, 10);
             req.setProfile("streeto");
             var resp = gh.route(req);
@@ -192,7 +187,7 @@ public class ControlSiteFinder {
     }
 
     private Optional<ControlSite> findLocalStreetFurniture(GHPoint p) {
-        return furniture.stream().filter(it -> dist(it.getLocation(), p) < maxFurnitureDistance).findFirst();
+        return furniture.stream().filter(it -> dist(it.getLocation(), p) < preferences.getMaxFurnitureDistance()).findFirst();
     }
 
     private Optional<? extends GHPoint> findClosestStreetLocation(GHPoint p) {
