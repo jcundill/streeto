@@ -23,10 +23,13 @@ public class CSIM {
     private int intAdB;
     private int intABd;
 
+    private final int cellLength;
+
     public CSIM(int cellLength) {
-        Parameters.PLOT_LENGTH = cellLength;
-        Parameters.MAX_CELLS_PER_ZONE = 100000 / Parameters.PLOT_LENGTH;
-        Parameters.PLOT_LENGTH_DEGREES = Parameters.PLOT_LENGTH * 0.00020 / 25;
+        this.cellLength = cellLength;
+//        Parameters.PLOT_LENGTH = cellLength;
+//        Parameters.MAX_CELLS_PER_ZONE = 100000 / Parameters.PLOT_LENGTH;
+//        Parameters.PLOT_LENGTH_DEGREES = cellLength * 0.00020 / 25;
 
         intAB = 0;
         intAdB = 0;
@@ -59,7 +62,7 @@ public class CSIM {
 
     private Route fromResponsePath(ResponsePath path) {
         var points = dropFirstAndLast(iterableAsStream(path.getPoints()).map(Point::fromGraphHopperPoint).toList(), 1);
-        return new Route(points);
+        return new Route(points, cellLength);
     }
 
 

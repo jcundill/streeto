@@ -11,19 +11,21 @@ public class Cell {
     public boolean fake;
     public String zone;
     public double latitude = -1000, longitude = -1000; //illegal values
+    private final int cellSize;
 
-    Cell(int X, int Y, boolean fake, String code) {
+    Cell(int X, int Y, boolean fake, String code, int cellSize) {
         frequency = 1;
         this.X = X;
         this.Y = Y;
         this.fake = fake;
         this.zone = code;
+        this.cellSize = cellSize;
     }
 
-    public void getLocation() {
+    public void updateCellLocation() {
         if (latitude == -1000) {
             MGRSCoordConverter a = new MGRSCoordConverter();
-            a.convertMGRSToGeodetic(zone + String.format("%05d", X * Parameters.PLOT_LENGTH) + "" + String.format("%05d", Y * Parameters.PLOT_LENGTH));
+            a.convertMGRSToGeodetic(zone + String.format("%05d", X * cellSize) + "" + String.format("%05d", Y * cellSize));
             latitude = Math.toDegrees(a.getLatitude());
             longitude = Math.toDegrees(a.getLongitude());
         }
