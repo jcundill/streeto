@@ -152,10 +152,11 @@ public class ControlSiteFinder {
                 simArray[i][j] = csim.similarity(alts.get(i), alts.get(j));
             }
         }
+        var threshold = preferences.getCSIMThreshold();
         // filter out alternatives that are too similar to each other
         for (int i = 1; i < alts.size(); i++) { // don't remove best
             for (int j = 1; j < alts.size(); j++) { // don't remove best
-                if (i != j && simArray[i][j] > 0.9 && simArray[j][i] > 0.9) {
+                if (i != j && simArray[i][j] > threshold && simArray[j][i] > threshold) {
                     // too similar, flag for removal
                     toRemove.add(resp.getAll().get(i));
                 }

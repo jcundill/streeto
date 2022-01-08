@@ -7,7 +7,6 @@ import java.util.List;
 
 
 public class Route {
-    private static final MGRSCoordConverter coordConverter = new MGRSCoordConverter();
     List<Point> points;
     List<Point> mercatorPoints;
 
@@ -32,10 +31,10 @@ public class Route {
 
     public List<Cell> getCells() {
         //System.out.println("Getting cells...");
-        List<Cell> plots = new ArrayList<>();
-        List<Cell> shadowPlots = new ArrayList<>();
+        ArrayList<Cell> plots = new ArrayList<Cell>();
+        ArrayList<Cell> shadowPlots = new ArrayList<Cell>();
         Cell lastPlot = null;
-        List<CellPair> plotPairArray = new ArrayList<>();
+        ArrayList<CellPair> plotPairArray = new ArrayList<CellPair>();
         for (int i = 0; i < size(); i++) {
             Cell plot = getPlotForPoint(getMercator(i), Parameters.PLOT_LENGTH);
             if (!plots.contains(plot)) {
@@ -50,16 +49,17 @@ public class Route {
         }
 
         //System.out.println("Interpolating cells...");
-        for (CellPair cellPair : plotPairArray) {
-            Cell first = cellPair.firstPlot;
-            Cell second = cellPair.secondPlot;
+        for (int i = 0; i < plotPairArray.size(); i++) {
+            Cell first = plotPairArray.get(i).firstPlot;
+            Cell second = plotPairArray.get(i).secondPlot;
+
 
             int flipX = 0;
             int flipY = 0;
 
             if (!first.zone.equals(second.zone)) { //
-                //first.getLocation();
-                //second.getLocation();
+                first.getLocation();
+                second.getLocation();
                 double deltaX = Math.abs(first.latitude - second.latitude);
                 double deltaY = Math.abs(first.longitude - second.longitude);
                 double minX = Math.min(first.latitude, second.latitude);
@@ -76,10 +76,20 @@ public class Route {
                 double inc = 0.00025;
                 if (deltaX > deltaY) {
                     for (double j = inc; j < deltaX; j += inc) {
-                        double lat = minX + (1 - flipX) * j + flipX * (deltaX - j);
-                        double lon = minY + j * deltaY / deltaX * (1 - flipY) + (deltaX - j) * deltaY / deltaX * flipY;
-                        Point point = geodeticToMGRS(lat, lon);
-                        Cell newPlot = getPlotForPoint(point, Parameters.PLOT_LENGTH);
+
+                        MGRSCoordConverter a = new MGRSCoordConverter();
+                        a.convertGeodeticToMGRS(Math.toRadians(minX + (1 - flipX) * j + flipX * (deltaX - j)),
+                                Math.toRadians(minY + j * deltaY / deltaX * (1 - flipY) + (deltaX - j) * deltaY / deltaX * flipY), 5);
+                        String[] result = a.getMGRSString().split(" ");
+
+                        String code = result[0];
+                        int X = Integer.parseInt(result[1]);
+                        int Y = Integer.parseInt(result[2]);
+
+
+                        Cell newPlot = getPlotForPoint(new Point(X, Y, code), Parameters.PLOT_LENGTH);
+
+
                         if (!plots.contains(newPlot)) {
                             plots.add(newPlot);
                         }
@@ -89,10 +99,16 @@ public class Route {
                     for (double j = inc; j < deltaY; j += inc) {
 
 
-                        double lat = minX + (1 - flipX) * j * deltaX / deltaY + flipX * (deltaY - j) * deltaX / deltaY;
-                        double lon = minY + j * (1 - flipY) + (deltaY - j) * flipY;
-                        Point point = geodeticToMGRS(lat, lon);
-                        Cell newPlot = getPlotForPoint(point, Parameters.PLOT_LENGTH);
+                        MGRSCoordConverter a = new MGRSCoordConverter();
+                        a.convertGeodeticToMGRS(Math.toRadians(minX + (1 - flipX) * j * deltaX / deltaY + flipX * (deltaY - j) * deltaX / deltaY),
+                                Math.toRadians(minY + j * (1 - flipY) + (deltaY - j) * flipY), 5);
+                        String[] result = a.getMGRSString().split(" ");
+
+                        String code = result[0];
+                        int X = Integer.parseInt(result[1]);
+                        int Y = Integer.parseInt(result[2]);
+
+                        Cell newPlot = getPlotForPoint(new Point(X, Y, code), Parameters.PLOT_LENGTH);
 
                         if (!plots.contains(newPlot)) {
                             plots.add(newPlot);
@@ -140,16 +156,115 @@ public class Route {
         }
 
         //System.out.println("Dilating cells...");
-        for (Cell plot : plots) {
+        for (int i = 0; i < plots.size(); i++) {
+            Cell plot = plots.get(i);
             if (plot.X == 0 || plot.X == Parameters.MAX_CELLS_PER_ZONE - 1 || plot.Y == 0 || plot.Y == Parameters.MAX_CELLS_PER_ZONE - 1) {
-                addToShadow(shadowPlots, plot, plot.latitude, plot.longitude);
-                addToShadow(shadowPlots, plot, plot.latitude, plot.longitude + Parameters.PLOT_LENGTH_DEGREES * Math.cos(plot.latitude));
-                addToShadow(shadowPlots, plot, plot.latitude + Parameters.PLOT_LENGTH_DEGREES, plot.longitude);
-                addToShadow(shadowPlots, plot, plot.latitude - Parameters.PLOT_LENGTH_DEGREES, plot.longitude);
-                addToShadow(shadowPlots, plot, plot.latitude + Parameters.PLOT_LENGTH_DEGREES, plot.longitude - Parameters.PLOT_LENGTH_DEGREES * Math.cos(plot.latitude));
-                addToShadow(shadowPlots, plot, plot.latitude + Parameters.PLOT_LENGTH_DEGREES, plot.longitude + Parameters.PLOT_LENGTH_DEGREES * Math.cos(plot.latitude));
-                addToShadow(shadowPlots, plot, plot.latitude - Parameters.PLOT_LENGTH_DEGREES, plot.longitude - Parameters.PLOT_LENGTH_DEGREES * Math.cos(plot.latitude));
-                addToShadow(shadowPlots, plot, plot.latitude - Parameters.PLOT_LENGTH_DEGREES, plot.longitude + Parameters.PLOT_LENGTH_DEGREES * Math.cos(plot.latitude));
+                plot.getLocation();
+                MGRSCoordConverter a = new MGRSCoordConverter();
+
+                a.convertGeodeticToMGRS(Math.toRadians(plot.latitude),
+                        Math.toRadians(plot.longitude - Parameters.PLOT_LENGTH_DEGREES * Math.cos(plot.latitude)), 5);
+                String[] result = a.getMGRSString().split(" ");
+                String code = result[0];
+                int X = Integer.parseInt(result[1]);
+                int Y = Integer.parseInt(result[2]);
+                Cell shadowPlot = getPlotForPoint(new Point(X, Y, code), Parameters.PLOT_LENGTH);
+                shadowPlot.fake = plot.fake;
+                shadowPlot.frequency = 0;
+                if (!shadowPlots.contains(shadowPlot)) {
+                    shadowPlots.add(shadowPlot);
+                }
+                //
+                a.convertGeodeticToMGRS(Math.toRadians(plot.latitude),
+                        Math.toRadians(plot.longitude + Parameters.PLOT_LENGTH_DEGREES * Math.cos(plot.latitude)), 5);
+                result = a.getMGRSString().split(" ");
+                code = result[0];
+                X = Integer.parseInt(result[1]);
+                Y = Integer.parseInt(result[2]);
+                shadowPlot = getPlotForPoint(new Point(X, Y, code), Parameters.PLOT_LENGTH);
+                shadowPlot.fake = plot.fake;
+                shadowPlot.frequency = 0;
+                if (!shadowPlots.contains(shadowPlot)) {
+                    shadowPlots.add(shadowPlot);
+                }
+                //
+                a.convertGeodeticToMGRS(Math.toRadians(plot.latitude + Parameters.PLOT_LENGTH_DEGREES),
+                        Math.toRadians(plot.longitude), 5);
+                result = a.getMGRSString().split(" ");
+                code = result[0];
+                X = Integer.parseInt(result[1]);
+                Y = Integer.parseInt(result[2]);
+                shadowPlot = getPlotForPoint(new Point(X, Y, code), Parameters.PLOT_LENGTH);
+                shadowPlot.fake = plot.fake;
+                shadowPlot.frequency = 0;
+                if (!shadowPlots.contains(shadowPlot)) {
+                    shadowPlots.add(shadowPlot);
+                }
+                //
+                a.convertGeodeticToMGRS(Math.toRadians(plot.latitude - Parameters.PLOT_LENGTH_DEGREES),
+                        Math.toRadians(plot.longitude), 5);
+                result = a.getMGRSString().split(" ");
+                code = result[0];
+                X = Integer.parseInt(result[1]);
+                Y = Integer.parseInt(result[2]);
+                shadowPlot = getPlotForPoint(new Point(X, Y, code), Parameters.PLOT_LENGTH);
+                shadowPlot.fake = plot.fake;
+                shadowPlot.frequency = 0;
+                if (!shadowPlots.contains(shadowPlot)) {
+                    shadowPlots.add(shadowPlot);
+                }
+                //
+                a.convertGeodeticToMGRS(Math.toRadians(plot.latitude + Parameters.PLOT_LENGTH_DEGREES),
+                        Math.toRadians(plot.longitude - Parameters.PLOT_LENGTH_DEGREES * Math.cos(plot.latitude)), 5);
+                result = a.getMGRSString().split(" ");
+                code = result[0];
+                X = Integer.parseInt(result[1]);
+                Y = Integer.parseInt(result[2]);
+                shadowPlot = getPlotForPoint(new Point(X, Y, code), Parameters.PLOT_LENGTH);
+                shadowPlot.fake = plot.fake;
+                shadowPlot.frequency = 0;
+                if (!shadowPlots.contains(shadowPlot)) {
+                    shadowPlots.add(shadowPlot);
+                }
+                //
+                a.convertGeodeticToMGRS(Math.toRadians(plot.latitude + Parameters.PLOT_LENGTH_DEGREES),
+                        Math.toRadians(plot.longitude + Parameters.PLOT_LENGTH_DEGREES * Math.cos(plot.latitude)), 5);
+                result = a.getMGRSString().split(" ");
+                code = result[0];
+                X = Integer.parseInt(result[1]);
+                Y = Integer.parseInt(result[2]);
+                shadowPlot = getPlotForPoint(new Point(X, Y, code), Parameters.PLOT_LENGTH);
+                shadowPlot.fake = plot.fake;
+                shadowPlot.frequency = 0;
+                if (!shadowPlots.contains(shadowPlot)) {
+                    shadowPlots.add(shadowPlot);
+                }
+                //
+                a.convertGeodeticToMGRS(Math.toRadians(plot.latitude - Parameters.PLOT_LENGTH_DEGREES),
+                        Math.toRadians(plot.longitude - Parameters.PLOT_LENGTH_DEGREES * Math.cos(plot.latitude)), 5);
+                result = a.getMGRSString().split(" ");
+                code = result[0];
+                X = Integer.parseInt(result[1]);
+                Y = Integer.parseInt(result[2]);
+                shadowPlot = getPlotForPoint(new Point(X, Y, code), Parameters.PLOT_LENGTH);
+                shadowPlot.fake = plot.fake;
+                shadowPlot.frequency = 0;
+                if (!shadowPlots.contains(shadowPlot)) {
+                    shadowPlots.add(shadowPlot);
+                }
+                //
+                a.convertGeodeticToMGRS(Math.toRadians(plot.latitude - Parameters.PLOT_LENGTH_DEGREES),
+                        Math.toRadians(plot.longitude + Parameters.PLOT_LENGTH_DEGREES * Math.cos(plot.latitude)), 5);
+                result = a.getMGRSString().split(" ");
+                code = result[0];
+                X = Integer.parseInt(result[1]);
+                Y = Integer.parseInt(result[2]);
+                shadowPlot = getPlotForPoint(new Point(X, Y, code), Parameters.PLOT_LENGTH);
+                shadowPlot.fake = plot.fake;
+                shadowPlot.frequency = 0;
+                if (!shadowPlots.contains(shadowPlot)) {
+                    shadowPlots.add(shadowPlot);
+                }
             } else {
                 Cell shadowPlot = new Cell(plot.X, plot.Y - 1, plot.fake, plot.zone);
                 if (!shadowPlots.contains(shadowPlot)) {
@@ -193,10 +308,10 @@ public class Route {
             }
 
         }
-        for (Cell shadowPlot : shadowPlots) {
-            shadowPlot.frequency = 0;
-            if (!plots.contains(shadowPlot)) {
-                plots.add(shadowPlot);
+        for (int i = 0; i < shadowPlots.size(); i++) {
+            shadowPlots.get(i).frequency = 0;
+            if (!plots.contains(shadowPlots.get(i))) {
+                plots.add(shadowPlots.get(i));
             }
         }
 
@@ -217,12 +332,12 @@ public class Route {
         var coordConverterA = new MGRSCoordConverter();
         var error = coordConverterA.convertGeodeticToMGRS(Math.toRadians(lat),
                 Math.toRadians(lon), 5);
-        if( error != 0 ) {
+        if (error != 0) {
             System.out.println("error = " + error);
         }
         String[] result = coordConverterA.getMGRSString().split(" ");
 
-        if( result.length < 3 ) {
+        if (result.length < 3) {
             System.out.println("Error converting lat/lon to MGRS");
         }
 

@@ -17,6 +17,7 @@ class PreferencesHandler : Controller() {
     private val STREETO_CONSTRAINTS_MUTATION_RADIUS = "streeto.constraints.mutation.radius"
     private val STREETO_CONSTRAINTS_MAXROUTESHARE = "streeto.constraints.maxrouteshare"
     private val STREETO_CONSTRAINTS_CSIMCELLSIZE = "streeto.constraints.csimCellSize"
+    private val STREETO_CONSTRAINTS_CSIMTHRESHOLD = "streeto.constraints.csimThreshold"
     private val STREETO_CONSTRAINTS_MAXFURNITUREDIST = "streeto.constraints.maxfurnituredist"
     private val STREETO_CONSTRAINTS_MINBENDANGLE = "streeto.constraints.minbendangle"
     private val STREETO_CONSTRAINTS_MINSEPARATION = "streeto.constraints.minseparation"
@@ -127,6 +128,8 @@ class PreferencesHandler : Controller() {
                 getDouble(STREETO_CONSTRAINTS_MAXROUTESHARE, prefs.maxRouteShare)
             prefs.csimCellSizeProperty.value =
                 getInt(STREETO_CONSTRAINTS_CSIMCELLSIZE, prefs.csimCellSize)
+            prefs.csimThresholdPropery.value =
+                getDouble(STREETO_CONSTRAINTS_CSIMTHRESHOLD, prefs.csimThreshold)
             prefs.maxFurnitureDistanceProperty.value =
                 getDouble(STREETO_CONSTRAINTS_MAXFURNITUREDIST, prefs.maxFurnitureDistance)
             prefs.minTurnAngleProperty.value =
@@ -245,6 +248,7 @@ class PreferencesHandler : Controller() {
             putDouble(STREETO_CONSTRAINTS_MUTATION_RADIUS, prefs.mutationRadiusProperty.value)
             putDouble(STREETO_CONSTRAINTS_MAXROUTESHARE, prefs.maxRouteShareProperty.value)
             putInt(STREETO_CONSTRAINTS_CSIMCELLSIZE, prefs.csimCellSizeProperty.value)
+            putDouble(STREETO_CONSTRAINTS_CSIMTHRESHOLD, prefs.csimThresholdPropery.value)
             putDouble(
                 STREETO_CONSTRAINTS_MAXFURNITUREDIST,
                 prefs.maxFurnitureDistanceProperty.value

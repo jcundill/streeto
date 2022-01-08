@@ -79,6 +79,9 @@ class PreferencesView : StreetOView("StreetO Preferences") {
                             field("Route Similarity Cell Size") {
                                 textfield(model.csimCellSize)
                             }
+                            field("Route Similarity Threshold") {
+                                textfield(model.csimThreshold)
+                            }
                         }
                     }
                 }

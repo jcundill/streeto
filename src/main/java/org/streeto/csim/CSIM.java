@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.streeto.utils.CollectionHelpers.dropFirstAndLast;
 import static org.streeto.utils.CollectionHelpers.iterableAsStream;
 
 
@@ -57,7 +58,7 @@ public class CSIM {
     }
 
     private Route fromResponsePath(ResponsePath path) {
-        var points = iterableAsStream(path.getPoints()).map(Point::fromGraphHopperPoint).toList();
+        var points = dropFirstAndLast(iterableAsStream(path.getPoints()).map(Point::fromGraphHopperPoint).toList(), 1);
         return new Route(points);
     }
 

@@ -27,16 +27,13 @@ package org.streeto.scorers;
 
 import com.graphhopper.GHResponse;
 import com.graphhopper.ResponsePath;
-import com.graphhopper.util.shapes.GHPoint;
 import org.jetbrains.annotations.NotNull;
 import org.streeto.StreetOPreferences;
-import org.streeto.csim.CSIM;
 import org.streeto.csim.RouteSimilarity;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static org.streeto.utils.CollectionHelpers.*;
 
 public class LegRouteChoiceScorer extends AbstractLegScorer {
     private final RouteSimilarity csim;
@@ -72,16 +69,17 @@ public class LegRouteChoiceScorer extends AbstractLegScorer {
     }
 
     private double evalAlts(GHResponse leg) {
-        var best = leg.getBest();
-        var bestDistance = best.getDistance();
-        var alts = drop(leg.getAll(), 1);
-        var score = 0.0;
-        for (ResponsePath alt : alts) {
-            var similarity = csim.similarity(best, alt);
-            var altScore = (bestDistance / alt.getDistance()) * (1.0 - similarity);
-            score += altScore;
-        }
-        return score / alts.size();
-    }
+        var sortedDistances = leg.getAll().stream().sorted(Comparator.comparingDouble(ResponsePath::getDistance)).toList();
+        // work out the delta between the length of the best and the length of the next best
 
+        var best = sortedDistances.get(0);
+        var nextBest = sortedDistances.get(1);
+        if (best.getPoints().isEmpty() || nextBest.getPoints().isEmpty()) {
+            return 0.0; // not a real choice
+        } else {
+            var lengthRatio = best.getDistance() / nextBest.getDistance();
+            var similarity = csim.similarity(best, nextBest);
+            return (1.0 - similarity) * lengthRatio;
+        }
+    }
 }

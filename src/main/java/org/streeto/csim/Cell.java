@@ -1,5 +1,7 @@
 package org.streeto.csim;
 
+import gov.nasa.worldwind.geom.coords.MGRSCoordConverter;
+
 import java.util.Objects;
 
 
@@ -18,6 +20,15 @@ public class Cell {
         this.zone = code;
     }
 
+    public void getLocation() {
+        if (latitude == -1000) {
+            MGRSCoordConverter a = new MGRSCoordConverter();
+            a.convertMGRSToGeodetic(zone + String.format("%05d", X * Parameters.PLOT_LENGTH) + "" + String.format("%05d", Y * Parameters.PLOT_LENGTH));
+            latitude = Math.toDegrees(a.getLatitude());
+            longitude = Math.toDegrees(a.getLongitude());
+        }
+    }
+
     public void increaseFrequency() {
         frequency++;
     }
@@ -25,7 +36,7 @@ public class Cell {
     public String toString() {
         //getLocation();
         return "{\"code\":" + code() + "," + "\"X\":" + X + "," + "\"Y\":" + Y + ","
-                + "\"frequency\":" + frequency + "," + "\"fake\":" + fake + ",\"latitude\":" + latitude + ",\"longitude\":" + longitude + "}";
+               + "\"frequency\":" + frequency + "," + "\"fake\":" + fake + ",\"latitude\":" + latitude + ",\"longitude\":" + longitude + "}";
         //return code()+" ";
     }
 

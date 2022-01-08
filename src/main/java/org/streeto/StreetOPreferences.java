@@ -40,6 +40,7 @@ public class StreetOPreferences {
     private double bendScoreFactor = 0.75;
     private double avgLegDistance = 500.0;
     private int csimCellSize = 25;
+    private double csimThreshold = 0.95;
 
     public PaperSize getPaperSize() {
         return paperSize;
@@ -329,5 +330,13 @@ public class StreetOPreferences {
 
     public void setCSIMCellSize(int csimCellSize) {
         this.csimCellSize = csimCellSize;
+    }
+
+    public double getCSIMThreshold() {
+        return csimThreshold;
+    }
+
+    public void setSCIMThreshold(double csimThreshold) {
+        this.csimThreshold = csimThreshold;
     }
 }
