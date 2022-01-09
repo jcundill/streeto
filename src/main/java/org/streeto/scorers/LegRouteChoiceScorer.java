@@ -29,18 +29,18 @@ import com.graphhopper.GHResponse;
 import com.graphhopper.ResponsePath;
 import org.jetbrains.annotations.NotNull;
 import org.streeto.StreetOPreferences;
-import org.streeto.csim.RouteSimilarity;
+import org.streeto.csim.RouteSimilarityFinder;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class LegRouteChoiceScorer extends AbstractLegScorer {
-    private final RouteSimilarity csim;
+    private final RouteSimilarityFinder csim;
 
     public LegRouteChoiceScorer(StreetOPreferences preferences) {
         super(preferences);
-        csim = new RouteSimilarity(preferences);
+        csim = new RouteSimilarityFinder(preferences);
     }
 
     @Override

@@ -3,10 +3,11 @@ package org.streeto.csim;
 import com.graphhopper.ResponsePath;
 import org.streeto.StreetOPreferences;
 
-public class RouteSimilarity {
+public class RouteSimilarityFinder {
 
     private final StreetOPreferences preferences;
-    public RouteSimilarity(StreetOPreferences preferences) {
+
+    public RouteSimilarityFinder(StreetOPreferences preferences) {
         this.preferences = preferences;
     }
 

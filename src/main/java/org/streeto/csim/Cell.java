@@ -21,7 +21,7 @@ class Cell {
         this.cellSize = cellSize;
     }
 
-    public void updateCellLocation() {
+    void updateCellLocation() {
         if (latitude == -1000) {
             MGRSCoordConverter a = new MGRSCoordConverter();
             a.convertMGRSToGeodetic(zone + String.format("%05d", X * cellSize) + "" + String.format("%05d", Y * cellSize));
@@ -30,7 +30,7 @@ class Cell {
         }
     }
 
-    public void increaseFrequency() {
+    void increaseFrequency() {
         frequency++;
     }
 

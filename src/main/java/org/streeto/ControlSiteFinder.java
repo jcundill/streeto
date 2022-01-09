@@ -38,7 +38,7 @@ import com.graphhopper.util.Parameters;
 import com.graphhopper.util.PointList;
 import com.graphhopper.util.shapes.GHPoint;
 import io.jenetics.util.RandomRegistry;
-import org.streeto.csim.RouteSimilarity;
+import org.streeto.csim.RouteSimilarityFinder;
 import org.streeto.utils.Envelope;
 
 import java.util.*;
@@ -60,8 +60,10 @@ public class ControlSiteFinder {
     private final HashMap<List<GHPoint>, GHResponse> routedLegCache = new HashMap<>();
     private final Random rnd = RandomRegistry.random();
     private final StreetOPreferences preferences;
+    private final RouteSimilarityFinder csim;
+    private int lastCSIMCellSize;
+    private double lastCSIMThreshold;
     List<ControlSite> furniture;
-    private final RouteSimilarity csim;
     private int hit = 0;
     private int miss = 0;
 
@@ -69,7 +71,9 @@ public class ControlSiteFinder {
         this.gh = gh;
         filter = DefaultEdgeFilter.allEdges(gh.getEncodingManager().getEncoder("streeto"));
         this.preferences = preferences;
-        this.csim = new RouteSimilarity(preferences);
+        this.csim = new RouteSimilarityFinder(preferences);
+        this.lastCSIMCellSize = preferences.getCSIMCellSize();
+        this.lastCSIMThreshold = preferences.getCSIMThreshold();
     }
 
     public Envelope getEnvelopeForProbableRoutes(List<ControlSite> controls) {
@@ -121,8 +125,17 @@ public class ControlSiteFinder {
         return gh.route(req);
     }
 
+    private void checkRoutedLegCacheIsStillValid() {
+        if (preferences.getCSIMCellSize() != lastCSIMCellSize || preferences.getCSIMThreshold() != lastCSIMThreshold) {
+            this.lastCSIMCellSize = preferences.getCSIMCellSize();
+            this.lastCSIMThreshold = preferences.getCSIMThreshold();
+            this.routedLegCache.clear();
+        }
+    }
+
     public GHResponse findRoutes(GHPoint from, GHPoint to) {
         var p = List.of(from, to);
+        checkRoutedLegCacheIsStillValid();
         if (routedLegCache.containsKey(p)) {
             hit++;
             return routedLegCache.get(p);

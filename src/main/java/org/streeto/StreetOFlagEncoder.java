@@ -38,7 +38,7 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
     final Set<String> allowedHighwayTags = new HashSet<>();
     final Set<String> avoidHighwayTags = new HashSet<>();
     final Set<String> allowedSacScale = new HashSet<>();
-    protected boolean speedTwoDirections = false;
+    protected boolean speedTwoDirections = true;
     private DecimalEncodedValue priorityWayEncoder;
 
     public StreetOFlagEncoder() {
@@ -287,9 +287,12 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
             }
         } else if (this.avoidHighwayTags.contains(highway)
                    && !way.hasTag("sidewalk", this.sidewalkValues) //Bakewell - didn't annotate with sidewalk
-                   && !way.hasTag("sidewalk", this.sidewalksNoValues)
-                   && maxSpeed > 50.0D) {  // more than 30mph
-            weightToPrioMap.put(120.0D, PriorityCode.AVOID_AT_ALL_COSTS.getValue());
+                   && !way.hasTag("sidewalk", this.sidewalksNoValues)) {
+            String laneStr = way.getTag("lanes", "");
+            int lanes = laneStr.isEmpty() ? 0 : Integer.parseInt(laneStr);
+            if (lanes > 2 || maxSpeed > 50.0) {// more than 30mph
+                weightToPrioMap.put(120.0D, PriorityCode.AVOID_AT_ALL_COSTS.getValue());
+            }
         }
     }
 
