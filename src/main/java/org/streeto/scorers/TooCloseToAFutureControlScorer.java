@@ -27,7 +27,6 @@ package org.streeto.scorers;
 
 import com.graphhopper.GHResponse;
 import com.graphhopper.ResponsePath;
-import com.graphhopper.util.shapes.GHPoint;
 import com.graphhopper.util.shapes.GHPoint3D;
 import org.jetbrains.annotations.NotNull;
 import org.streeto.StreetOPreferences;
@@ -38,7 +37,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.streeto.utils.CollectionHelpers.*;
-import static org.streeto.utils.DistUtils.dist;
+import static org.streeto.utils.DistUtils.getDistanceFromLine;
 
 public class TooCloseToAFutureControlScorer extends AbstractLegScorer {
 
@@ -76,7 +75,7 @@ public class TooCloseToAFutureControlScorer extends AbstractLegScorer {
 
     private double evaluate(List<GHResponse> futureLegs, GHResponse thisLeg) {
         var score = 0.0;
-        if (futureLegs.size() < 2) {
+        if (futureLegs.size() < 1) {
             score = 1.0; // no further legs
         } else {
             var remainingControls = futureLegs.stream()
@@ -91,16 +90,25 @@ public class TooCloseToAFutureControlScorer extends AbstractLegScorer {
 
     private Double scoreRoute(double bestDistance, List<GHPoint3D> remainingControls, ResponsePath legRoute) {
         var likelihood = legRoute.getDistance() < preferences.getMinControlSeparation() ? 1.0 : bestDistance / legRoute.getDistance();
-        if (iterableAsStream(legRoute.getPoints())
-                .anyMatch(it -> goesTooCloseToAFutureControl(remainingControls, it))) return 1.0 - likelihood;
-        else return 1.0;
+        var points = legRoute.getPoints();
+        var size = points.size();
+        var minDist = Double.MAX_VALUE;
+        for (GHPoint3D remainingControl : remainingControls) {
+            for (int i = 1; i < size; i++) {
+                var dist = getDistanceFromLine(points.get(i - 1), points.get(i), remainingControl);
+                if (dist < minDist) {
+                    minDist = dist;
+                }
+            }
+        }
+        if (minDist < preferences.getMinControlSeparation()) {
+            return 1.0 - likelihood;
+        } else {
+            return 1.0;
+        }
     }
 
     private GHPoint3D getLastPoint(GHResponse it) {
         return last(it.getBest().getPoints());
-    }
-
-    private boolean goesTooCloseToAFutureControl(List<? extends GHPoint> ctrls, GHPoint p) {
-        return ctrls.stream().anyMatch(c -> dist(p, c) < preferences.getMinControlSeparation());
     }
 }
