@@ -22,7 +22,7 @@ class CSIM {
         return router.getCells(points);
     }
 
-    double calculateFor(ResponsePath a, ResponsePath b) {
+    SimilarityResult calculateFor(ResponsePath a, ResponsePath b) {
         List<Cell> cellsA = fromResponsePath(a);
         List<Cell> cellsB = fromResponsePath(b);
 
@@ -35,6 +35,10 @@ class CSIM {
         var numInAShadowAndB = caShadow.stream().filter(cb::contains).count();
         var numInAAndBShadow = cbShadow.stream().filter(ca::contains).count();
 
-        return 1.0 * (numInAAndB + numInAShadowAndB + numInAAndBShadow) / (ca.size() + cb.size() - numInAAndB);
+        var csim = 1.0 * (numInAAndB + numInAShadowAndB + numInAAndBShadow) / (ca.size() + cb.size() - numInAAndB);
+        var cincAB = 1.0 * (numInAAndB + numInAAndBShadow) / (ca.size());
+        var cincBA = 1.0 * (numInAAndB + numInAShadowAndB) / (cb.size());
+
+        return new SimilarityResult(csim, cincAB, cincBA);
     }
 }

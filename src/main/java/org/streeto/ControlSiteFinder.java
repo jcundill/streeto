@@ -39,6 +39,7 @@ import com.graphhopper.util.PointList;
 import com.graphhopper.util.shapes.GHPoint;
 import io.jenetics.util.RandomRegistry;
 import org.streeto.csim.RouteSimilarityFinder;
+import org.streeto.csim.SimilarityResult;
 import org.streeto.utils.Envelope;
 
 import java.util.*;
@@ -158,7 +159,7 @@ public class ControlSiteFinder {
     private void filterAlternatives(GHResponse resp) {
         var alts = resp.getAll();
         var toRemove = new ArrayList<ResponsePath>();
-        double[][] simArray = new double[alts.size()][alts.size()];
+        SimilarityResult[][] simArray = new SimilarityResult[alts.size()][alts.size()];
         //how similar are the alts to the other ones.
         for (int i = 0; i < alts.size(); i++) {
             for (int j = 0; j < alts.size(); j++) {
@@ -169,7 +170,7 @@ public class ControlSiteFinder {
         // filter out alternatives that are too similar to each other
         for (int i = 1; i < alts.size(); i++) { // don't remove best
             for (int j = 1; j < alts.size(); j++) { // don't remove best
-                if (i != j && simArray[i][j] > threshold && simArray[j][i] > threshold) {
+                if (i != j && simArray[i][j].getCsim() > threshold && simArray[j][i].getCsim() > threshold) {
                     // too similar, flag for removal
                     toRemove.add(resp.getAll().get(i));
                 }

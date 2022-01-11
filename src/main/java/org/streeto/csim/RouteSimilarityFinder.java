@@ -11,10 +11,10 @@ public class RouteSimilarityFinder {
         this.preferences = preferences;
     }
 
-    public double similarity(ResponsePath a, ResponsePath b) {
+    public SimilarityResult similarity(ResponsePath a, ResponsePath b) {
         //short circuit if the paths have no length
         if (a.getPoints().size() < 3 || b.getPoints().size() < 3) {
-            return 1.0;
+            return SimilarityResult.SAME;
         } else {
             var csim = new CSIM(preferences.getCSIMCellSize());
             return csim.calculateFor(a, b);

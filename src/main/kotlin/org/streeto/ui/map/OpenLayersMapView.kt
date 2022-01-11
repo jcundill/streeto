@@ -169,6 +169,11 @@ class OpenLayersMapView : StreetOView("Map") {
                     drawOverlays()
                 }
 
+                subscribe<RouteChoiceSelectedEvent> {
+                    drawOverlays()
+                    drawSelectedRouteChoice(it.choice)
+                }
+
                 subscribe<CourseUpdatedEvent> {
                     drawCourse(controller.controlList)
                     if (controller.controlList.isNotEmpty()) {

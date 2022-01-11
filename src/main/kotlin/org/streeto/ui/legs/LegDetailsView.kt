@@ -1,9 +1,9 @@
 package org.streeto.ui.legs
 
+import javafx.scene.control.TableView
+import javafx.scene.layout.Priority
 import javafx.util.StringConverter
-import org.streeto.ui.Control
-import org.streeto.ui.ScoredLegModel
-import org.streeto.ui.StreetOView
+import org.streeto.ui.*
 import tornadofx.*
 
 class LegDetailsView : StreetOView("Leg Details") {
@@ -46,9 +46,9 @@ class LegDetailsView : StreetOView("Leg Details") {
                 field("End") {
                     textfield(model.end, converter = DescriptionConverter(model))
                 }
-                field("Length") {
-                    textfield(model.length)
-                }
+//                field("Length") {
+//                    textfield(model.length)
+//                }
                 field("Overall Score") {
                     textfield(model.overallScore)
                 }
@@ -59,9 +59,6 @@ class LegDetailsView : StreetOView("Leg Details") {
                 }
                 field("Leg Complexity Score") {
                     textfield(model.complexityScore)
-                }
-                field("Leg Route Choice Score") {
-                    textfield(model.routeChoiceScore)
                 }
                 field("Exposes Future Controls Score") {
                     textfield(model.comesTooCloseScore)
@@ -74,6 +71,43 @@ class LegDetailsView : StreetOView("Leg Details") {
                 }
                 field("Next Control Placement Score") {
                     textfield(model.placementScore)
+                }
+                field("Leg Route Choice Score") {
+                    textfield(model.routeChoiceScore)
+                }
+            }
+            fieldset("Route Choice Options") {
+                field {
+                    tableview(model.routeChoiceDetails) {
+                        vgrow = Priority.ALWAYS
+                        hgrow = Priority.ALWAYS
+                        columnResizePolicy = TableView.CONSTRAINED_RESIZE_POLICY
+
+                        selectionModel.selectedIndexProperty().addListener { _, _, newIdx ->
+                            if (newIdx.toInt() >= 0) {
+                                val pl = model.routeChoices[newIdx.toInt()]
+                                fire(RouteChoiceSelectedEvent(pl))
+                            }
+                        }
+                        readonlyColumn("Length", RouteChoiceDetails::distanceProperty) {
+                            cellFormat {
+                                text = String.format("%.3f", it.value)
+                            }
+                            isSortable = false
+                        }
+                        readonlyColumn("Ratio", RouteChoiceDetails::ratioProperty) {
+                            cellFormat {
+                                text = String.format("%.3f", it.value)
+                            }
+                            isSortable = false
+                        }
+                        readonlyColumn("Similarity", RouteChoiceDetails::similarityProperty) {
+                            cellFormat {
+                                text = String.format("%.3f", it.value)
+                            }
+                            isSortable = false
+                        }
+                    }
                 }
             }
         }

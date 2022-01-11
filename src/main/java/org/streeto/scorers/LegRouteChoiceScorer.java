@@ -79,7 +79,7 @@ public class LegRouteChoiceScorer extends AbstractLegScorer {
         } else {
             var lengthRatio = best.getDistance() / nextBest.getDistance();
             var similarity = csim.similarity(best, nextBest);
-            return (1.0 - similarity) * lengthRatio;
+            return (1.0 - similarity.getCsim()) * lengthRatio;
         }
     }
 }
