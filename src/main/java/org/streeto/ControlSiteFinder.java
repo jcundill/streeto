@@ -158,7 +158,6 @@ public class ControlSiteFinder {
 
     private void filterAlternatives(GHResponse resp) {
         var alts = resp.getAll();
-        var toRemove = new ArrayList<ResponsePath>();
         SimilarityResult[][] simArray = new SimilarityResult[alts.size()][alts.size()];
         //how similar are the alts to the other ones.
         for (int i = 0; i < alts.size(); i++) {
@@ -168,16 +167,26 @@ public class ControlSiteFinder {
         }
         var threshold = preferences.getCSIMThreshold();
         // filter out alternatives that are too similar to each other
-        for (int i = 1; i < alts.size(); i++) { // don't remove best
-            for (int j = 1; j < alts.size(); j++) { // don't remove best
-                if (i != j && simArray[i][j].getCsim() > threshold && simArray[j][i].getCsim() > threshold) {
+        var toRemove = new HashSet<Integer>();
+        for (int i = 0; i < alts.size(); i++) {
+            for (int j = i + 1; j < alts.size(); j++) {
+                if (simArray[i][j].getCsim() > threshold && simArray[j][i].getCsim() > threshold) {
                     // too similar, flag for removal
-                    toRemove.add(resp.getAll().get(i));
+                    // remove the longer one
+                    var longest = alts.get(i).getDistance() > alts.get(j).getDistance() ? i : j;
+                    toRemove.add(longest);
                 }
             }
         }
         // remove flagged alternatives
-        resp.getAll().removeAll(toRemove);
+        var survivors = new ArrayList<ResponsePath>();
+        for (int i = 0; i < alts.size(); i++) {
+            if (!toRemove.contains(i)) {
+                survivors.add(alts.get(i));
+            }
+        }
+        resp.getAll().clear();
+        resp.getAll().addAll(survivors);
     }
 
     public Optional<ControlSite> findNearestControlSiteTo(ControlSite site) {

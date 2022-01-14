@@ -5,7 +5,6 @@ import com.graphhopper.ResponsePath;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.streeto.utils.CollectionHelpers.dropFirstAndLast;
 import static org.streeto.utils.CollectionHelpers.iterableAsStream;
 
 
@@ -18,7 +17,7 @@ class CSIM {
     }
 
     private List<Cell> fromResponsePath(ResponsePath path) {
-        var points = dropFirstAndLast(iterableAsStream(path.getPoints()).map(Point::fromGraphHopperPoint).toList(), 1);
+        var points = iterableAsStream(path.getPoints()).map(Point::fromGraphHopperPoint).toList();
         return router.getCells(points);
     }
 

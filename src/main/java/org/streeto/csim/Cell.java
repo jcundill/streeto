@@ -1,8 +1,8 @@
 package org.streeto.csim;
 
-import gov.nasa.worldwind.geom.coords.MGRSCoordConverter;
-
 import java.util.Objects;
+
+import static org.streeto.csim.MGRSConverter.convertToLatLon;
 
 class Cell {
     public int frequency;
@@ -23,10 +23,10 @@ class Cell {
 
     void updateCellLocation() {
         if (latitude == -1000) {
-            MGRSCoordConverter a = new MGRSCoordConverter();
-            a.convertMGRSToGeodetic(zone + String.format("%05d", X * cellSize) + "" + String.format("%05d", Y * cellSize));
-            latitude = Math.toDegrees(a.getLatitude());
-            longitude = Math.toDegrees(a.getLongitude());
+            String mgrsString = zone + String.format("%05d", X * cellSize) + "" + String.format("%05d", Y * cellSize);
+            var point = convertToLatLon(mgrsString);
+            latitude = point.getLatitude();
+            longitude = point.getLongitude();
         }
     }
 

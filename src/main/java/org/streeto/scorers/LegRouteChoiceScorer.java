@@ -35,6 +35,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static java.lang.Math.max;
+
 public class LegRouteChoiceScorer extends AbstractLegScorer {
     private final RouteSimilarityFinder csim;
 
@@ -78,8 +80,15 @@ public class LegRouteChoiceScorer extends AbstractLegScorer {
             return 0.0; // not a real choice
         } else {
             var lengthRatio = best.getDistance() / nextBest.getDistance();
-            var similarity = csim.similarity(best, nextBest);
-            return (1.0 - similarity.getCsim()) * lengthRatio;
+            var similarity = csim.similarity(best, nextBest).getCsim();
+            var scoringSimilarity = similarity;
+            double maxAllowedShare = preferences.getMaxRouteShare();
+            if (similarity < maxAllowedShare) {
+                //in tolerance,  take the allowed segment off
+                //don't go below 0.0 - for a tiny similarity and a big tolerance - all that choice is fine
+                scoringSimilarity = max(0.0, similarity - (1.0 - maxAllowedShare));
+            }
+            return (1.0 - scoringSimilarity) * lengthRatio;
         }
     }
 }

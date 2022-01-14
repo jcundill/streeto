@@ -143,6 +143,7 @@ class CourseController : Controller() {
     fun scoreControls() {
         val sites = controlList.items.map(Control::toControlSite)
         val details = streetO.score(sites)
+        //TODO: details can be null
         courseDetailsViewModel.overallScore.value = details.overallScore
         val legDetails = details.legDetails
         details.legScores.mapIndexed { index, score ->

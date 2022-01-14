@@ -25,4 +25,9 @@ public class SimilarityResult {
     public double getCincBA() {
         return cincBA;
     }
+
+    @Override
+    public String toString() {
+        return "SimilarityResult [csim=" + csim + ", cincAB=" + cincAB + ", cincBA=" + cincBA + "]";
+    }
 }
