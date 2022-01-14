@@ -66,6 +66,12 @@ class ThunkingLayer(val browser: WebEngine) {
         }
     }
 
+    fun drawSelectedRouteChoice(selected: PointList? = null) {
+        if (selected != null) {
+            callMapFunction("drawRoute(${asPointList(selected.points)}, document.routeChoiceSource,'rgba(0,0,255, 0.7)');")
+        }
+    }
+
     fun zoomToLeg(leg: CourseLeg) {
         val str = listOf(leg.start, leg.end).stream()
             .map(this::asNumberedControl)

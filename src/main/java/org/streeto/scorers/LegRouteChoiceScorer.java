@@ -27,19 +27,22 @@ package org.streeto.scorers;
 
 import com.graphhopper.GHResponse;
 import com.graphhopper.ResponsePath;
-import com.graphhopper.util.shapes.GHPoint;
 import org.jetbrains.annotations.NotNull;
 import org.streeto.StreetOPreferences;
+import org.streeto.csim.RouteSimilarityFinder;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.streeto.utils.CollectionHelpers.dropFirstAndLast;
+import static java.lang.Math.max;
 
 public class LegRouteChoiceScorer extends AbstractLegScorer {
+    private final RouteSimilarityFinder csim;
 
     public LegRouteChoiceScorer(StreetOPreferences preferences) {
         super(preferences);
+        csim = new RouteSimilarityFinder(preferences);
     }
 
     @Override
@@ -68,19 +71,24 @@ public class LegRouteChoiceScorer extends AbstractLegScorer {
     }
 
     private double evalAlts(GHResponse leg) {
-        var sortedDistances = leg.getAll().stream().map(ResponsePath::getDistance).sorted().toList();
+        var sortedDistances = leg.getAll().stream().sorted(Comparator.comparingDouble(ResponsePath::getDistance)).toList();
         // work out the delta between the length of the best and the length of the next best
-        var ratio = sortedDistances.get(0) / sortedDistances.get(1);
-        //work out how much these two routes have in common
-        List<GHPoint> first = dropFirstAndLast(getRouteChoiceOptionAsList(leg, 0), 1);
-        List<GHPoint> second = dropFirstAndLast(getRouteChoiceOptionAsList(leg, 1), 1);
 
-        if (first.isEmpty() || second.isEmpty())
+        var best = sortedDistances.get(0);
+        var nextBest = sortedDistances.get(1);
+        if (best.getPoints().isEmpty() || nextBest.getPoints().isEmpty()) {
             return 0.0; // not a real choice
-
-        var commonLen = getCommonRouteLength(first, second);
-        var commonRatio = commonLen / sortedDistances.get(0);
-        return ratio - commonRatio;
+        } else {
+            var lengthRatio = best.getDistance() / nextBest.getDistance();
+            var similarity = csim.similarity(best, nextBest).getCsim();
+            var scoringSimilarity = similarity;
+            double maxAllowedShare = preferences.getMaxRouteShare();
+            if (similarity < maxAllowedShare) {
+                //in tolerance,  take the allowed segment off
+                //don't go below 0.0 - for a tiny similarity and a big tolerance - all that choice is fine
+                scoringSimilarity = max(0.0, similarity - (1.0 - maxAllowedShare));
+            }
+            return (1.0 - scoringSimilarity) * lengthRatio;
+        }
     }
-
 }

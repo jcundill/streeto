@@ -28,6 +28,7 @@ package org.streeto;
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
 import com.graphhopper.GraphHopper;
+import com.graphhopper.ResponsePath;
 import com.graphhopper.reader.osm.GraphHopperOSM;
 import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
@@ -37,12 +38,11 @@ import com.graphhopper.util.Parameters;
 import com.graphhopper.util.PointList;
 import com.graphhopper.util.shapes.GHPoint;
 import io.jenetics.util.RandomRegistry;
+import org.streeto.csim.RouteSimilarityFinder;
+import org.streeto.csim.SimilarityResult;
 import org.streeto.utils.Envelope;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.lang.Math.*;
@@ -60,8 +60,10 @@ public class ControlSiteFinder {
     private final EdgeFilter filter;
     private final HashMap<List<GHPoint>, GHResponse> routedLegCache = new HashMap<>();
     private final Random rnd = RandomRegistry.random();
-    private final double maxShare;
-    private final double maxFurnitureDistance;
+    private final StreetOPreferences preferences;
+    private final RouteSimilarityFinder csim;
+    private int lastCSIMCellSize;
+    private double lastCSIMThreshold;
     List<ControlSite> furniture;
     private int hit = 0;
     private int miss = 0;
@@ -69,8 +71,10 @@ public class ControlSiteFinder {
     public ControlSiteFinder(GraphHopperOSM gh, StreetOPreferences preferences) {
         this.gh = gh;
         filter = DefaultEdgeFilter.allEdges(gh.getEncodingManager().getEncoder("streeto"));
-        this.maxShare = preferences.getMaxRouteShare();
-        this.maxFurnitureDistance = preferences.getMaxFurnitureDistance();
+        this.preferences = preferences;
+        this.csim = new RouteSimilarityFinder(preferences);
+        this.lastCSIMCellSize = preferences.getCSIMCellSize();
+        this.lastCSIMThreshold = preferences.getCSIMThreshold();
     }
 
     public Envelope getEnvelopeForProbableRoutes(List<ControlSite> controls) {
@@ -115,15 +119,24 @@ public class ControlSiteFinder {
     public GHResponse routeRequest(GHRequest req, int numAlternatives) {
         if (numAlternatives > 1) {
             req.setAlgorithm(Parameters.Algorithms.ALT_ROUTE);
-            req.getHints().putObject(Parameters.Algorithms.AltRoute.MAX_SHARE, maxShare);
+            req.getHints().putObject(Parameters.Algorithms.AltRoute.MAX_SHARE, preferences.getMaxRouteShare());
             req.getHints().putObject(Parameters.Algorithms.AltRoute.MAX_PATHS, numAlternatives);
         }
         req.setProfile("streeto");
         return gh.route(req);
     }
 
+    private void checkRoutedLegCacheIsStillValid() {
+        if (preferences.getCSIMCellSize() != lastCSIMCellSize || preferences.getCSIMThreshold() != lastCSIMThreshold) {
+            this.lastCSIMCellSize = preferences.getCSIMCellSize();
+            this.lastCSIMThreshold = preferences.getCSIMThreshold();
+            this.routedLegCache.clear();
+        }
+    }
+
     public GHResponse findRoutes(GHPoint from, GHPoint to) {
         var p = List.of(from, to);
+        checkRoutedLegCacheIsStillValid();
         if (routedLegCache.containsKey(p)) {
             hit++;
             return routedLegCache.get(p);
@@ -131,13 +144,49 @@ public class ControlSiteFinder {
             miss++;
             var req = new GHRequest(from, to);
             req.setAlgorithm(Parameters.Algorithms.ALT_ROUTE);
-            req.getHints().putObject(Parameters.Algorithms.AltRoute.MAX_SHARE, maxShare);
-            req.getHints().putObject(Parameters.Algorithms.AltRoute.MAX_PATHS, 4);
+            req.getHints().putObject(Parameters.Algorithms.AltRoute.MAX_SHARE, preferences.getMaxRouteShare());
+            req.getHints().putObject(Parameters.Algorithms.AltRoute.MAX_PATHS, 10);
             req.setProfile("streeto");
             var resp = gh.route(req);
+            if (resp.hasAlternatives()) {
+                filterAlternatives(resp);
+            }
             routedLegCache.put(p, resp);
             return resp;
         }
+    }
+
+    private void filterAlternatives(GHResponse resp) {
+        var alts = resp.getAll();
+        SimilarityResult[][] simArray = new SimilarityResult[alts.size()][alts.size()];
+        //how similar are the alts to the other ones.
+        for (int i = 0; i < alts.size(); i++) {
+            for (int j = 0; j < alts.size(); j++) {
+                simArray[i][j] = csim.similarity(alts.get(i), alts.get(j));
+            }
+        }
+        var threshold = preferences.getCSIMThreshold();
+        // filter out alternatives that are too similar to each other
+        var toRemove = new HashSet<Integer>();
+        for (int i = 0; i < alts.size(); i++) {
+            for (int j = i + 1; j < alts.size(); j++) {
+                if (simArray[i][j].getCsim() > threshold && simArray[j][i].getCsim() > threshold) {
+                    // too similar, flag for removal
+                    // remove the longer one
+                    var longest = alts.get(i).getDistance() > alts.get(j).getDistance() ? i : j;
+                    toRemove.add(longest);
+                }
+            }
+        }
+        // remove flagged alternatives
+        var survivors = new ArrayList<ResponsePath>();
+        for (int i = 0; i < alts.size(); i++) {
+            if (!toRemove.contains(i)) {
+                survivors.add(alts.get(i));
+            }
+        }
+        resp.getAll().clear();
+        resp.getAll().addAll(survivors);
     }
 
     public Optional<ControlSite> findNearestControlSiteTo(ControlSite site) {
@@ -162,7 +211,7 @@ public class ControlSiteFinder {
     }
 
     private Optional<ControlSite> findLocalStreetFurniture(GHPoint p) {
-        return furniture.stream().filter(it -> dist(it.getLocation(), p) < maxFurnitureDistance).findFirst();
+        return furniture.stream().filter(it -> dist(it.getLocation(), p) < preferences.getMaxFurnitureDistance()).findFirst();
     }
 
     private Optional<? extends GHPoint> findClosestStreetLocation(GHPoint p) {

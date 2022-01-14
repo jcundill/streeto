@@ -58,7 +58,7 @@ public class TooCloseToAFutureControlScorer extends AbstractLegScorer {
     @Override
     public List<Double> apply(List<GHResponse> routedLegs) {
         if (routedLegs.size() < 2) {
-            return List.of(0.0);
+            return List.of(1.0);
         } else {
             //evaluate the start without including the finish
             var startScore = evaluate(dropLast(futureLegs(routedLegs, 0), 1), first(routedLegs));
@@ -89,7 +89,8 @@ public class TooCloseToAFutureControlScorer extends AbstractLegScorer {
     }
 
     private Double scoreRoute(double bestDistance, List<GHPoint3D> remainingControls, ResponsePath legRoute) {
-        var likelihood = legRoute.getDistance() < preferences.getMinControlSeparation() ? 1.0 : bestDistance / legRoute.getDistance();
+
+        var likelihood = legRoute.getDistance() < preferences.getCSIMCellSize() ? 1.0 : bestDistance / legRoute.getDistance();
         var points = legRoute.getPoints();
         var size = points.size();
         var minDist = Double.MAX_VALUE;
@@ -101,7 +102,8 @@ public class TooCloseToAFutureControlScorer extends AbstractLegScorer {
                 }
             }
         }
-        if (minDist < preferences.getMinControlSeparation()) {
+
+        if (minDist < preferences.getCSIMCellSize()) {
             return 1.0 - likelihood;
         } else {
             return 1.0;

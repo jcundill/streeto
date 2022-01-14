@@ -3,13 +3,12 @@ package org.streeto.ui
 import com.graphhopper.util.shapes.GHPoint
 import javafx.beans.binding.BooleanExpression
 import javafx.beans.property.SimpleDoubleProperty
+import javafx.beans.property.SimpleListProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import org.streeto.ControlSite
-import tornadofx.ItemViewModel
-import tornadofx.getValue
-import tornadofx.setValue
-import tornadofx.toProperty
+import org.streeto.csim.SimilarityResult
+import tornadofx.*
 
 val never get() = BooleanExpression.booleanExpression(false.toProperty())
 
@@ -54,11 +53,19 @@ open class CourseLeg(start: Control, end: Control) {
     var end by endProperty
 }
 
+
+data class RouteChoiceDetails(val distance: Double, val ratio: Double, val csim: SimilarityResult) {
+    val distanceProperty = SimpleDoubleProperty(distance)
+    val ratioProperty = SimpleDoubleProperty(ratio)
+    val similarityProperty = SimpleDoubleProperty(csim.csim)
+}
+
 class ScoredLeg(
     start: Control, end: Control, length: Double,
     routeChoice: List<PointList> = listOf(),
     legScore: Double = 0.0,
-    scoreDetails: List<Double> = listOf(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+    scoreDetails: List<Double> = listOf(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+    routeChoiceDetails: List<RouteChoiceDetails> = listOf()
 ) : CourseLeg(start, end) {
     private var details = scoreDetails
     private var score = legScore
@@ -71,7 +78,8 @@ class ScoredLeg(
     val comesTooCloseScoreProperty = SimpleDoubleProperty(details[6])
     val dogLegScoreProperty = SimpleDoubleProperty(details[5])
     val placementScoreProperty = SimpleDoubleProperty(details[2])
-    val routeChoiceProperty = SimpleObjectProperty(routeChoice)
+    val routeChoiceProperty = SimpleListProperty(routeChoice.asObservable())
+    val routeChoiceDetailsProperty = SimpleListProperty(routeChoiceDetails.asObservable())
     val lengthProperty = SimpleDoubleProperty(length)
 
     val overallScore by overallScoreProperty
@@ -109,6 +117,8 @@ class ScoredLegModel : ItemViewModel<ScoredLeg>() {
     val comesTooCloseScore = bind(ScoredLeg::comesTooCloseScoreProperty)
     val dogLegScore = bind(ScoredLeg::dogLegScoreProperty)
     val placementScore = bind(ScoredLeg::placementScoreProperty)
+    val routeChoices = bind(ScoredLeg::routeChoiceProperty)
+    val routeChoiceDetails = bind(ScoredLeg::routeChoiceDetailsProperty)
 }
 
 class ControlViewModel : ItemViewModel<Control>() {

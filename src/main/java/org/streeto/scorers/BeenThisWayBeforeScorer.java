@@ -1,6 +1,7 @@
 package org.streeto.scorers;
 
 import com.graphhopper.GHResponse;
+import com.graphhopper.util.shapes.GHPoint;
 import org.jetbrains.annotations.NotNull;
 import org.streeto.StreetOPreferences;
 
@@ -9,6 +10,7 @@ import java.util.stream.Collectors;
 
 import static org.streeto.utils.CollectionHelpers.dropLast;
 import static org.streeto.utils.CollectionHelpers.mapIndexed;
+import static org.streeto.utils.DistUtils.dist;
 
 public class BeenThisWayBeforeScorer extends AbstractLegScorer {
     public BeenThisWayBeforeScorer(StreetOPreferences preferences) {
@@ -57,4 +59,17 @@ public class BeenThisWayBeforeScorer extends AbstractLegScorer {
         return scoreFunction(score);
     }
 
- }
+    private double getCommonRouteLength(List<GHPoint> pointsPrior, List<GHPoint> pointsThis) {
+        var commonLen = 0.0;
+        // for all the points in this leg, see if they follow a course too close to any track segments on the prior leg
+        for (int i = 1; i < pointsThis.size() && i < pointsPrior.size(); i++) {
+            var distThisToPrior = nearestDistToATrackSegment(pointsThis.get(i), pointsPrior);
+            var distPrevToPrior = nearestDistToATrackSegment(pointsThis.get(i - 1), pointsPrior);
+            if (distThisToPrior < preferences.getCSIMCellSize() && distPrevToPrior < preferences.getCSIMCellSize()) {
+                commonLen += dist(pointsThis.get(i - 1), pointsThis.get(i));
+            }
+        }
+        return commonLen;
+    }
+}
+

@@ -278,8 +278,4 @@ public class StreetO {
     public BBox getBounds() {
         return bounds;
     }
-
-    public MapDataRepository getMapDataRepository() {
-        return mapDataRepository;
-    }
 }

@@ -30,6 +30,8 @@ class ObservablePreferences : StreetOPreferences() {
     val mutationRadiusProperty = SimpleDoubleProperty(super.getMutationRadius())
     val maxPhenotypeAgeProperty = SimpleLongProperty(super.getMaxPhenotypeAge())
     val maxRouteShareProperty = SimpleDoubleProperty(super.getMaxRouteShare())
+    val csimCellSizeProperty = SimpleIntegerProperty(super.getCSIMCellSize())
+    val csimThresholdPropery = SimpleDoubleProperty(super.getCSIMThreshold())
     val maxFurnitureDistanceProperty = SimpleDoubleProperty(super.getMaxFurnitureDistance())
     val junctionScoreFactorProperty = SimpleDoubleProperty(super.getJunctionScoreFactor())
     val bendScoreFactorProperty = SimpleDoubleProperty(super.getBendScoreFactor())
@@ -132,6 +134,14 @@ class ObservablePreferences : StreetOPreferences() {
 
     override fun getMaxRouteShare(): Double {
         return maxRouteShareProperty.value
+    }
+
+    override fun getCSIMCellSize(): Int {
+        return csimCellSizeProperty.value
+    }
+
+    override fun getCSIMThreshold(): Double {
+        return csimThresholdPropery.value
     }
 
     override fun getMaxFurnitureDistance(): Double {

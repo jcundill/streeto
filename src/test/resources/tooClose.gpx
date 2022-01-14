@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="StreetO" xmlns="http://www.topografix.com/GPX/1/1">
+    <wpt lat="-37.56730137543309" lon="143.8479125987272">
+        <name>S1</name>
+        <desc>junction</desc>
+    </wpt>
+    <wpt lat="-37.565561478560305" lon="143.8512348126896">
+        <name>1</name>
+        <desc>junction</desc>
+    </wpt>
+    <wpt lat="-37.56552571577264" lon="143.84975158832412">
+        <name>2</name>
+        <desc>junction</desc>
+    </wpt>
+    <wpt lat="-37.56150221589585" lon="143.85498189602006">
+        <name>F1</name>
+        <desc>junction</desc>
+    </wpt>
+    <rte>
+        <rtept lat="-37.56730137543309" lon="143.8479125987272">
+            <name>S1</name>
+            <desc>junction</desc>
+        </rtept>
+        <rtept lat="-37.565561478560305" lon="143.8512348126896">
+            <name>1</name>
+            <desc>junction</desc>
+        </rtept>
+        <rtept lat="-37.56552571577264" lon="143.84975158832412">
+            <name>2</name>
+            <desc>junction</desc>
+        </rtept>
+        <rtept lat="-37.56150221589585" lon="143.85498189602006">
+            <name>F1</name>
+            <desc>junction</desc>
+        </rtept>
+    </rte>
+    <trk>
+        <name>Best Track</name>
+        <trkseg>
+            <trkpt lat="-37.56730137543309" lon="143.8479125987272"></trkpt>
+            <trkpt lat="-37.567437348532025" lon="143.84907824208761"></trkpt>
+            <trkpt lat="-37.567313668891344" lon="143.84909910371377"></trkpt>
+            <trkpt lat="-37.56734570638863" lon="143.8494021560863"></trkpt>
+            <trkpt lat="-37.56552571577264" lon="143.84975158832412"></trkpt>
+            <trkpt lat="-37.56570900005942" lon="143.85120705927625"></trkpt>
+            <trkpt lat="-37.565561478560305" lon="143.8512348126896"></trkpt>
+            <trkpt lat="-37.56570900005942" lon="143.85120705927625"></trkpt>
+            <trkpt lat="-37.56552571577264" lon="143.84975158832412"></trkpt>
+            <trkpt lat="-37.565848139655174" lon="143.85236934987537"></trkpt>
+            <trkpt lat="-37.56559407485114" lon="143.852424484173"></trkpt>
+            <trkpt lat="-37.56560878974815" lon="143.85255039898792"></trkpt>
+            <trkpt lat="-37.56396575042529" lon="143.8528772932189"></trkpt>
+            <trkpt lat="-37.56366511949148" lon="143.85298905193036"></trkpt>
+            <trkpt lat="-37.56352951892159" lon="143.85300879596937"></trkpt>
+            <trkpt lat="-37.56353715576687" lon="143.85308628200931"></trkpt>
+            <trkpt lat="-37.56172256682193" lon="143.85344838023443"></trkpt>
+            <trkpt lat="-37.56185053054654" lon="143.85472727242248"></trkpt>
+            <trkpt lat="-37.561481354269716" lon="143.85479246500415"></trkpt>
+            <trkpt lat="-37.56150221589585" lon="143.85498189602006"></trkpt>
+        </trkseg>
+    </trk>
+</gpx>

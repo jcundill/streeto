@@ -6,11 +6,16 @@ import io.jenetics.Genotype;
 import io.jenetics.engine.Codec;
 import io.jenetics.engine.Problem;
 import io.jenetics.util.ISeq;
-import org.streeto.*;
+import org.streeto.ControlSite;
+import org.streeto.ControlSiteFinder;
+import org.streeto.CourseSeeder;
+import org.streeto.StreetOPreferences;
 import org.streeto.constraints.*;
 
 import java.util.List;
 import java.util.function.Function;
+
+import static org.streeto.CourseScorer.getOverallScore;
 
 class CourseFinderProblem implements Problem<ISeq<ControlSite>, AnyGene<ISeq<ControlSite>>, Double> {
 
@@ -74,7 +79,7 @@ class CourseFinderProblem implements Problem<ISeq<ControlSite>, AnyGene<ISeq<Con
             return 0.0;
         }
         var legScores = legScorer.apply(controls.asList());
-        return CourseScorer.getOverallScore(legScores);
+        return getOverallScore(legScores);
     }
 
 

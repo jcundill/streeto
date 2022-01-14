@@ -10,6 +10,7 @@ import javafx.beans.property.SimpleStringProperty
 import org.streeto.ControlSite
 import org.streeto.Course
 import org.streeto.StreetO
+import org.streeto.csim.RouteSimilarityFinder
 import org.streeto.gpx.GpxFacade
 import org.streeto.kml.KmlWriter
 import org.streeto.mapping.PaperSize
@@ -142,6 +143,7 @@ class CourseController : Controller() {
     fun scoreControls() {
         val sites = controlList.items.map(Control::toControlSite)
         val details = streetO.score(sites)
+        //TODO: details can be null
         courseDetailsViewModel.overallScore.value = details.overallScore
         val legDetails = details.legDetails
         details.legScores.mapIndexed { index, score ->
@@ -151,20 +153,29 @@ class CourseController : Controller() {
         }
     }
 
-    fun generateLegs() {
+    private fun generateLegs() {
         legList.clear()
-        val legs = windowed(controlList.items, 2).map {
+        val legs = windowed(controlList.items, 2).map { it ->
             val start = first(it)
             val end = last(it)
-            val routeChoices = streetO.getLegRoutes(start.toControlSite(), end.toControlSite())
+            val routeChoices =
+                streetO.getLegRoutes(start.toControlSite(), end.toControlSite()).sortedBy { c -> c.distance }
             val pointLists = routeChoices.map { path ->
                 val points = path.points.map { p -> Point(p.lat, p.lon) }
                 PointList(points)
             }
             val distance = routeChoices.minOf { l -> l.distance }
-            ScoredLeg(start, end, distance, pointLists)
+            val choiceDetails = routeChoices.map { l -> getChoiceDetails(routeChoices.first(), l, distance) }
+            ScoredLeg(start, end, distance, pointLists, routeChoiceDetails = choiceDetails)
         }.toList()
         legs.forEach(legList::add)
+    }
+
+    private fun getChoiceDetails(best: ResponsePath, path: ResponsePath, bestDistance: Double): RouteChoiceDetails {
+        val distance = path.distance
+        val ratio = distance / bestDistance
+        val csim = RouteSimilarityFinder(preferences).similarity(best, path)
+        return RouteChoiceDetails(distance, ratio, csim)
     }
 
     fun getRoute(): List<Point> {

@@ -40,9 +40,6 @@ class PreferencesView : StreetOView("StreetO Preferences") {
                         field("Allowed Course Length Delta") {
                             textfield(model.allowedCourseLengthDelta)
                         }
-                        field("Max Shared on Route Choice") {
-                            textfield(model.maxRouteShare)
-                        }
                     }
                 }
             }
@@ -73,6 +70,17 @@ class PreferencesView : StreetOView("StreetO Preferences") {
                         fieldset("Street Furniture Factors") {
                             field("Street Furniture Distance") {
                                 textfield(model.maxFurnitureDistance)
+                            }
+                        }
+                        fieldset("Leg Similarity Factors") {
+                            field("Max Shared on Route Choice") {
+                                textfield(model.maxRouteShare)
+                            }
+                            field("Route Similarity Cell Size") {
+                                combobox(model.csimCellSize, listOf(1, 2, 5, 10, 20, 25))
+                            }
+                            field("Route Similarity Threshold") {
+                                textfield(model.csimThreshold)
                             }
                         }
                     }
