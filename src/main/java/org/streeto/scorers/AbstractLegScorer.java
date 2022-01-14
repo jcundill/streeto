@@ -35,17 +35,6 @@ public abstract class AbstractLegScorer implements LegScorer {
         return minDist;
     }
 
-    private double nearestDistToATrackSegment(GHPoint point, List<GHPoint> pointsPrior) {
-        var minDist = Double.MAX_VALUE;
-        for (int i = 1; i < pointsPrior.size(); i++) {
-            var dist = DistUtils.getDistanceFromLine(pointsPrior.get(i - 1), pointsPrior.get(i), point);
-            if (dist < minDist) {
-                minDist = dist;
-            }
-        }
-        return minDist;
-    }
-
     protected double scoreFunction(double score) {
         return pow(score, 2);
     }
