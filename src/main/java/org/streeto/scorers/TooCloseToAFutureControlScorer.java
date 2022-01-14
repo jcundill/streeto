@@ -89,6 +89,7 @@ public class TooCloseToAFutureControlScorer extends AbstractLegScorer {
     }
 
     private Double scoreRoute(double bestDistance, List<GHPoint3D> remainingControls, ResponsePath legRoute) {
+
         var likelihood = legRoute.getDistance() < preferences.getCSIMCellSize() ? 1.0 : bestDistance / legRoute.getDistance();
         var points = legRoute.getPoints();
         var size = points.size();
@@ -101,6 +102,7 @@ public class TooCloseToAFutureControlScorer extends AbstractLegScorer {
                 }
             }
         }
+
         if (minDist < preferences.getCSIMCellSize()) {
             return 1.0 - likelihood;
         } else {

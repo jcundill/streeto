@@ -71,6 +71,5 @@ public class BeenThisWayBeforeScorer extends AbstractLegScorer {
         }
         return commonLen;
     }
-
-
 }
+
