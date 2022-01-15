@@ -3,13 +3,14 @@ package org.streeto.ui.map
 import javafx.scene.control.Alert
 import org.streeto.ui.CourseController
 import org.streeto.ui.Point
+import org.streeto.ui.StreetOMaskPane
 import tornadofx.*
 
 object StreetOActions {
     fun loadMapDataAction(controller: CourseController, view: View, position: Point, op: () -> Unit) {
         val haveData = controller.hasMapDataFor(position)
         if (haveData) {
-            view.runAsyncWithOverlay {
+            view.runAsyncWithOverlay(StreetOMaskPane("Loading map data...")) {
                 controller.loadMapDataAt(position, false)
             } ui { loaded ->
                 if (loaded) {
@@ -17,7 +18,7 @@ object StreetOActions {
                 }
             }
         } else {
-            view.runAsyncWithOverlay {
+            view.runAsyncWithOverlay(StreetOMaskPane("Importing map data...")) {
                 controller.getGeoFabrikExtractFor(position)
             } ui { extract ->
                 if (extract.isPresent) {
@@ -25,7 +26,7 @@ object StreetOActions {
                         "No map data found for this position",
                         "Install ${extract.get().name} from 'geofabrik.de'? Depending on the area covered by this file, this could take a while."
                     ) {
-                        view.runAsyncWithOverlay {
+                        view.runAsyncWithOverlay(StreetOMaskPane("Loading map data...")) {
                             controller.loadMapDataAt(position, true)
                         } ui { loaded ->
                             if (loaded) {

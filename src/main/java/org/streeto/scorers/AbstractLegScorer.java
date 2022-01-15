@@ -3,14 +3,12 @@ package org.streeto.scorers;
 import com.graphhopper.GHResponse;
 import com.graphhopper.util.shapes.GHPoint;
 import org.streeto.StreetOPreferences;
-import org.streeto.utils.DistUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.lang.Math.pow;
 import static org.streeto.utils.CollectionHelpers.iterableAsStream;
-import static org.streeto.utils.DistUtils.dist;
 import static org.streeto.utils.DistUtils.getDistanceFromLine;
 
 public abstract class AbstractLegScorer implements LegScorer {

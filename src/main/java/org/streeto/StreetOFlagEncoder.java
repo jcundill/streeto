@@ -289,11 +289,25 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
                    && !way.hasTag("sidewalk", this.sidewalkValues) //Bakewell - didn't annotate with sidewalk
                    && !way.hasTag("sidewalk", this.sidewalksNoValues)) {
             String laneStr = way.getTag("lanes", "");
-            int lanes = laneStr.isEmpty() ? 0 : Integer.parseInt(laneStr);
+            double lanes = laneStr.isEmpty() ? 0 : parseLanes(laneStr);  // can have 1.5 apparently, scotland-latest.osm.pbf
             if (lanes > 2 || maxSpeed > 50.0) {// more than 30mph
                 weightToPrioMap.put(120.0D, PriorityCode.AVOID_AT_ALL_COSTS.getValue());
             }
         }
+    }
+
+    private double parseLanes(String laneStr) {
+        var arr = laneStr.split(";");
+        double lanes = 0;
+        for (String s : arr) {
+            try {
+                lanes += Math.abs(Double.parseDouble(s));
+            } catch (NumberFormatException e) {
+                // ignore, assume 1
+                lanes += 1;
+            }
+        }
+        return lanes;
     }
 
     @Override

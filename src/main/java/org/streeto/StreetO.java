@@ -29,7 +29,7 @@ import com.graphhopper.ResponsePath;
 import com.graphhopper.reader.osm.GraphHopperOSM;
 import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint;
-import org.streeto.furniture.StreetFurnitureFinder;
+import org.streeto.furniture.StreetFurnitureRepository;
 import org.streeto.genetic.CourseFinderRunner;
 import org.streeto.genetic.Sniffer;
 import org.streeto.gpx.GpxFacade;
@@ -47,8 +47,9 @@ import static org.streeto.utils.CollectionHelpers.*;
 
 public class StreetO {
 
+    private final String osmDir;
     ControlSiteFinder csf;
-    private final StreetFurnitureFinder finder = new StreetFurnitureFinder();
+    private StreetFurnitureRepository furnitureRepository;
     private final PbfFinder pbfFinder = new PbfFinder();
     private MapSplitter splitter;
     private final List<Sniffer> sniffers = new ArrayList<>();
@@ -59,6 +60,7 @@ public class StreetO {
     private final MapDataRepository mapDataRepository;
 
     public StreetO(String osmDir, StreetOPreferences prefs) {
+        this.osmDir = osmDir;
         preferences = prefs;
         mapDataRepository = new MapDataRepository(osmDir);
     }
@@ -84,6 +86,7 @@ public class StreetO {
             splitter = new MapSplitter(csf, preferences.getPaperSize(), preferences.getMaxMapScale());
             courseImporter = new CourseImporter(csf);
             scorer = new CourseScorer(preferences, csf);
+            furnitureRepository = new StreetFurnitureRepository(csf, osmDir);
         }
         return maybeGh;
     }
@@ -212,11 +215,7 @@ public class StreetO {
     }
 
     public void findFurniture(GHPoint start) {
-        var scaleFactor = 5000.0;
-        var max = csf.getGHPointRelativeTo(start, Math.PI * 0.25, scaleFactor);
-        var min = csf.getGHPointRelativeTo(start, Math.PI * 1.25, scaleFactor);
-        var bbox = new BBox(min.lon, max.lon, min.lat, max.lat);
-        csf.setFurniture(finder.findForBoundingBox(bbox));
+        furnitureRepository.loadForLocation(start);
     }
 
 
