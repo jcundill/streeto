@@ -20,7 +20,7 @@ class StreetOMaskPane(displayText: String = "Loading...", color: Color = Color.W
             progressindicator()
             label {
                 style {
-                    fontSize = 20.px
+                    fontSize = 16.px
                     textFill = color
                 }
                 text = displayText

@@ -22,8 +22,7 @@ class Styles : Stylesheet() {
             minHeight = 200.px
             maxHeight = 200.px
             maxWidth = 200.px
-            borderColor += box(c("#f8f8f8", 0.5))
-            backgroundColor += c("#f8f8f8", 0.5)
+            borderColor += box(c("#f8f8f8", 0.01))
         }
     }
 

@@ -100,13 +100,13 @@ class GenerationProgressView : StreetOView("Course Evolution Progress") {
                     alignment = Pos.CENTER
                     progressindicator {
                         style {
-                            prefHeight = 200.px
-                            prefWidth = 200.px
+                            maxHeight = 200.px
+                            maxWidth = 200.px
                         }
                     }
                     label("Generating Initial Population ...") {
                         style {
-                            fontSize = 20.px
+                            fontSize = 16.px
                             paddingAll = 10.0
                         }
                     }
