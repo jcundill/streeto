@@ -68,6 +68,12 @@ The system then mutates the controls on the candidates courses.
 
 These replacements are fed back into the algorithm which re-scores the resulting courses and then repeats the process. 
 
+The system uses the C-SIM algorithm to determine the similarity between leg route options. See the following paper for details:
+
+Radu Mariescu-Istodor and Pasi Fränti. "Grid-based method for GPS route analysis for retrieval." 
+ACM Transactions on Spatial Algorithms and Systems (TSAS) 3, no. 3 (2017): 8.
+
+
 In addition to the improvers, there are a number of hard constraints that the course must always satisfy:
 + Course Length - must be reasonably similar to the requested course length
 + Is Routeable - there must exist at least one safely runnable route around the whole course
