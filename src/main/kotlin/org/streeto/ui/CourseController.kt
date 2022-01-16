@@ -117,6 +117,10 @@ class CourseController : Controller() {
             controlList.items.map { it.toControlSite() })
     }
 
+    fun seedScatterCourse(): Optional<List<ControlSite>> {
+        return streetO.generateScatterCourse(8000.0, 16, controlList.items.map { it.toControlSite() })
+    }
+
     private fun updateViewModel() {
         val sites = controlList.items.map(Control::toControlSite)
         courseDetailsViewModel.name.value = courseName.value
@@ -437,5 +441,10 @@ class CourseController : Controller() {
     fun getGeoFabrikExtractFor(position: Point): Optional<PbfInfo> {
         val point = GHPoint(position.lat, position.lon)
         return streetO.getGeoFabrikExtractDetailsFor(point)
+    }
+
+    fun runVrp() {
+        val controlSites = controlList.map { c -> c.toControlSite() }
+        streetO.runVRP(controlSites, 15, 100000)
     }
 }

@@ -31,6 +31,7 @@ import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint;
 import org.streeto.furniture.StreetFurnitureRepository;
 import org.streeto.genetic.CourseFinderRunner;
+import org.streeto.genetic.ScatterFinderRunner;
 import org.streeto.genetic.Sniffer;
 import org.streeto.gpx.GpxFacade;
 import org.streeto.kml.KmlWriter;
@@ -38,6 +39,7 @@ import org.streeto.mapping.*;
 import org.streeto.osmdata.MapDataRepository;
 import org.streeto.osmdata.PbfFinder;
 import org.streeto.osmdata.PbfInfo;
+import org.streeto.tsp.BestSubsetOfTsp;
 
 import java.io.*;
 import java.util.*;
@@ -199,6 +201,15 @@ public class StreetO {
         return maybeBest.map(this::renumber);
     }
 
+    public Optional<List<ControlSite>> generateScatterCourse(double distance, int numControls, List<ControlSite> initialControls) {
+        if (csf.furniture == null) {
+            findFurniture(first(initialControls).getLocation());
+        }
+        var scatterCourseRunner = new ScatterFinderRunner(scorer::scoreLegs, csf, sniffers, preferences);
+        var maybeBest = scatterCourseRunner.run(distance, numControls, initialControls);
+        return maybeBest.map(this::renumber);
+    }
+
     private List<ControlSite> renumber(List<ControlSite> best) {
         var renumbered = best.stream().map(cs -> new ControlSite(cs.getLocation(), cs.getDescription())).toList();
         formatNumber(first(renumbered), "S1");
@@ -212,6 +223,12 @@ public class StreetO {
             findFurniture(first(controls).getLocation());
         }
         return scorer.score(controls);
+    }
+
+    public void runVRP(List<ControlSite> controls, int capacity, int iterations) {
+        var solver = new BestSubsetOfTsp(csf);
+        solver.solve(controls, capacity, iterations);
+
     }
 
     public void findFurniture(GHPoint start) {

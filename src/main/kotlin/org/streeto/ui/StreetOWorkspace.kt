@@ -325,6 +325,44 @@ class StreetOWorkspace : Workspace("StreetO") {
                     }
                 }
             }
+            separator()
+            item("Run VRP") {
+                action {
+                    runAsync {
+                        courseController.runVrp()
+                    }
+                }
+            }
+            item("Seed Scatter Course") {
+                action {
+                    if (courseController.controlList.size > 1) {//need at least start and finish
+                        courseController.sniffer.reset()
+                        find<GenerationProgressView> {
+                            model.finished.value = false
+                            closeableWhen { courseController.sniffer.completedProperty }
+                            openModal()
+                        }
+                        runAsync {
+                            courseController.seedScatterCourse()
+                        } ui { maybeSites ->
+                            if (maybeSites.isPresent) {
+                                val sites = maybeSites.get()
+                                courseController.initialiseCourse(sites)
+                                courseController.analyseCourse()
+
+                                fire(CourseUpdatedEvent)
+                                fire(ZoomToFitCourseEvent)
+                            }
+                        }
+                    } else {
+                        alert(
+                            Alert.AlertType.WARNING, "No Controls",
+                            "There are no controls in the course.\n" +
+                                    "Please add at least a start and finish control before continuing."
+                        )
+                    }
+                }
+            }
         }
     }
 
