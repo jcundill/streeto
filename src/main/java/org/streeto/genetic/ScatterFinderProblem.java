@@ -6,49 +6,55 @@ import io.jenetics.Genotype;
 import io.jenetics.engine.Codec;
 import io.jenetics.engine.Problem;
 import io.jenetics.util.ISeq;
-import org.streeto.ControlSite;
-import org.streeto.ControlSiteFinder;
-import org.streeto.CourseSeeder;
-import org.streeto.StreetOPreferences;
+import org.streeto.*;
 import org.streeto.constraints.*;
+import org.streeto.scorers.*;
 import org.streeto.tsp.BestSubsetOfTsp;
 
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import static java.lang.Math.*;
 import static java.lang.Math.min;
+import static org.streeto.CourseScorer.getOverallScore;
+import static org.streeto.utils.CollectionHelpers.last;
+import static org.streeto.utils.CollectionHelpers.windowed;
 
 class ScatterFinderProblem implements Problem<ISeq<ControlSite>, AnyGene<ISeq<ControlSite>>, Double> {
 
-    private final Function<List<ControlSite>, List<Double>> legScorer;
     private final ControlSiteFinder csf;
     private final double requestedDistance;
     private final int requestedNumControls;
     private final List<ControlSite> initialControls;
     private final CourseSeeder seeder;
     private final List<CourseConstraint> constraints;
-    private final BestSubsetOfTsp tsp;
+    private final ControlSetScorer separationScorer;
+    private final int totalControls;
+    private final int iterations;
+    private final ControlSetScorer startNearTheCentreScorer;
+    private final ControlSetScorer scatterTspScorer;
 
-    ScatterFinderProblem(Function<List<ControlSite>, List<Double>> legScorer,
-                         ControlSiteFinder csf,
+    ScatterFinderProblem(ControlSiteFinder csf,
                          double requestedDistance,
+                         int totalControls,
                          int requestedNumControls,
+                         int iterations,
                          List<ControlSite> initialControls,
                          StreetOPreferences preferences) {
-        this.legScorer = legScorer;
+        this.totalControls = totalControls;
+        this.iterations = iterations;
         this.csf = csf;
         this.requestedDistance = requestedDistance;
         this.requestedNumControls = requestedNumControls;
         this.initialControls = initialControls;
-        this.tsp = new BestSubsetOfTsp(csf);
+        this.separationScorer = new ControlSeparationScorer(preferences);
+        this.startNearTheCentreScorer = new StartNearTheCentreScorer(preferences);
+        this.scatterTspScorer = new ScatterTspScorer(preferences, csf, requestedNumControls, requestedDistance, iterations);
 
         this.seeder = new CourseSeeder(this.csf, preferences.getPaperSize(), preferences.getMaxMapScale());
 
         this.constraints = List.of(
-//                new IsRouteableConstraint(),
-//                new CourseLengthConstraint(requestedDistance, preferences),
-//                new OnlyGoToTheFinishAtTheEndConstraint(preferences),
                 new PrintableOnMapConstraint(preferences)
         );
     }
@@ -70,7 +76,7 @@ class ScatterFinderProblem implements Problem<ISeq<ControlSite>, AnyGene<ISeq<Co
         ISeq<ControlSite> course = null;
         boolean ok = false;
         while (!ok) {
-            course = ISeq.of(seeder.chooseInitialPoints(initialControls, requestedNumControls + 4, requestedDistance));
+            course = ISeq.of(seeder.chooseInitialPoints(initialControls, totalControls, requestedDistance * totalControls/requestedNumControls));
             var route = csf.routeRequest(course.asList());
             ok = constraints.stream().allMatch(it -> it.test(route));
         }
@@ -78,17 +84,17 @@ class ScatterFinderProblem implements Problem<ISeq<ControlSite>, AnyGene<ISeq<Co
     }
 
     private Double courseFitness(ISeq<ControlSite> controls) {
-//        var route = csf.routeRequest(controls.asList());
-//        if (!constraints.stream().allMatch(it -> it.test(route))) {
-//            return 0.0;
-//        }
-//        var legScores = legScorer.apply(controls.asList());
-//        return getOverallScore(legScores);
         if( controls.size() < requestedNumControls ) {
             return 0.0;
         }
-        var distance = tsp.solve(controls.asList(), requestedNumControls, 1000);
-        return min(distance, requestedDistance) / max(distance, requestedDistance);
+        var route = csf.routeRequest(controls.asList());
+        if (!constraints.stream().allMatch(it -> it.test(route))) {
+            return 0.0;
+        }
+        var separationScore = separationScorer.score(controls.asList());
+        var startNearTheCentreScore = startNearTheCentreScorer.score(controls.asList());
+        var tspScore = scatterTspScorer.score(controls.asList());
+        return (pow(separationScore, 2) + pow(startNearTheCentreScore, 2) + pow(tspScore, 2)) / 3.0;
     }
 
 

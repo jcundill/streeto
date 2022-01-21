@@ -100,7 +100,7 @@ public class CourseSeeder {
 
         var initialControls = getControlSites(start, chosenControls, finish);
 
-        var controls = chooseSeeder().seed(initialControls, requestedNumControls, requestedCourseLength);
+        var controls = seeders.get(5).seed(initialControls, requestedNumControls, requestedCourseLength);
         return getControlSites(
                 start,
                 (rnd().nextDouble() < 0.5) ? controls : reverse(controls.stream()).collect(Collectors.toList()), finish

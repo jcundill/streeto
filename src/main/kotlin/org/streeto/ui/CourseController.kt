@@ -117,11 +117,11 @@ class CourseController : Controller() {
             controlList.items.map { it.toControlSite() })
     }
 
-    fun seedScatterCourse(): Optional<List<ControlSite>> {
-        return streetO.generateScatterCourse(8000.0, 16, controlList.items.map { it.toControlSite() })
+    fun seedScatterCourse(distance: Double, totalControls : Int, requiredControls: Int, iterations: Int): Optional<List<ControlSite>> {
+        return streetO.generateScatterCourse(distance, totalControls, requiredControls, iterations, controlList.items.map { it.toControlSite() })
     }
 
-    private fun updateViewModel() {
+    fun updateViewModel() {
         val sites = controlList.items.map(Control::toControlSite)
         courseDetailsViewModel.name.value = courseName.value
         courseDetailsViewModel.numControls.value = controlList.size - 2
@@ -443,8 +443,12 @@ class CourseController : Controller() {
         return streetO.getGeoFabrikExtractDetailsFor(point)
     }
 
-    fun runVrp() {
+    fun runVrp(numCourseControls: Int) {
         val controlSites = controlList.map { c -> c.toControlSite() }
-        streetO.runVRP(controlSites, 15, 100000)
+        var maybeRoute = streetO.runVRP(controlSites, numCourseControls, 10000)
+        if (maybeRoute.isPresent) {
+            maybeRoute.get().forEach(::println)
+        }
+
     }
 }

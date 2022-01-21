@@ -18,14 +18,12 @@ import java.util.Optional;
 import java.util.function.Function;
 
 public class ScatterFinderRunner {
-    private final Function<List<ControlSite>, List<Double>> legScorer;
     private final ControlSiteFinder csf;
     private final List<Sniffer> callbacks;
     private final StreetOPreferences preferences;
     private final Alterer<AnyGene<ISeq<ControlSite>>, Double> myAlterer;
 
-    public ScatterFinderRunner(Function<List<ControlSite>, List<Double>> legScorer, ControlSiteFinder csf, List<Sniffer> callbacks, StreetOPreferences preferences) {
-        this.legScorer = legScorer;
+    public ScatterFinderRunner(ControlSiteFinder csf, List<Sniffer> callbacks, StreetOPreferences preferences) {
         this.csf = csf;
         this.callbacks = callbacks;
         this.preferences = preferences;
@@ -36,10 +34,10 @@ public class ScatterFinderRunner {
         );
     }
 
-    public Optional<List<ControlSite>> run(double requestedDistance, int requestedNumControls, List<ControlSite> initialControls) {
+    public Optional<List<ControlSite>> run(double requestedDistance, int totalControls, int requestedNumControls, int iterations, List<ControlSite> initialControls) {
 
         final Engine<AnyGene<ISeq<ControlSite>>, Double> engine = Engine
-                .builder(new ScatterFinderProblem(legScorer, csf, requestedDistance, requestedNumControls, initialControls, preferences))
+                .builder(new ScatterFinderProblem(csf, requestedDistance, totalControls, requestedNumControls, iterations, initialControls, preferences))
                 .alterers(myAlterer)
                 .offspringFraction(preferences.getOffspringFraction())
                 .populationSize(preferences.getPopulationSize())

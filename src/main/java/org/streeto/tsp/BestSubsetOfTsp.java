@@ -6,6 +6,7 @@ import com.graphhopper.jsprit.core.problem.Location;
 import com.graphhopper.jsprit.core.problem.VehicleRoutingProblem;
 import com.graphhopper.jsprit.core.problem.job.Service;
 import com.graphhopper.jsprit.core.problem.solution.VehicleRoutingProblemSolution;
+import com.graphhopper.jsprit.core.problem.solution.route.VehicleRoute;
 import com.graphhopper.jsprit.core.problem.vehicle.VehicleImpl;
 import com.graphhopper.jsprit.core.problem.vehicle.VehicleType;
 import com.graphhopper.jsprit.core.problem.vehicle.VehicleTypeImpl;
@@ -17,6 +18,7 @@ import org.streeto.ControlSiteFinder;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.streeto.utils.CollectionHelpers.*;
@@ -35,7 +37,7 @@ public class BestSubsetOfTsp {
     }
 
 
-    public double solve(List<ControlSite> controls, int numToVisit, int iterations) {
+    public Optional<VehicleRoute> solve(List<ControlSite> controls, int numToVisit, int iterations) {
 
         var renumbered = controls.stream().map(cs -> new ControlSite(cs.getLocation(), cs.getDescription())).toList();
         formatNumber(first(renumbered), "S1");
@@ -77,21 +79,10 @@ public class BestSubsetOfTsp {
         var vrp = builder.build();
         VehicleRoutingAlgorithm vra = Jsprit.createAlgorithm(vrp);
 
+        vra.setMaxIterations(iterations);
         Collection<VehicleRoutingProblemSolution> solutions = vra.searchSolutions();
 
-        SolutionPrinter.print(Solutions.bestOf(solutions));
-        var best = Solutions.bestOf(solutions).getRoutes().stream().findFirst();
-        var distance = Double.MAX_VALUE;
-        if( best.isPresent() ) {
-            var vehicleRoute = best.get();
-            var route = vehicleRoute.getTourActivities().getJobs();
-            //route.forEach(j -> System.out.println(j.getId()));
-            var sites = Stream.of(Stream.of(renumbered.get(0)),
-                    route.stream().map(j -> renumbered.get(j.getIndex())), Stream.of(last(renumbered))).flatMap(s -> s).toList();
-            //System.out.println(sites);
-            distance = csf.routeRequest(sites, 0).getBest().getDistance();
-            //System.out.println("distance = " + distance);
-        };
-        return distance;
+        //SolutionPrinter.print(Solutions.bestOf(solutions));
+        return Solutions.bestOf(solutions).getRoutes().stream().findFirst();
     }
 }

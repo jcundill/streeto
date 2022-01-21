@@ -26,6 +26,7 @@
 package org.streeto;
 
 import com.graphhopper.ResponsePath;
+import com.graphhopper.jsprit.core.problem.job.Job;
 import com.graphhopper.reader.osm.GraphHopperOSM;
 import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint;
@@ -43,7 +44,9 @@ import org.streeto.tsp.BestSubsetOfTsp;
 
 import java.io.*;
 import java.util.*;
+import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.toList;
 import static org.streeto.utils.CollectionHelpers.*;
 
 
@@ -201,12 +204,12 @@ public class StreetO {
         return maybeBest.map(this::renumber);
     }
 
-    public Optional<List<ControlSite>> generateScatterCourse(double distance, int numControls, List<ControlSite> initialControls) {
+    public Optional<List<ControlSite>> generateScatterCourse(double distance, int totalControls, int numControls, int iterations, List<ControlSite> initialControls) {
         if (csf.furniture == null) {
             findFurniture(first(initialControls).getLocation());
         }
-        var scatterCourseRunner = new ScatterFinderRunner(scorer::scoreLegs, csf, sniffers, preferences);
-        var maybeBest = scatterCourseRunner.run(distance, numControls, initialControls);
+        var scatterCourseRunner = new ScatterFinderRunner(csf, sniffers, preferences);
+        var maybeBest = scatterCourseRunner.run(distance, totalControls, numControls, iterations, initialControls);
         return maybeBest.map(this::renumber);
     }
 
@@ -225,10 +228,16 @@ public class StreetO {
         return scorer.score(controls);
     }
 
-    public void runVRP(List<ControlSite> controls, int capacity, int iterations) {
+    public Optional<List<Integer>> runVRP(List<ControlSite> controls, int capacity, int iterations) {
         var solver = new BestSubsetOfTsp(csf);
-        solver.solve(controls, capacity, iterations);
-
+        var best = solver.solve(controls, capacity, iterations);
+        if( best.isPresent() ) {
+            var vehicleRoute = best.get();
+            var route = vehicleRoute.getTourActivities().getJobs();
+            return Optional.of(route.stream().map(Job::getIndex).collect(toList()));
+         } else {
+            return Optional.empty();
+        }
     }
 
     public void findFurniture(GHPoint start) {

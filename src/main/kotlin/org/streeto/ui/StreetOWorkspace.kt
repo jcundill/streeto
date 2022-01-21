@@ -2,6 +2,8 @@ package org.streeto.ui
 
 import javafx.application.Platform
 import javafx.beans.property.SimpleBooleanProperty
+import javafx.beans.property.SimpleDoubleProperty
+import javafx.beans.property.SimpleIntegerProperty
 import javafx.geometry.Pos
 import javafx.scene.control.Alert
 import javafx.scene.control.MenuBar
@@ -326,41 +328,73 @@ class StreetOWorkspace : Workspace("StreetO") {
                 }
             }
             separator()
-            item("Run VRP") {
-                action {
-                    runAsync {
-                        courseController.runVrp()
-                    }
-                }
-            }
             item("Seed Scatter Course") {
                 action {
-                    if (courseController.controlList.size > 1) {//need at least start and finish
-                        courseController.sniffer.reset()
-                        find<GenerationProgressView> {
-                            model.finished.value = false
-                            closeableWhen { courseController.sniffer.completedProperty }
-                            openModal()
+                    dialog("Scatter Course") {
+                        var distance = SimpleDoubleProperty(5000.0)
+                        var totalControls = SimpleIntegerProperty(10)
+                        var numForCourse = SimpleIntegerProperty(7)
+                        var iterations = SimpleIntegerProperty(1000)
+                        field("Preferred Distance") {
+                            textfield(distance)
                         }
-                        runAsync {
-                            courseController.seedScatterCourse()
-                        } ui { maybeSites ->
-                            if (maybeSites.isPresent) {
-                                val sites = maybeSites.get()
-                                courseController.initialiseCourse(sites)
-                                courseController.analyseCourse()
+                        field("Num Controls") {
+                            textfield(totalControls)
+                        }
+                        field("Num To Find") {
+                            textfield(numForCourse)
+                        }
+                        field("Num Iterations") {
+                            textfield(iterations)
+                        }
+                        hbox {
+                            alignment = Pos.CENTER_RIGHT
+                            button("OK") {
+                                isDefaultButton = true
+                                action {
+                                    this@dialog.close()
+                                    if (courseController.controlList.size > 1) {//need at least start and finish
+                                        courseController.sniffer.reset()
+                                        find<GenerationProgressView> {
+                                            model.finished.value = false
+                                            closeableWhen { courseController.sniffer.completedProperty }
+                                            openModal()
+                                        }
+                                        runAsync {
+                                            courseController.seedScatterCourse(
+                                                distance.value,
+                                                totalControls.value,
+                                                numForCourse.value,
+                                                iterations.value
+                                            )
+                                        } ui { maybeSites ->
+                                            if (maybeSites.isPresent) {
+                                                val sites = maybeSites.get()
+                                                courseController.initialiseCourse(sites)
+                                                courseController.runVrp(numForCourse.value)
+                                                courseController.updateViewModel()
 
-                                fire(CourseUpdatedEvent)
-                                fire(ZoomToFitCourseEvent)
+                                                fire(CourseUpdatedEvent)
+                                                fire(ZoomToFitCourseEvent)
+                                            }
+                                        }
+                                    } else {
+                                        alert(
+                                            Alert.AlertType.WARNING, "No Controls",
+                                            "There are no controls in the course.\n" +
+                                                    "Please add at least a start and finish control before continuing."
+                                        )
+                                    }
+                                }
                             }
-                        }
-                    } else {
-                        alert(
-                            Alert.AlertType.WARNING, "No Controls",
-                            "There are no controls in the course.\n" +
-                                    "Please add at least a start and finish control before continuing."
-                        )
+                            button("Cancel") {
+                                isCancelButton = true
+                                action {
+                                    this@dialog.close()
+                                }
+                            }
                     }
+                }
                 }
             }
         }
