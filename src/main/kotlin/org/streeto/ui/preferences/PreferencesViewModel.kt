@@ -1,6 +1,6 @@
 package org.streeto.ui.preferences
 
-import tornadofx.*
+import tornadofx.ItemViewModel
 
 class PreferencesViewModel : ItemViewModel<ObservablePreferences>() {
 
@@ -30,6 +30,8 @@ class PreferencesViewModel : ItemViewModel<ObservablePreferences>() {
     val mutationRadius = bind(ObservablePreferences::mutationRadiusProperty)
     val maxPhenotypeAge = bind(ObservablePreferences::maxPhenotypeAgeProperty)
     val maxRouteShare = bind(ObservablePreferences::maxRouteShareProperty)
+    val csimCellSize = bind(ObservablePreferences::csimCellSizeProperty)
+    val csimThreshold = bind(ObservablePreferences::csimThresholdPropery)
     val maxFurnitureDistance = bind(ObservablePreferences::maxFurnitureDistanceProperty)
     val junctionScoreFactor = bind(ObservablePreferences::junctionScoreFactorProperty)
     val bendScoreFactor = bind(ObservablePreferences::bendScoreFactorProperty)

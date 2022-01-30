@@ -38,7 +38,7 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
     final Set<String> allowedHighwayTags = new HashSet<>();
     final Set<String> avoidHighwayTags = new HashSet<>();
     final Set<String> allowedSacScale = new HashSet<>();
-    protected boolean speedTwoDirections = false;
+    protected boolean speedTwoDirections = true;
     private DecimalEncodedValue priorityWayEncoder;
 
     public StreetOFlagEncoder() {
@@ -287,10 +287,27 @@ public class StreetOFlagEncoder extends AbstractFlagEncoder {
             }
         } else if (this.avoidHighwayTags.contains(highway)
                    && !way.hasTag("sidewalk", this.sidewalkValues) //Bakewell - didn't annotate with sidewalk
-                   && !way.hasTag("sidewalk", this.sidewalksNoValues)
-                   && maxSpeed > 50.0D) {  // more than 30mph
-            weightToPrioMap.put(120.0D, PriorityCode.AVOID_AT_ALL_COSTS.getValue());
+                   && !way.hasTag("sidewalk", this.sidewalksNoValues)) {
+            String laneStr = way.getTag("lanes", "");
+            double lanes = laneStr.isEmpty() ? 0 : parseLanes(laneStr);  // can have 1.5 apparently, scotland-latest.osm.pbf
+            if (lanes > 2 || maxSpeed > 50.0) {// more than 30mph
+                weightToPrioMap.put(120.0D, PriorityCode.AVOID_AT_ALL_COSTS.getValue());
+            }
         }
+    }
+
+    private double parseLanes(String laneStr) {
+        var arr = laneStr.split(";");
+        double lanes = 0;
+        for (String s : arr) {
+            try {
+                lanes += Math.abs(Double.parseDouble(s));
+            } catch (NumberFormatException e) {
+                // ignore, assume 1
+                lanes += 1;
+            }
+        }
+        return lanes;
     }
 
     @Override

@@ -74,6 +74,7 @@ public class DogLegScorer extends AbstractLegScorer {
             score = 0.0; //controls are in the same place
         } else {
             List<GHPoint3D> nextTail = drop(nextPoints, 1);
+            //TODO: exact same route? - do we need CSIM fuzziness here as well?
             var inBoth = dropLast(prevPoints, 1).stream().filter(nextTail::contains).toList();
             if (inBoth.size() == 0) {
                 score = 1.0;

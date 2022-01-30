@@ -29,7 +29,7 @@ hs_err_pid*
 /target
 /extracts
 /osm_data
-*.gpx
+/*.gpx
 streeto.properties
 /target/**/*
 

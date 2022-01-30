@@ -310,7 +310,12 @@
             <artifactId>osmapi-overpass</artifactId>
             <version>2.0</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/log4j/log4j -->
+        <!-- https://mvnrepository.com/artifact/org.opensextant/geodesy -->
+        <dependency>
+            <groupId>org.opensextant</groupId>
+            <artifactId>geodesy</artifactId>
+            <version>2.0.1</version>
+        </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
