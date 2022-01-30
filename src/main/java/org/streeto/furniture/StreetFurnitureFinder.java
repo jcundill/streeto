@@ -32,10 +32,11 @@ import org.streeto.ControlSite;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class StreetFurnitureFinder {
 
-    public List<ControlSite> findForBoundingBox(BBox box) {
+    public Optional<List<ControlSite>> findForBoundingBox(BBox box) {
         var locations = new ArrayList<ControlSite>();
         var connection = new OsmConnection("https://overpass-api.de/api/", "streeto");
         var overpass = new OverpassMapDataApi(connection);
@@ -78,8 +79,8 @@ public class StreetFurnitureFinder {
         try {
             overpass.queryElementsWithGeometry(q, handler);
         } catch (Exception e) {
-            // ignore it, furniture not available at the moment
+            return Optional.empty();// ignore it, furniture not available at the moment
         }
-        return locations;
+        return Optional.of(locations);
     }
 }

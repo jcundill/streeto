@@ -2,7 +2,6 @@ package org.streeto.ui.evolution
 
 
 import javafx.geometry.Pos
-import javafx.geometry.VPos
 import javafx.scene.Node
 import javafx.scene.chart.NumberAxis
 import javafx.scene.chart.XYChart
@@ -64,8 +63,12 @@ class GenerationProgressView : StreetOView("Course Evolution Progress") {
     private fun evolveCourseView(): Node {
         return vbox {
             paddingRight = 10.0
+            alignment = Pos.CENTER
             label("Generation Complete") {
                 visibleWhen(model.finished)
+                style {
+                    fontSize = 20.px
+                }
             }
             linechart("Course Fitness", NumberAxis(0.0, 100.0, 10.0), NumberAxis(0.0, 1.0, 0.1)) {
                 visibleWhen(model.started)
@@ -91,18 +94,23 @@ class GenerationProgressView : StreetOView("Course Evolution Progress") {
 
     private fun buildPopulationView(): Node {
         return borderpane {
-            top {
-                label("Generating Initial Population ...")
-            }
             center {
-                minHeight = 350.0
-                progressindicator {
-                    style {
-                        alignment = Pos.CENTER
-                        vAlignment = VPos.CENTER
-                        prefHeight = 200.px
-                        prefWidth = 200.px
+                vbox {
+                    minHeight = 350.0
+                    alignment = Pos.CENTER
+                    progressindicator {
+                        style {
+                            maxHeight = 200.px
+                            maxWidth = 200.px
+                        }
                     }
+                    label("Generating Initial Population ...") {
+                        style {
+                            fontSize = 16.px
+                            paddingAll = 10.0
+                        }
+                    }
+
                 }
             }
         }

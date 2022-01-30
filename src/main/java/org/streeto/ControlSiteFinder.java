@@ -58,7 +58,8 @@ public class ControlSiteFinder {
 
     private final GraphHopper gh;
     private final EdgeFilter filter;
-    private final HashMap<List<GHPoint>, GHResponse> routedLegCache = new HashMap<>();
+    private final Map<List<GHPoint>, GHResponse> routedLegCache = new HashMap<>();
+    private final Map<GHPoint, Optional<ControlSite>> locationCache = new HashMap<>();
     private final Random rnd = RandomRegistry.random();
     private final StreetOPreferences preferences;
     private final RouteSimilarityFinder csim;
@@ -194,20 +195,27 @@ public class ControlSiteFinder {
     }
 
     public Optional<ControlSite> findNearestControlSiteTo(GHPoint p) {
+        if (locationCache.containsKey(p)) {
+            return locationCache.get(p);
+        }
+
+        Optional<ControlSite> nearest = Optional.empty();
         // have we got nearby furniture - if so always use that
         var f = findLocalStreetFurniture(p);
         if (f.isPresent()) {
-            return f;
+            nearest = f;
         } else { // find the nearest TOWER or PILLAR on the map
             var loc = findClosestStreetLocation(p);
-            if (loc.isEmpty()) return Optional.empty();
+            if (loc.isEmpty()) nearest = Optional.empty();
             else {
                 var site = loc.get();
                 var isTower = gh.getLocationIndex().findClosest(site.lat, site.lon, filter).getSnappedPosition() == Snap.Position.TOWER;
                 var desc = isTower ? "junction" : "bend";
-                return Optional.of(new ControlSite(site, desc, isTower ? ControlType.TOWER : ControlType.PILLAR));
+                nearest = Optional.of(new ControlSite(site, desc, isTower ? ControlType.TOWER : ControlType.PILLAR));
             }
         }
+        locationCache.put(p, nearest);
+        return nearest;
     }
 
     private Optional<ControlSite> findLocalStreetFurniture(GHPoint p) {
