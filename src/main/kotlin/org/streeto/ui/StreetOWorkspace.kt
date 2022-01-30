@@ -80,7 +80,7 @@ class StreetOWorkspace : Workspace("StreetO") {
         menu("_Help") {
             item("User Guide") {
                 action {
-                    hostServices.showDocument("https://jcundill.github.io/streeto/index.html")
+                    hostServices.showDocument("https://streeto.org/UserGuide.html")
                 }
             }
             item("About").action {
