@@ -8,6 +8,7 @@
     <artifactId>streeto</artifactId>
     <version>1.0.0-beta4</version>
     <packaging>jar</packaging>
+    <description>StreetO Course Generator</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
