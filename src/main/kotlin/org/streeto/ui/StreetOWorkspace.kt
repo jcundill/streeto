@@ -21,7 +21,6 @@ import org.streeto.ui.map.StreetOActions
 import org.streeto.ui.osmdata.OsmDataView
 import org.streeto.ui.preferences.PreferencesView
 import tornadofx.*
-import java.io.File
 import java.util.*
 
 class StreetOWorkspace : Workspace("StreetO") {
@@ -164,50 +163,17 @@ class StreetOWorkspace : Workspace("StreetO") {
                 }
             }
             separator()
-            item("Create _MapRun Files") {
-                enableWhen(haveNumberedControls)
-                action {
-                    val path = courseController.courseFile.value?.parentFile?.absolutePath ?: ""
-                    val name = courseController.courseName.value ?: ""
-                    val mapRunFiles = FileChooser.ExtensionFilter("MapRun Files", "*.kml", "*.kmz")
-                    val fileSelection = chooseFile(
-                        title = "Save MapRun Files As", arrayOf(mapRunFiles),
-                        mode = FileChooserMode.Save,
-                        initialFileName = name,
-                        initialDirectory = File(path)
-                    )
-                    if (fileSelection.isNotEmpty()) {
-                        mapView.runAsyncWithOverlay {
-                            courseController.generateMapRunFiles(
-                                fileSelection.first().parentFile,
-                                fileSelection.first().nameWithoutExtension
-                            )
-                        } ui { written ->
-                            if (written) {
-                                val filename = fileSelection.first().nameWithoutExtension
-                                alert(
-                                    Alert.AlertType.INFORMATION,
-                                    "MapRun Files Created",
-                                    "$filename.kmz and $filename.kml written to ${fileSelection.first().parentFile.absolutePath}"
-                                )
-                            } else {
-                                alert(Alert.AlertType.ERROR, "Error", "Error creating MapRun Files")
-                            }
-                        }
-                    }
-                }
-            }
             item("Create Map _PDF") {
                 enableWhen(haveNumberedControls)
                 action {
-                    val path = courseController.courseFile.value?.parentFile?.absolutePath ?: ""
+                    val path = courseController.courseFile.value?.parentFile?.absoluteFile
                     val name = courseController.courseName.value ?: ""
                     val pdf = FileChooser.ExtensionFilter("PDF", "*.pdf")
                     val fileSelection = chooseFile(
                         title = "Save PDF Map As", arrayOf(pdf),
                         mode = FileChooserMode.Save,
                         initialFileName = if (name.isNotBlank()) "$name.pdf" else "",
-                        initialDirectory = File(path)
+                        initialDirectory = path
                     )
                     if (fileSelection.isNotEmpty()) {
                         mapView.runAsyncWithOverlay {
