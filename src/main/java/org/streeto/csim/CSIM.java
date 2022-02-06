@@ -16,6 +16,7 @@ class CSIM {
         this.router = new Route(cellLength);
     }
 
+
     private List<Cell> fromResponsePath(ResponsePath path) {
         var points = iterableAsStream(path.getPoints()).map(Point::fromGraphHopperPoint).toList();
         return router.getCells(points);

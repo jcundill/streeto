@@ -96,9 +96,9 @@ public class ControlSite {
     @Override
     public String toString() {
         return "ControlSite{" +
-                "location=" + location +
-                ", description='" + description + '\'' +
-                ", number='" + number + '\'' +
-                '}';
+               "location=" + location +
+               ", description='" + description + '\'' +
+               ", number='" + number + '\'' +
+               '}';
     }
 }

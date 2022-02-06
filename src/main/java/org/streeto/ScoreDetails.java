@@ -46,7 +46,7 @@ public class ScoreDetails {
         List<List<Double>> legDetails = getLegDetails();
         var titles = new ArrayList<>(featureScores.keySet());
         var header = titles.stream().map(title -> "\t" + formatName(title)).collect(Collectors.joining("", "Leg   Score     ", "\n"));
-         var ret = new StringBuilder(header);
+        var ret = new StringBuilder(header);
         forEachIndexed(legScores, (idx, score) ->
                 ret.append(String.format("%2s:   %7f   %s\n", (idx + 1), score, legDetails.get(idx).stream().map(it -> String.format("  %7f      ", it)).collect(Collectors.joining("", "", "")))));
 

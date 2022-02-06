@@ -54,6 +54,10 @@ public class CourseScorer {
         this.csf = csf;
     }
 
+    public static double getOverallScore(List<Double> legScores) {
+        return legScores.stream().mapToDouble(x -> Math.pow(x, 2)).average().orElse(0.0);
+    }
+
     public List<Double> scoreLegs(List<ControlSite> controls) {
         var featureScores = getFeatureScoresPerLeg(controls);
         return featureScores != null ? getWeightedLegScores(featureScores) : scoreAsWorst(controls);
@@ -111,9 +115,5 @@ public class CourseScorer {
         // side effects only folks - feeds the map
         forEachZipped(names, featureScores, results::put);
         return results;
-    }
-
-    public static double getOverallScore(List<Double> legScores) {
-        return legScores.stream().mapToDouble(x -> Math.pow(x, 2)).average().orElse(0.0);
     }
 }

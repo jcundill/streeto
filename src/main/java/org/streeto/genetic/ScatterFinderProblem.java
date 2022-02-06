@@ -6,20 +6,21 @@ import io.jenetics.Genotype;
 import io.jenetics.engine.Codec;
 import io.jenetics.engine.Problem;
 import io.jenetics.util.ISeq;
-import org.streeto.*;
-import org.streeto.constraints.*;
-import org.streeto.scorers.*;
-import org.streeto.tsp.BestSubsetOfTsp;
+import org.streeto.ControlSite;
+import org.streeto.ControlSiteFinder;
+import org.streeto.CourseSeeder;
+import org.streeto.StreetOPreferences;
+import org.streeto.constraints.CourseConstraint;
+import org.streeto.constraints.PrintableOnMapConstraint;
+import org.streeto.scorers.ControlSeparationScorer;
+import org.streeto.scorers.ControlSetScorer;
+import org.streeto.scorers.ScatterTspScorer;
+import org.streeto.scorers.StartNearTheCentreScorer;
 
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
-import static java.lang.Math.*;
-import static java.lang.Math.min;
-import static org.streeto.CourseScorer.getOverallScore;
-import static org.streeto.utils.CollectionHelpers.last;
-import static org.streeto.utils.CollectionHelpers.windowed;
+import static java.lang.Math.pow;
 
 class ScatterFinderProblem implements Problem<ISeq<ControlSite>, AnyGene<ISeq<ControlSite>>, Double> {
 
@@ -76,7 +77,7 @@ class ScatterFinderProblem implements Problem<ISeq<ControlSite>, AnyGene<ISeq<Co
         ISeq<ControlSite> course = null;
         boolean ok = false;
         while (!ok) {
-            course = ISeq.of(seeder.chooseInitialPoints(initialControls, totalControls, requestedDistance * totalControls/requestedNumControls));
+            course = ISeq.of(seeder.chooseInitialPoints(initialControls, totalControls, requestedDistance * totalControls / requestedNumControls));
             var route = csf.routeRequest(course.asList());
             ok = constraints.stream().allMatch(it -> it.test(route));
         }
@@ -84,7 +85,7 @@ class ScatterFinderProblem implements Problem<ISeq<ControlSite>, AnyGene<ISeq<Co
     }
 
     private Double courseFitness(ISeq<ControlSite> controls) {
-        if( controls.size() < requestedNumControls ) {
+        if (controls.size() < requestedNumControls) {
             return 0.0;
         }
         var route = csf.routeRequest(controls.asList());

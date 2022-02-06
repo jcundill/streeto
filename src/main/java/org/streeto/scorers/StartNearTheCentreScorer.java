@@ -10,7 +10,7 @@ import java.util.List;
 import static org.streeto.utils.CollectionHelpers.dropFirstAndLast;
 import static org.streeto.utils.DistUtils.dist;
 
-public class StartNearTheCentreScorer extends ControlSetScorer{
+public class StartNearTheCentreScorer extends ControlSetScorer {
 
     public StartNearTheCentreScorer(StreetOPreferences preferences) {
         super(preferences);

@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 import static java.lang.Math.abs;
 import static org.streeto.utils.CollectionHelpers.last;
 
-public class ScatterTspScorer extends ControlSetScorer{
+public class ScatterTspScorer extends ControlSetScorer {
     private final BestSubsetOfTsp tsp;
     private final int requestedNumControls;
     private final int iterations;
@@ -30,14 +30,14 @@ public class ScatterTspScorer extends ControlSetScorer{
     @Override
     public double score(List<ControlSite> controls) {
         var best = tsp.solve(controls, requestedNumControls, iterations);
-        if( best.isPresent() ) {
+        if (best.isPresent()) {
             var vehicleRoute = best.get().getTourActivities().getJobs();
             //route.forEach(j -> System.out.println(j.getId()));
             var sites = Stream.of(Stream.of(controls.get(0)),
                     vehicleRoute.stream().map(j -> controls.get(j.getIndex())), Stream.of(last(controls))).flatMap(s -> s).toList();
             //System.out.println(sites);
-           var  distance = csf.routeRequest(sites, 0).getBest().getDistance();
-           return 1.0 - abs(distance - requestedDistance) / requestedDistance;
+            var distance = csf.routeRequest(sites, 0).getBest().getDistance();
+            return 1.0 - abs(distance - requestedDistance) / requestedDistance;
         } else {
             return 0.0;
         }

@@ -22,12 +22,12 @@ class Point {
         this.code = code;
     }
 
-    public String toString() {
-        return "{\"latitude\":%s,\"longitude\":%s}".formatted(latitude, longitude);
-    }
-
     public static Point fromGraphHopperPoint(GHPoint ghPoint) {
         return new Point(ghPoint.getLat(), ghPoint.getLon());
+    }
+
+    public String toString() {
+        return "{\"latitude\":%s,\"longitude\":%s}".formatted(latitude, longitude);
     }
 
     public boolean isFake() {

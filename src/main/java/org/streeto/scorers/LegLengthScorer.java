@@ -38,7 +38,7 @@ public class LegLengthScorer extends AbstractLegScorer {
 
     public LegLengthScorer(StreetOPreferences preferences) {
         super(preferences);
-     }
+    }
 
     @Override
     public double getWeighting() {

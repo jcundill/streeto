@@ -63,9 +63,9 @@ public class ControlSiteFinder {
     private final Random rnd = RandomRegistry.random();
     private final StreetOPreferences preferences;
     private final RouteSimilarityFinder csim;
+    List<ControlSite> furniture;
     private int lastCSIMCellSize;
     private double lastCSIMThreshold;
-    List<ControlSite> furniture;
     private int hit = 0;
     private int miss = 0;
 
@@ -250,7 +250,7 @@ public class ControlSiteFinder {
         var lon1 = toRadians(loc.lon);
 
         var lat2 = asin(sin(lat1) * cos(dist / radiusOfEarth) +
-                cos(lat1) * sin(dist / radiusOfEarth) * Math.cos(bearing));
+                        cos(lat1) * sin(dist / radiusOfEarth) * Math.cos(bearing));
 
         var lon2 = lon1 + atan2(Math.sin(bearing) * sin(dist / radiusOfEarth) * cos(lat1),
                 cos(dist / radiusOfEarth) - sin(lat1) * sin(lat2));

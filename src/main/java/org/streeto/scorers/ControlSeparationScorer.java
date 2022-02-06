@@ -25,22 +25,13 @@
 
 package org.streeto.scorers;
 
-import com.graphhopper.GHResponse;
-import com.graphhopper.ResponsePath;
-import com.graphhopper.util.shapes.GHPoint3D;
-import org.jetbrains.annotations.NotNull;
 import org.streeto.ControlSite;
 import org.streeto.StreetOPreferences;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.lang.Math.pow;
-import static org.streeto.utils.CollectionHelpers.*;
 import static org.streeto.utils.DistUtils.dist;
-import static org.streeto.utils.DistUtils.getDistanceFromLine;
 
 public class ControlSeparationScorer extends ControlSetScorer {
 
@@ -52,10 +43,10 @@ public class ControlSeparationScorer extends ControlSetScorer {
      * works out if controls are too close to each other
      * and scores the relevant controls badly if they are
      */
-     public double score(List<ControlSite> controls) {
-         var tooCloseInstances =  controls.stream().map(c -> controls.stream()
-                 .anyMatch(c2 -> (dist(c2.getLocation(), c.getLocation()) < preferences.getMinControlSeparation() && c2 != c)) ? 0.0 : 1.0).mapToDouble(Double::doubleValue).sum();
-         var allInstances = pow(controls.size(), 2);
-         return tooCloseInstances / allInstances;
-     }
+    public double score(List<ControlSite> controls) {
+        var tooCloseInstances = controls.stream().map(c -> controls.stream()
+                .anyMatch(c2 -> (dist(c2.getLocation(), c.getLocation()) < preferences.getMinControlSeparation() && c2 != c)) ? 0.0 : 1.0).mapToDouble(Double::doubleValue).sum();
+        var allInstances = pow(controls.size(), 2);
+        return tooCloseInstances / allInstances;
+    }
 }

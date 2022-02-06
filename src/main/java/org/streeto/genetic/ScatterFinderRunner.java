@@ -15,7 +15,6 @@ import org.streeto.StreetOPreferences;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 
 public class ScatterFinderRunner {
     private final ControlSiteFinder csf;

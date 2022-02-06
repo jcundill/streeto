@@ -10,7 +10,6 @@ import com.graphhopper.jsprit.core.problem.solution.route.VehicleRoute;
 import com.graphhopper.jsprit.core.problem.vehicle.VehicleImpl;
 import com.graphhopper.jsprit.core.problem.vehicle.VehicleType;
 import com.graphhopper.jsprit.core.problem.vehicle.VehicleTypeImpl;
-import com.graphhopper.jsprit.core.reporting.SolutionPrinter;
 import com.graphhopper.jsprit.core.util.Solutions;
 import com.graphhopper.jsprit.core.util.VehicleRoutingTransportCostsMatrix;
 import org.streeto.ControlSite;
@@ -19,10 +18,8 @@ import org.streeto.ControlSiteFinder;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import static org.streeto.utils.CollectionHelpers.*;
-import static org.streeto.utils.CollectionHelpers.dropFirstAndLast;
 
 public class BestSubsetOfTsp {
 

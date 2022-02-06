@@ -5,12 +5,12 @@ import java.util.Objects;
 import static org.streeto.csim.MGRSConverter.convertToLatLon;
 
 class Cell {
+    private final int cellSize;
     public int frequency;
     public int X, Y;
     public boolean fake;
     public String zone;
     public double latitude = -1000, longitude = -1000; //illegal values
-    private final int cellSize;
 
     Cell(int X, int Y, boolean fake, String code, int cellSize) {
         frequency = 1;
@@ -34,11 +34,12 @@ class Cell {
         frequency++;
     }
 
-    public String toString() {
-        //getLocation();
-        return "{\"code\":" + code() + "," + "\"X\":" + X + "," + "\"Y\":" + Y + ","
-               + "\"frequency\":" + frequency + "," + "\"fake\":" + fake + ",\"latitude\":" + latitude + ",\"longitude\":" + longitude + "}";
-        //return code()+" ";
+    @Override
+    public int hashCode() {
+        int result = X;
+        result = 31 * result + Y;
+        result = 31 * result + (zone != null ? zone.hashCode() : 0);
+        return result;
     }
 
     @Override
@@ -53,12 +54,11 @@ class Cell {
         return Objects.equals(zone, cell.zone);
     }
 
-    @Override
-    public int hashCode() {
-        int result = X;
-        result = 31 * result + Y;
-        result = 31 * result + (zone != null ? zone.hashCode() : 0);
-        return result;
+    public String toString() {
+        //getLocation();
+        return "{\"code\":" + code() + "," + "\"X\":" + X + "," + "\"Y\":" + Y + ","
+               + "\"frequency\":" + frequency + "," + "\"fake\":" + fake + ",\"latitude\":" + latitude + ",\"longitude\":" + longitude + "}";
+        //return code()+" ";
     }
 
     public String code() {

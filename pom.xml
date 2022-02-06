@@ -47,6 +47,11 @@
             <id>sonatype</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </repository>
+        <repository>
+            <id>isula</id>
+            <url>https://packagecloud.io/cgavidia/isula/maven2
+            </url>
+        </repository>
     </repositories>
 
     <build>
@@ -349,6 +354,11 @@
             <groupId>com.github.vandeseer</groupId>
             <artifactId>easytable</artifactId>
             <version>0.8.5</version>
+        </dependency>
+        <dependency>
+            <groupId>isula</groupId>
+            <artifactId>isula</artifactId>
+            <version>2.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
