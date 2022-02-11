@@ -35,6 +35,7 @@ public class ControlSite {
     private String number;
 
     private ControlType type;
+    private int value = 2000;
 
     public ControlSite(GHPoint p, String description) {
         this(p, description, ControlType.UNCHECKED);
@@ -71,12 +72,20 @@ public class ControlSite {
         this.type = type;
     }
 
+    public int getValue() {
+        return value;
+    }
+
+    public void setValue(int value) {
+        this.value = value;
+    }
 
     @Override
     public int hashCode() {
         int result = location.hashCode();
         result = 31 * result + (description != null ? description.hashCode() : 0);
         result = 31 * result + (number != null ? number.hashCode() : 0);
+        result = 31 * result + value;
         return result;
     }
 
@@ -90,6 +99,7 @@ public class ControlSite {
         if (location.lon != that.location.lon) return false;
         if (location.lat != that.location.lat) return false;
         if (!Objects.equals(description, that.description)) return false;
+        if (!Objects.equals(value, that.value)) return false;
         return Objects.equals(number, that.number);
     }
 
@@ -99,6 +109,10 @@ public class ControlSite {
                "location=" + location +
                ", description='" + description + '\'' +
                ", number='" + number + '\'' +
+               ", type=" + type +
+               ", value=" + value +
                '}';
     }
+
+
 }

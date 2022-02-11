@@ -47,7 +47,6 @@ public class BestSubsetOfTsp {
                 .build();
 
         var locations = renumbered.stream().map(c -> Location.newInstance(c.getNumber())).toList();
-
         VehicleImpl vehicle = VehicleImpl.Builder.newInstance("vehicle")
                 .setStartLocation(locations.get(0)).setType(type).build();
 
@@ -77,6 +76,7 @@ public class BestSubsetOfTsp {
         VehicleRoutingAlgorithm vra = Jsprit.createAlgorithm(vrp);
 
         vra.setMaxIterations(iterations);
+
         Collection<VehicleRoutingProblemSolution> solutions = vra.searchSolutions();
 
         //SolutionPrinter.print(Solutions.bestOf(solutions));
