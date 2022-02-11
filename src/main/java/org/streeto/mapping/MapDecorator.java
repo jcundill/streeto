@@ -128,15 +128,17 @@ public class MapDecorator {
     private void paintControls(PDPageContentStream content, List<ControlSite> controls, List<float[]> positions) throws IOException {
         String firstNum = first(controls).getNumber();
         String lastNum = last(controls).getNumber();
+        int firstValue = first(controls).getValue();
+        int lastValue = last(controls).getValue();
         if (firstNum.equals("S1")) {
             drawStart(content, positions.get(0), positions.get(1));
         } else {
-            drawControl(content, firstNum, first(positions));
+            drawControl(content, firstNum, firstValue, first(positions));
         }
         if (lastNum.equals("F1")) {
             drawFinish(content, last(positions));
         } else {
-            drawControl(content, lastNum, last(positions));
+            drawControl(content, lastNum, lastValue, last(positions));
         }
         drawControls(content, controls, positions);
     }
@@ -176,7 +178,8 @@ public class MapDecorator {
         var positions = offsetsInPts.subList(1, offsetsInPts.size() - 1);
         forEachIndexed(positions, (index, position) -> {
             try {
-                drawControl(content, controls.get(index + 1).getNumber(), position);
+                ControlSite controlSite = controls.get(index + 1);
+                drawControl(content, controlSite.getNumber(), controlSite.getValue(), position);
             } catch (IOException e) {
                 // ignore
             }
@@ -185,7 +188,7 @@ public class MapDecorator {
         var legs = windowed(controls, 2).collect(Collectors.toList());
         var offsets = windowed(offsetsInPts, 2).collect(Collectors.toList());
         forEachZipped(legs, offsets, (leg, pts) -> {
-            if (isSequential(leg)) {
+            if (isSequential(leg) && first(leg).getValue() == 0 && last(leg).getValue() == 0) {
                 try {
                     drawLine(content, pts);
                 } catch (IOException e) {
@@ -240,10 +243,14 @@ public class MapDecorator {
         drawCircle(content, last, 9.5f);
     }
 
-    private void drawControl(PDPageContentStream content, String number, float[] position) throws IOException {
+    private void drawControl(PDPageContentStream content, String number, int value, float[] position) throws IOException {
         drawCircle(content, position, 1.0f);
         drawCircle(content, position, 12.0f);
-        drawNumber(content, number, position);
+        var str =  String.format("%02d", Integer.parseInt(number));
+        if (value != 0) {
+            str = String.format("%02d/%d", Integer.parseInt(number), value/100);
+        }
+        drawNumber(content, str, position);
     }
 
     private void drawCircle(PDPageContentStream content, float[] position, float r) throws IOException {

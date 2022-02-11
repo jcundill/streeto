@@ -2,10 +2,7 @@ package org.streeto.ui
 
 import com.graphhopper.util.shapes.GHPoint
 import javafx.beans.binding.BooleanExpression
-import javafx.beans.property.SimpleDoubleProperty
-import javafx.beans.property.SimpleListProperty
-import javafx.beans.property.SimpleObjectProperty
-import javafx.beans.property.SimpleStringProperty
+import javafx.beans.property.*
 import org.streeto.ControlSite
 import org.streeto.csim.SimilarityResult
 import tornadofx.*
@@ -129,10 +126,11 @@ class ControlViewModel : ItemViewModel<Control>() {
 }
 
 fun ControlSite.toControl(): Control {
-    return Control(this.number, this.description, this.location.lat, this.location.lon)
+     return Control(this.number, this.description, this.value, this.location.lat, this.location.lon)
 }
 
-class Control(number: String?, description: String?, lat: Double?, lon: Double?) : Point(lat, lon) {
+class Control(number: String?, description: String?, value: Int?, lat: Double?, lon: Double?) : Point(lat, lon) {
+    val value = SimpleIntegerProperty(value ?: 0)
     val numberProperty = SimpleStringProperty(number ?: "")
     var number by numberProperty
 

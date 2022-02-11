@@ -101,8 +101,16 @@ class ThunkingLayer(val browser: WebEngine) {
 
     private fun asLatLonObj(ctrl: Point) = "{lat:${ctrl.lat}, lon:${ctrl.lon}}"
 
-    private fun asNumberedControl(ctrl: Control) =
-        "{lat:${ctrl.lat}, lon:${ctrl.lon}, number:'${ctrl.number}'}"
+    private fun asNumberedControl(ctrl: Control): String{
+        var str = ctrl.number
+        if( str != "S1" && str != "F1") {
+            str = "%02d".format(ctrl.number.toInt())
+            if (ctrl.value.value != 0) {
+                str += "/%02d".format(ctrl.value.value / 100)
+            }
+        }
+        return "{lat:${ctrl.lat}, lon:${ctrl.lon}, number:'${str}'}"
+    }
 
     private fun asPoint(ans: Any): Point {
         val ret = ans.toString().split(",") // lon, lat

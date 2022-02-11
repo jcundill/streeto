@@ -86,7 +86,9 @@ export function paintCourse(ctrls, courseSource) {
             const ctrl = ctrls[index];
             const prev = ctrls[index -1];
             drawControl(courseSource, ctrl.lat, ctrl.lon, ctrl.number);
-            drawLine(courseSource, prev.lat, prev.lon, ctrl.lat, ctrl.lon);
+            if( ctrl.number.indexOf("/") < 0  && prev.number.indexOf("/") < 0 ) {
+                drawLine(courseSource, prev.lat, prev.lon, ctrl.lat, ctrl.lon);
+            }
         };
 
         const last = ctrls[ctrls.length - 2];
