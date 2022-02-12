@@ -30,6 +30,8 @@ public class ScatterTspScorer extends ControlSetScorer {
     public double score(List<ControlSite> controls) {
         var result = new OrienteeringProblemSolver(csf).solve(controls, requestedDistance, iterations);
          var distance = result.distance();
-         return 1.0 - abs(distance - requestedDistance) / requestedDistance;
+         var maxScore = controls.stream().mapToInt(ControlSite::getValue).sum();
+         var scoreRatio = (result.score() * 1.0) / (maxScore * 1.0);
+         return (1.0 - abs(distance - requestedDistance) / requestedDistance) * scoreRatio;
      }
 }

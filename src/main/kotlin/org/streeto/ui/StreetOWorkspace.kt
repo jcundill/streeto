@@ -328,9 +328,9 @@ class StreetOWorkspace : Workspace("StreetO") {
                 }
             }
             separator()
-            item("Seed Scatter Course") {
+            item("Seed Score Course") {
                 action {
-                    dialog("Scatter Course") {
+                    dialog("Score Course") {
                         var distance = SimpleDoubleProperty(5000.0)
                         var totalControls = SimpleIntegerProperty(10)
                         var numForCourse = SimpleIntegerProperty(7)

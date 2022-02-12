@@ -78,6 +78,9 @@ export function paintCourse(ctrls, courseSource) {
 
     if( ctrls.length > 1) {  //have at least got start and finish
         var angle = getAngle(ctrls[0], ctrls[1]);
+        if( ctrls[1].number.indexOf("/") > 0) {
+            angle = 0
+        }
         drawStart(courseSource, ctrls[0].lat, ctrls[0].lon, angle);
         const finish = ctrls[ctrls.length - 1];
         drawFinish(courseSource, finish.lat, finish.lon);
@@ -92,7 +95,9 @@ export function paintCourse(ctrls, courseSource) {
         };
 
         const last = ctrls[ctrls.length - 2];
-        drawLine(courseSource, last.lat, last.lon, finish.lat, finish.lon);
+        if( last.number.indexOf("/") < 0  && finish.number.indexOf("/") < 0 ) {
+            drawLine(courseSource, last.lat, last.lon, finish.lat, finish.lon);
+        }
     }
 }
 
