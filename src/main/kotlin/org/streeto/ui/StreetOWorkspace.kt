@@ -323,7 +323,7 @@ class StreetOWorkspace : Workspace("StreetO") {
                 enableWhen(haveControls)
                 action {
                     runAsync {
-                        courseController.scoreControls()
+                        courseController.scoreControls(courseController.route)
                     }
                 }
             }
@@ -371,8 +371,11 @@ class StreetOWorkspace : Workspace("StreetO") {
                                             if (maybeSites.isPresent) {
                                                 val sites = maybeSites.get()
                                                 courseController.initialiseCourse(sites)
-                                                courseController.runVrp(numForCourse.value)
-                                                courseController.updateViewModel()
+                                                val route = courseController.runVrp(distance.value)
+                                                val obs = route.map { it.toControl() }
+                                                courseController.route = SortedFilteredList(obs.asObservable())
+                                                courseController.analyseCourse(courseController.route)
+                                                courseController.requestedDistance = distance
 
                                                 fire(CourseUpdatedEvent)
                                                 fire(ZoomToFitCourseEvent)

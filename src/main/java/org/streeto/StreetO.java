@@ -41,6 +41,7 @@ import org.streeto.osmdata.MapDataRepository;
 import org.streeto.osmdata.PbfFinder;
 import org.streeto.osmdata.PbfInfo;
 import org.streeto.tsp.BestSubsetOfTsp;
+import org.streeto.tsp.OrienteeringProblemSolver;
 
 import java.io.*;
 import java.util.*;
@@ -228,16 +229,10 @@ public class StreetO {
         return scorer.score(controls);
     }
 
-    public Optional<List<Integer>> runVRP(List<ControlSite> controls, int capacity, int iterations) {
-        var solver = new BestSubsetOfTsp(csf);
-        var best = solver.solve(controls, capacity, iterations);
-        if( best.isPresent() ) {
-            var vehicleRoute = best.get();
-            var route = vehicleRoute.getTourActivities().getJobs();
-            return Optional.of(route.stream().map(Job::getIndex).collect(toList()));
-         } else {
-            return Optional.empty();
-        }
+    public List<ControlSite> runVRP(List<ControlSite> controls, double distance, int iterations) {
+        var solver = new OrienteeringProblemSolver(csf);
+        var best = solver.solve(controls, distance, iterations);
+        return best.path();
     }
 
     public void findFurniture(GHPoint start) {

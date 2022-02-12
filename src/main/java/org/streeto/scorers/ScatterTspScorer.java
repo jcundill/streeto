@@ -28,12 +28,8 @@ public class ScatterTspScorer extends ControlSetScorer {
 
     @Override
     public double score(List<ControlSite> controls) {
-        var result = new OrienteeringProblemSolver(csf).solve(controls, requestedNumControls, iterations);
+        var result = new OrienteeringProblemSolver(csf).solve(controls, requestedDistance, iterations);
          var distance = result.distance();
-         if(distance > requestedDistance) {
-            return 1.0 - abs(distance - requestedDistance) / requestedDistance;
-        } else {
-            return 0.0;
-        }
-    }
+         return 1.0 - abs(distance - requestedDistance) / requestedDistance;
+     }
 }

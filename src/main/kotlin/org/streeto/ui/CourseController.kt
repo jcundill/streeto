@@ -7,6 +7,7 @@ import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
+import javafx.collections.ObservableList
 import org.streeto.ControlSite
 import org.streeto.Course
 import org.streeto.StreetO
@@ -38,6 +39,7 @@ import kotlin.math.roundToInt
 class CourseController : Controller() {
     var controlList = SortedFilteredList<Control>()
     var legList = SortedFilteredList<ScoredLeg>()
+    var route = SortedFilteredList<Control>()
 
     private val preferencesController: PreferencesHandler by inject()
     private val osmDataController: OsmDataController by inject()
@@ -96,10 +98,10 @@ class CourseController : Controller() {
         return streetO.generateCourse(requestedDistance, numControls, initial)
     }
 
-    fun analyseCourse() {
-        generateLegs()
-        scoreControls()
-        updateViewModel()
+    fun analyseCourse(route: ObservableList<Control> = controlList.items) {
+        generateLegs(route)
+        scoreControls(route)
+        updateViewModel(route)
     }
 
     fun generateFromControls(): Optional<List<ControlSite>> {
@@ -121,14 +123,15 @@ class CourseController : Controller() {
         return streetO.generateScatterCourse(distance, totalControls, requiredControls, iterations, controlList.items.map { it.toControlSite() })
     }
 
-    fun updateViewModel() {
+    fun updateViewModel(route: ObservableList<Control>) {
         val sites = controlList.items.map(Control::toControlSite)
+        val track = route.map { it.toControlSite() }
         courseDetailsViewModel.name.value = courseName.value
         courseDetailsViewModel.numControls.value = controlList.size - 2
         courseDetailsViewModel.requestedDistance.value = requestedDistance.value
         courseDetailsViewModel.distanceTolerance.value = preferences.allowedCourseLengthDeltaProperty.value
-        courseDetailsViewModel.bestDistance.value = streetO.routeControls(sites).distance
-        courseDetailsViewModel.crowFliesDistance.value = windowed(sites, 2)
+        courseDetailsViewModel.bestDistance.value = streetO.routeControls(track).distance
+        courseDetailsViewModel.crowFliesDistance.value = windowed(track, 2)
             .map { dist(it[0].location, it[1].location) }.toList().sum()
         courseDetailsViewModel.mapScaleA3.value = streetO.getMapBoxFor(sites, PaperSize.A3)?.scale ?: 20000.0
         courseDetailsViewModel.mapScaleA4.value = streetO.getMapBoxFor(sites, PaperSize.A4)?.scale ?: 20000.0
@@ -144,8 +147,8 @@ class CourseController : Controller() {
         renumberControls()
     }
 
-    fun scoreControls() {
-        val sites = controlList.items.map(Control::toControlSite)
+    fun scoreControls(route: ObservableList<Control>) {
+        val sites = route.map(Control::toControlSite)
         val details = streetO.score(sites)
         //TODO: details can be null
         courseDetailsViewModel.overallScore.value = details.overallScore
@@ -157,20 +160,21 @@ class CourseController : Controller() {
         }
     }
 
-    private fun generateLegs() {
+    private fun generateLegs(route: ObservableList<Control>) {
         legList.clear()
-        val legs = windowed(controlList.items, 2).map { it ->
+        val ctrls: List<ControlSite> = route.map(Control::toControlSite)
+        val legs = windowed(ctrls, 2).map { it ->
             val start = first(it)
             val end = last(it)
             val routeChoices =
-                streetO.getLegRoutes(start.toControlSite(), end.toControlSite()).sortedBy { c -> c.distance }
+                streetO.getLegRoutes(start, end).sortedBy { c -> c.distance }
             val pointLists = routeChoices.map { path ->
                 val points = path.points.map { p -> Point(p.lat, p.lon) }
                 PointList(points)
             }
             val distance = routeChoices.minOf { l -> l.distance }
             val choiceDetails = routeChoices.map { l -> getChoiceDetails(routeChoices.first(), l, distance) }
-            ScoredLeg(start, end, distance, pointLists, routeChoiceDetails = choiceDetails)
+            ScoredLeg(start.toControl(), end.toControl(), distance, pointLists, routeChoiceDetails = choiceDetails)
         }.toList()
         legs.forEach(legList::add)
     }
@@ -183,7 +187,7 @@ class CourseController : Controller() {
     }
 
     fun getRoute(): List<Point> {
-        val path: ResponsePath = streetO.routeControls(controlList.items.map { c -> c.toControlSite() })
+        val path: ResponsePath = streetO.routeControls(route.items.map { c -> c.toControlSite() })
         return iterableAsStream(path.points)
             .map { point -> Point(point.lat, point.lon) }
             .collect(Collectors.toList())
@@ -435,7 +439,7 @@ class CourseController : Controller() {
         courseFile.value = file
         courseName.value = file.nameWithoutExtension
         requestedDistance.value = courseDetailsViewModel.bestDistance.value.roundToInt().toDouble()
-        updateViewModel()
+        updateViewModel(controlList.items)
     }
 
     fun getGeoFabrikExtractFor(position: Point): Optional<PbfInfo> {
@@ -443,12 +447,9 @@ class CourseController : Controller() {
         return streetO.getGeoFabrikExtractDetailsFor(point)
     }
 
-    fun runVrp(numCourseControls: Int) {
-        val controlSites = controlList.map { c -> c.toControlSite() }
-        var maybeRoute = streetO.runVRP(controlSites, numCourseControls, 10000)
-        if (maybeRoute.isPresent) {
-            maybeRoute.get().forEach(::println)
-        }
-
+    fun runVrp(distance: Double): List<ControlSite> {
+        val controlSites = controlList.map { c -> c.toControlSite() }.dropLast(1)
+        val route = streetO.runVRP(controlSites, distance, 10000)
+        return route
     }
 }
